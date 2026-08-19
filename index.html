@@ -3,67 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMTC Instant Scanner</title>
+    <title>AMTC Attendance System</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 15px;
-        }
-        h2 { color: #0D47A1; margin-bottom: 5px; }
-        .card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            max-width: 420px;
-            margin: 0 auto;
-        }
-        #reader { width: 100%; border-radius: 10px; overflow: hidden; border: 3px solid #0D47A1; }
-        #result-box {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            background-color: #e3f2fd;
-            color: #0d47a1;
-            min-height: 50px;
-        }
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; padding: 0; background-color: #f4f6f9; }
+        .header { background: #0D47A1; color: white; padding: 15px; text-align: center; }
+        .header h2 { margin: 0; font-size: 20px; }
+        .container { display: flex; flex-wrap: wrap; padding: 15px; max-width: 1000px; margin: 0 auto; gap: 15px; }
+        .sidebar { flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .main-content { flex: 3; min-width: 300px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        select, input { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
+        label { font-weight: bold; color: #333; }
+        #reader { width: 100%; max-width: 380px; margin: 10px auto; border-radius: 10px; overflow: hidden; border: 3px solid #0D47A1; }
+        #result-box { margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; background-color: #e3f2fd; color: #0d47a1; text-align: center; }
         .success { background-color: #2e7d32 !important; color: white !important; }
         .error { background-color: #c62828 !important; color: white !important; }
-        .count-box { font-size: 14px; margin-top: 10px; color: #555; }
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #0D47A1;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+        .btn { background: #0D47A1; color: white; border: none; padding: 10px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-green { background: #2e7d32; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #0D47A1; color: white; }
+        .table-wrap { overflow-x: auto; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>📐 AMTC Teaching Center</h2>
-    <p style="margin-top:0; color:#666;">Zero-Delay Attendance Scanner</p>
+<div class="header">
+    <h2>📐 AMTC Attendance System</h2>
+</div>
 
-    <div id="reader"></div>
+<div class="container">
+    <div class="sidebar">
+        <label>메뉴 선택 (मेन्यू चुनें):</label>
+        <select id="menuSelect" onchange="switchMenu()">
+            <option value="scan">1. अटेंडेंस स्कैन करें (Live Scan)</option>
+            <option value="absent">2. अनुपस्थित लगाएं (Mark Absentees)</option>
+            <option value="update">3. मार्क्स एवं फीस अपडेट</option>
+            <option value="records">4. छात्र रिकॉर्ड्स देखें</option>
+        </select>
+    </div>
 
-    <div id="result-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
-    <div class="count-box">आज कुल उपस्थित बच्चे: <span id="total-count">0</span></div>
+    <div class="main-content">
+        <!-- 1. LIVE SCANNER -->
+        <div id="sec-scan">
+            <h3>📸 ऑटो-स्कैनर (कैमरा ऑन रखें)</h3>
+            <label>टेस्ट का हफ्ता:</label>
+            <input type="text" id="scanWeek" value="Week 1">
+            
+            <label>डिफ़ॉल्ट फीस स्टेटस:</label>
+            <select id="scanFee">
+                <option value="Unpaid">Unpaid</option>
+                <option value="Paid">Paid</option>
+            </select>
 
-    <button onclick="downloadCSV()">📥 Excel Record Download करें</button>
+            <div id="reader"></div>
+            <div id="result-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
+        </div>
+
+        <!-- 2. MARK ABSENTEES -->
+        <div id="sec-absent" style="display:none;">
+            <h3>🚫 अनुपस्थित बच्चे दर्ज करें</h3>
+            <label>टेस्ट का हफ्ता:</label>
+            <input type="text" id="absentWeek" value="Week 1">
+            <button class="btn" onclick="markAbsentees()">ऑटो-मार्क Absent</button>
+            <div id="absentMsg" style="margin-top:15px; font-weight:bold;"></div>
+        </div>
+
+        <!-- 3. MARKS & FEE UPDATE -->
+        <div id="sec-update" style="display:none;">
+            <h3>🔒 मार्क्स और फीस अपडेट</h3>
+            <label>टीचर सुरक्षा कोड (TEACHER-AMTC):</label>
+            <input type="password" id="teacherPass" placeholder="यहाँ पासकोड लिखें">
+
+            <label>छात्र चुनें:</label>
+            <select id="updateStudentSelect"></select>
+
+            <label>प्राप्त अंक (Obtained):</label>
+            <input type="number" id="updateMarksObt" value="0" min="0">
+
+            <label>कुल अंक (Total):</label>
+            <input type="number" id="updateMarksTot" value="30" min="1">
+
+            <label>फीस स्टेटस:</label>
+            <select id="updateFeeStatus">
+                <option value="Paid">Paid</option>
+                <option value="Unpaid">Unpaid</option>
+            </select>
+
+            <button class="btn btn-green" onclick="updateStudentMarks()">सेव करें</button>
+            <div id="updateMsg" style="margin-top:15px; font-weight:bold;"></div>
+        </div>
+
+        <!-- 4. VIEW DATABASE -->
+        <div id="sec-records" style="display:none;">
+            <h3>📊 पूरा रिकॉर्ड्स डेटाबेस</h3>
+            <button class="btn" onclick="downloadCSV()">📥 Excel/CSV फ़ाइल डाउनलोड करें</button>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Week</th>
+                            <th>Status</th>
+                            <th>Marks</th>
+                            <th>Fee</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Student Database
     const STUDENT_DATABASE = {
         "AMTC-101": "Ayush Kumar",
         "AMTC-102": "Monika Kumari",
@@ -82,27 +138,51 @@
         "AMTC-115": "Monika Kumari"
     };
 
-    let attendanceRecords = [];
+    const TEACHER_QR = "TEACHER-AMTC";
+    let records = JSON.parse(localStorage.getItem('amtc_records') || '[]');
+    let html5QrcodeScanner = null;
     let isProcessing = false;
 
-    // Loud Sharp Beep Sound
+    window.onload = function() {
+        const select = document.getElementById('updateStudentSelect');
+        for (let id in STUDENT_DATABASE) {
+            let opt = document.createElement('option');
+            opt.value = id;
+            opt.innerText = `${STUDENT_DATABASE[id]} (${id})`;
+            select.appendChild(opt);
+        }
+        startScanner();
+    };
+
+    function switchMenu() {
+        const val = document.getElementById('menuSelect').value;
+        document.getElementById('sec-scan').style.display = val === 'scan' ? 'block' : 'none';
+        document.getElementById('sec-absent').style.display = val === 'absent' ? 'block' : 'none';
+        document.getElementById('sec-update').style.display = val === 'update' ? 'block' : 'none';
+        document.getElementById('sec-records').style.display = val === 'records' ? 'block' : 'none';
+
+        if (val === 'records') renderRecords();
+    }
+
     function playLoudBeep() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-            
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-            
             osc.start();
             osc.stop(audioCtx.currentTime + 0.25);
-        } catch(e) {
-            console.log("Audio Error:", e);
+        } catch(e) {}
+    }
+
+    function startScanner() {
+        if (!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: { width: 230, height: 230 }, facingMode: "environment" }, false);
+            html5QrcodeScanner.render(onScanSuccess);
         }
     }
 
@@ -111,34 +191,32 @@
         isProcessing = true;
 
         const sid = decodedText.trim().toUpperCase();
+        const week = document.getElementById('scanWeek').value;
+        const fee = document.getElementById('scanFee').value;
         const resBox = document.getElementById('result-box');
 
         playLoudBeep();
 
         if (STUDENT_DATABASE[sid]) {
             const name = STUDENT_DATABASE[sid];
-            const time = new Date().toLocaleTimeString();
-            const date = new Date().toLocaleDateString();
+            const date = new Date().toLocaleDateString('en-GB');
 
-            // Duplicate Check
-            const exists = attendanceRecords.some(r => r.id === sid);
+            const exists = records.some(r => r.Student_ID === sid && r.Test_Week === week && r.Attendance === 'Present');
 
             if (exists) {
                 resBox.className = "error";
-                resBox.innerHTML = `⚠️ ${name}<br>अटेंडेंस पहले से दर्ज है!`;
+                resBox.innerHTML = `⚠️ ${name} (${sid}) की अटेंडेंस पहले से दर्ज है!`;
             } else {
-                attendanceRecords.push({ date, time, id: sid, name, status: "Present" });
-                document.getElementById('total-count').innerText = attendanceRecords.length;
-
+                records.push({ Date: date, Student_ID: sid, Name: name, Test_Week: week, Attendance: "Present", Marks_Obtained: "Pending", Total_Marks: "--", Test_Fee: fee });
+                localStorage.setItem('amtc_records', JSON.stringify(records));
                 resBox.className = "success";
-                resBox.innerHTML = `🎉 ATTENDANCE SUCCESS!<br>${name} (${sid})`;
+                resBox.innerHTML = `🎉 ATTENDANCE SUCCESSFUL!<br>नाम: ${name} (${sid})`;
             }
         } else {
             resBox.className = "error";
             resBox.innerHTML = `❌ अमान्य QR कोड: ${decodedText}`;
         }
 
-        // Reset display after 2 seconds without reloading page!
         setTimeout(() => {
             resBox.className = "";
             resBox.style.backgroundColor = "#e3f2fd";
@@ -148,32 +226,78 @@
         }, 2200);
     }
 
-    // Start Camera Scanner
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader", 
-        { fps: 20, qrbox: { width: 230, height: 230 }, facingMode: "environment" },
-        false
-    );
-    html5QrcodeScanner.render(onScanSuccess);
+    function markAbsentees() {
+        const week = document.getElementById('absentWeek').value;
+        const date = new Date().toLocaleDateString('en-GB');
+        let count = 0;
 
-    // Download CSV Attendance Sheet
-    function downloadCSV() {
-        if (attendanceRecords.length === 0) {
-            alert("अभी तक कोई अटेंडेंस दर्ज नहीं हुई है!");
+        for (let sid in STUDENT_DATABASE) {
+            const exists = records.some(r => r.Student_ID === sid && r.Test_Week === week);
+            if (!exists) {
+                records.push({ Date: date, Student_ID: sid, Name: STUDENT_DATABASE[sid], Test_Week: week, Attendance: "Absent", Marks_Obtained: "0", Total_Marks: "--", Test_Fee: "Unpaid" });
+                count++;
+            }
+        }
+        localStorage.setItem('amtc_records', JSON.stringify(records));
+        document.getElementById('absentMsg').innerText = `✅ ${count} बच्चों की Absent मार्क हो गई!`;
+    }
+
+    function updateStudentMarks() {
+        const pass = document.getElementById('teacherPass').value;
+        const msg = document.getElementById('updateMsg');
+
+        if (pass.trim().toUpperCase() !== TEACHER_QR) {
+            msg.style.color = "red";
+            msg.innerText = "❌ Security Check Failed! अमान्य टीचर कोड।";
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,Date,Time,Student_ID,Name,Status\n";
-        attendanceRecords.forEach(r => {
-            csvContent += `${r.date},${r.time},${r.id},${r.name},${r.status}\n`;
+
+        const sid = document.getElementById('updateStudentSelect').value;
+        const obt = document.getElementById('updateMarksObt').value;
+        const tot = document.getElementById('updateMarksTot').value;
+        const fee = document.getElementById('updateFeeStatus').value;
+
+        let found = false;
+        records.forEach(r => {
+            if (r.Student_ID === sid) {
+                r.Marks_Obtained = obt;
+                r.Total_Marks = tot;
+                r.Test_Fee = fee;
+                found = true;
+            }
         });
-        const encodedUri = encodeURI(csvContent);
+
+        if (found) {
+            localStorage.setItem('amtc_records', JSON.stringify(records));
+            msg.style.color = "green";
+            msg.innerText = `✅ ${STUDENT_DATABASE[sid]} का डेटा सफलतापूर्वक अपडेट हो गया!`;
+        } else {
+            msg.style.color = "red";
+            msg.innerText = "❌ छात्र की अटेंडेंस रिकॉर्ड नहीं मिली!";
+        }
+    }
+
+    function renderRecords() {
+        const tbody = document.getElementById('recordsTableBody');
+        tbody.innerHTML = "";
+        records.forEach(r => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${r.Date}</td><td>${r.Student_ID}</td><td>${r.Name}</td><td>${r.Test_Week}</td><td>${r.Attendance}</td><td>${r.Marks_Obtained}/${r.Total_Marks}</td><td>${r.Test_Fee}</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function downloadCSV() {
+        if (records.length === 0) { alert("कोई डेटा उपलब्ध नहीं है!"); return; }
+        let csv = "Date,Student_ID,Name,Test_Week,Attendance,Marks_Obtained,Total_Marks,Test_Fee\n";
+        records.forEach(r => { csv += `${r.Date},${r.Student_ID},${r.Name},${r.Test_Week},${r.Attendance},${r.Marks_Obtained},${r.Total_Marks},${r.Test_Fee}\n`; });
+        const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `AMTC_Attendance_${new Date().toLocaleDateString()}.csv`);
+        link.setAttribute("download", "AMTC_Records.csv");
         document.body.appendChild(link);
         link.click();
     }
 </script>
-
 </body>
 </html>
