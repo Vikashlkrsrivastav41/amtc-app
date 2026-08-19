@@ -1,303 +1,949 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMTC Attendance System</title>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { margin: 0; padding: 0; background-color: #f4f6f9; }
-        .header { background: #0D47A1; color: white; padding: 15px; text-align: center; }
-        .header h2 { margin: 0; font-size: 20px; }
-        .container { display: flex; flex-wrap: wrap; padding: 15px; max-width: 1000px; margin: 0 auto; gap: 15px; }
-        .sidebar { flex: 1; min-width: 250px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        .main-content { flex: 3; min-width: 300px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        select, input { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
-        label { font-weight: bold; color: #333; }
-        #reader { width: 100%; max-width: 380px; margin: 10px auto; border-radius: 10px; overflow: hidden; border: 3px solid #0D47A1; }
-        #result-box { margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; background-color: #e3f2fd; color: #0d47a1; text-align: center; }
-        .success { background-color: #2e7d32 !important; color: white !important; }
-        .error { background-color: #c62828 !important; color: white !important; }
-        .btn { background: #0D47A1; color: white; border: none; padding: 10px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
-        .btn-green { background: #2e7d32; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #0D47A1; color: white; }
-        .table-wrap { overflow-x: auto; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>आयुष गणित शिक्षण केंद्र — Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --navy:#131B3A; --navy2:#1C2B57; --navy-soft:#26356A;
+    --cream:#FAF7F0; --paper:#FFFFFF;
+    --ink:#20263B; --slate:#6B7280; --slate-light:#9CA3AF;
+    --saffron:#F2A93B; --saffron-dark:#D98F1D;
+    --green:#2C9B67; --green-bg:#E7F6EE;
+    --red:#D64545; --red-bg:#FBEAEA;
+    --rule:#C9D9EE; --margin:#E3A6A6;
+    --radius:16px; --radius-sm:10px;
+    --shadow: 0 6px 24px rgba(19,27,58,0.08);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter','Noto Sans Devanagari',sans-serif;
+    padding-bottom:84px;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{font-family:'Poppins','Noto Sans Devanagari',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  ::selection{background:var(--saffron); color:var(--navy);}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    background:linear-gradient(155deg,var(--navy) 0%,var(--navy2) 100%);
+    color:#fff; padding:18px 18px 22px;
+    border-radius:0 0 22px 22px;
+    box-shadow:var(--shadow);
+    position:relative; overflow:hidden;
+  }
+  .topbar::after{
+    content:""; position:absolute; right:-40px; top:-40px;
+    width:160px; height:160px; border-radius:50%;
+    background:radial-gradient(circle, rgba(242,169,59,0.18), transparent 70%);
+  }
+  .topbar-row{display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1;}
+  .brand-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--saffron); font-weight:600; margin:0 0 4px;}
+  .brand-title{font-size:19px; font-weight:700; margin:0; line-height:1.25;}
+  .brand-sub{font-size:12px; color:#B9C2DD; margin:4px 0 0;}
+  .lock-badge{
+    display:flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14);
+    padding:7px 11px; border-radius:999px; font-size:12px; font-weight:600;
+    white-space:nowrap;
+  }
+  .lock-badge.unlocked{background:rgba(44,155,103,0.22); border-color:rgba(44,155,103,0.4); color:#B7EFD1;}
+
+  main{max-width:480px; margin:0 auto; padding:16px 14px 20px;}
+  .tab-section{display:none; animation:fadeIn .25s ease;}
+  .tab-section.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .card{
+    background:var(--paper); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:16px; margin-bottom:14px;
+  }
+  .card h2{font-size:15px; margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+  .card h2 svg{flex-shrink:0;}
+  .hint{font-size:12px; color:var(--slate); margin:-6px 0 12px;}
+
+  label{display:block; font-size:12.5px; font-weight:600; color:var(--slate); margin:0 0 6px;}
+  select, input[type=text], input[type=number], input[type=password]{
+    width:100%; padding:11px 12px; border-radius:var(--radius-sm);
+    border:1.5px solid #E5E1D6; background:#FCFBF8; color:var(--ink);
+    font-size:14.5px; font-family:inherit; margin-bottom:12px;
+    transition:border-color .15s;
+  }
+  select:focus, input:focus{outline:none; border-color:var(--saffron);}
+  .field-row{display:flex; gap:10px;}
+  .field-row > div{flex:1;}
+
+  button{
+    font-family:inherit; cursor:pointer; border:none; border-radius:var(--radius-sm);
+    font-weight:600; font-size:14px; transition:transform .1s, box-shadow .15s, background .15s;
+  }
+  button:active{transform:scale(.97);}
+  .btn-primary{
+    background:var(--saffron); color:var(--navy); padding:12px 16px; width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    box-shadow:0 4px 14px rgba(242,169,59,0.35);
+  }
+  .btn-primary:hover{background:var(--saffron-dark);}
+  .btn-primary:disabled{background:#E5E1D6; color:var(--slate-light); box-shadow:none; cursor:not-allowed;}
+  .btn-secondary{
+    background:var(--navy-soft); color:#fff; padding:11px 14px; width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-outline{
+    background:transparent; color:var(--navy); padding:10px 14px; width:100%;
+    border:1.5px solid #DCE0EA; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-danger{background:var(--red); color:#fff; padding:11px 14px;}
+  .btn-sm{padding:7px 10px; font-size:12.5px; width:auto;}
+  .btn-icon{background:transparent; padding:6px; border-radius:8px; display:inline-flex;}
+  .btn-icon:hover{background:#F1EEE5;}
+  .btn-row{display:flex; gap:8px; margin-top:8px;}
+  .btn-row > *{flex:1;}
+
+  #reader{border-radius:var(--radius-sm); overflow:hidden; margin-bottom:12px;}
+  #reader img{display:none;}
+
+  .result-box{
+    padding:14px; border-radius:var(--radius-sm); font-size:14px; font-weight:600;
+    text-align:center; transition:all .2s; background:#EEF3FB; color:var(--navy2);
+    line-height:1.5;
+  }
+  .result-box.success{background:var(--green-bg); color:var(--green);}
+  .result-box.error{background:var(--red-bg); color:var(--red);}
+
+  .counter-chip{
+    display:inline-flex; align-items:center; gap:6px; background:#EEF3FB; color:var(--navy2);
+    padding:6px 12px; border-radius:999px; font-size:12.5px; font-weight:600; margin-top:10px;
+  }
+  .counter-chip b{font-family:'JetBrains Mono',monospace; font-size:13px;}
+
+  /* teacher lock panel */
+  .unlock-hero{text-align:center; padding:14px 6px 6px;}
+  .unlock-hero svg{margin-bottom:8px;}
+  .unlock-hero p{font-size:13px; color:var(--slate); margin:6px 0 14px;}
+  .link-toggle{
+    background:none; border:none; color:var(--navy2); font-size:12.5px; font-weight:600;
+    text-decoration:underline; padding:8px 0; width:auto;
+  }
+  .unlocked-banner{
+    background:var(--green-bg); color:var(--green); padding:12px 14px; border-radius:var(--radius-sm);
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-weight:600; font-size:13.5px;
+  }
+
+  /* records table - ledger style */
+  .filter-row{display:flex; gap:8px; margin-bottom:10px;}
+  .summary-chips{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;}
+  .chip{background:#F1EEE5; padding:6px 11px; border-radius:999px; font-size:12px; font-weight:600; color:var(--navy2);}
+  .chip.green{background:var(--green-bg); color:var(--green);}
+  .chip.red{background:var(--red-bg); color:var(--red);}
+
+  .ledger-wrap{
+    background:repeating-linear-gradient(#fff, #fff 30px, var(--rule) 31px);
+    border-radius:var(--radius-sm); border:1px solid #EDE9DE; overflow-x:auto;
+    position:relative; padding-left:14px; border-left:2px solid var(--margin);
+  }
+  table{border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px;}
+  th{
+    text-align:left; padding:8px 8px; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--slate); position:sticky; top:0; background:#fff;
+  }
+  td{padding:6px 8px; height:30px; vertical-align:middle; color:var(--ink);}
+  tr td:first-child, tr th:first-child{padding-left:4px;}
+  .att-present{color:var(--green); font-weight:600;}
+  .att-absent{color:var(--red); font-weight:600;}
+  .del-btn{color:var(--red); background:none; border:none; cursor:pointer; font-size:14px; padding:2px 6px;}
+  .empty-state{text-align:center; padding:30px 12px; color:var(--slate); font-size:13px;}
+
+  /* manage / accordion */
+  details.accordion{
+    background:var(--paper); border-radius:var(--radius); box-shadow:var(--shadow);
+    margin-bottom:12px; overflow:hidden;
+  }
+  details.accordion summary{
+    list-style:none; cursor:pointer; padding:15px 16px; font-weight:700; font-size:14.5px;
+    display:flex; align-items:center; justify-content:space-between; font-family:'Poppins',sans-serif;
+  }
+  details.accordion summary::-webkit-details-marker{display:none;}
+  details.accordion summary .chev{transition:transform .2s;}
+  details.accordion[open] summary .chev{transform:rotate(90deg);}
+  .accordion-body{padding:0 16px 16px;}
+
+  .list-item{
+    display:flex; align-items:center; justify-content:space-between; padding:9px 0;
+    border-bottom:1px solid #F1EEE5; font-size:13.5px;
+  }
+  .list-item:last-child{border-bottom:none;}
+  .list-item .meta{color:var(--slate); font-size:11.5px;}
+  .tag{font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:999px; background:#EEF3FB; color:var(--navy2); margin-left:6px;}
+  .tag.monthly{background:#FBF1E0; color:var(--saffron-dark);}
+  .tag.yearly{background:#F3E8F7; color:#8C4DAF;}
+
+  #teacherQrPreview{display:flex; justify-content:center; padding:14px 0;}
+  #studentQrPrintArea{display:none;}
+
+  .toast-wrap{position:fixed; bottom:90px; left:50%; transform:translateX(-50%); z-index:999; display:flex; flex-direction:column; gap:8px; width:92%; max-width:440px;}
+  .toast{
+    background:var(--navy); color:#fff; padding:11px 16px; border-radius:12px; font-size:13px; font-weight:600;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25); animation:toastIn .2s ease; text-align:center;
+  }
+  .toast.success{background:var(--green);}
+  .toast.error{background:var(--red);}
+  @keyframes toastIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+  /* bottom nav */
+  nav.bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; background:var(--navy);
+    display:flex; justify-content:space-around; padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 18px rgba(0,0,0,0.18); z-index:50;
+  }
+  nav.bottom-nav button{
+    background:none; flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:#8791AC; padding:6px 2px; font-size:10.5px; font-weight:600;
+  }
+  nav.bottom-nav button.active{color:var(--saffron);}
+  nav.bottom-nav button svg{width:21px; height:21px;}
+
+  @media print{
+    nav.bottom-nav, .topbar, main{display:none !important;}
+    #studentQrPrintArea{display:block !important;}
+  }
+  #studentQrPrintArea{padding:20px;}
+  .qr-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .qr-cell{text-align:center; font-size:11px; font-family:'JetBrains Mono',monospace; break-inside:avoid;}
+  .qr-cell div.qrbox{display:flex; justify-content:center; margin-bottom:4px;}
+</style>
 </head>
 <body>
 
-<div class="header">
-    <h2>📐 AMTC Attendance System</h2>
+<div class="topbar">
+  <div class="topbar-row">
+    <div>
+      <p class="brand-eyebrow">Ayush Mathematics</p>
+      <h1 class="brand-title">आयुष गणित शिक्षण केंद्र</h1>
+      <p class="brand-sub">Attendance • Tests • Records</p>
+    </div>
+    <div id="lockBadge" class="lock-badge">
+      <span id="lockIcon">🔒</span><span id="lockText">Locked</span>
+    </div>
+  </div>
 </div>
 
-<div class="container">
-    <div class="sidebar">
-        <label>메뉴 선택 (मेन्यू चुनें):</label>
-        <select id="menuSelect" onchange="switchMenu()">
-            <option value="scan">1. अटेंडेंस स्कैन करें (Live Scan)</option>
-            <option value="absent">2. अनुपस्थित लगाएं (Mark Absentees)</option>
-            <option value="update">3. मार्क्स एवं फीस अपडेट</option>
-            <option value="records">4. छात्र रिकॉर्ड्स देखें</option>
+<main>
+
+  <!-- ===================== SCAN TAB ===================== -->
+  <section id="sec-scan" class="tab-section active">
+    <div class="card">
+      <h2>📷 अटेंडेंस स्कैन करें</h2>
+      <label>टेस्ट चुनें</label>
+      <select id="scanTest" onchange="onScanTestChange()"></select>
+      <label>फीस स्टेटस</label>
+      <select id="scanFee">
+        <option value="Paid">Paid ✅</option>
+        <option value="Unpaid">Unpaid ❌</option>
+        <option value="Pending">Pending ⏳</option>
+      </select>
+      <div id="scanCounter" class="counter-chip" style="display:none;">आज उपस्थित: <b id="presentCount">0</b></div>
+    </div>
+
+    <div class="card">
+      <div id="reader"></div>
+      <div id="result-box" class="result-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
+    </div>
+  </section>
+
+  <!-- ===================== TEACHER TAB ===================== -->
+  <section id="sec-teacher" class="tab-section">
+
+    <div id="teacherLockedView">
+      <div class="card unlock-hero">
+        <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#131B3A" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <h2 style="justify-content:center;">टीचर मोड लॉक है</h2>
+        <p>टीचर QR कोड स्कैन करके अनलॉक करें, या नीचे सुरक्षा कोड डालें।</p>
+        <div id="teacherReader"></div>
+        <button class="link-toggle" onclick="toggleManualUnlock()">कोड से अनलॉक करें ↓</button>
+        <div id="manualUnlockBox" style="display:none; margin-top:10px; text-align:left;">
+          <input type="password" id="manualCode" placeholder="सुरक्षा कोड डालें">
+          <button class="btn-primary" onclick="tryManualUnlock()">अनलॉक करें</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="teacherUnlockedView" style="display:none;">
+      <div class="unlocked-banner">
+        <span>🔓 टीचर मोड सक्रिय है</span>
+        <button class="btn-sm btn-outline" style="width:auto;" onclick="lockTeacher()">लॉक करें</button>
+      </div>
+
+      <div class="card">
+        <h2>🚫 अनुपस्थित मार्क करें</h2>
+        <label>टेस्ट चुनें</label>
+        <select id="absentTest"></select>
+        <button class="btn-secondary" onclick="markAbsentees()">बाकी सभी को Absent मार्क करें</button>
+        <p id="absentMsg" class="hint" style="margin-top:10px;"></p>
+      </div>
+
+      <div class="card">
+        <h2>✏️ मार्क्स व फीस अपडेट करें</h2>
+        <label>टेस्ट चुनें</label>
+        <select id="updateTest" onchange="refreshUpdateStudentOptions()"></select>
+        <label>छात्र चुनें</label>
+        <select id="updateStudentSelect"></select>
+        <div class="field-row">
+          <div><label>प्राप्त अंक</label><input type="number" id="updateMarksObt"></div>
+          <div><label>कुल अंक</label><input type="number" id="updateMarksTot"></div>
+        </div>
+        <label>फीस स्टेटस</label>
+        <select id="updateFeeStatus">
+          <option value="Paid">Paid ✅</option>
+          <option value="Unpaid">Unpaid ❌</option>
+          <option value="Pending">Pending ⏳</option>
         </select>
+        <button class="btn-primary" onclick="updateStudentMarks()">सेव करें</button>
+        <p id="updateMsg" class="hint" style="margin-top:10px;"></p>
+      </div>
     </div>
+  </section>
 
-    <div class="main-content">
-        <!-- 1. LIVE SCANNER -->
-        <div id="sec-scan">
-            <h3>📸 ऑटो-स्कैनर (कैमरा ऑन रखें)</h3>
-            <label>टेस्ट का हफ्ता:</label>
-            <input type="text" id="scanWeek" value="Week 1">
-            
-            <label>डिफ़ॉल्ट फीस स्टेटस:</label>
-            <select id="scanFee">
-                <option value="Unpaid">Unpaid</option>
-                <option value="Paid">Paid</option>
-            </select>
-
-            <div id="reader"></div>
-            <div id="result-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
-        </div>
-
-        <!-- 2. MARK ABSENTEES -->
-        <div id="sec-absent" style="display:none;">
-            <h3>🚫 अनुपस्थित बच्चे दर्ज करें</h3>
-            <label>टेस्ट का हफ्ता:</label>
-            <input type="text" id="absentWeek" value="Week 1">
-            <button class="btn" onclick="markAbsentees()">ऑटो-मार्क Absent</button>
-            <div id="absentMsg" style="margin-top:15px; font-weight:bold;"></div>
-        </div>
-
-        <!-- 3. MARKS & FEE UPDATE -->
-        <div id="sec-update" style="display:none;">
-            <h3>🔒 मार्क्स और फीस अपडेट</h3>
-            <label>टीचर सुरक्षा कोड (TEACHER-AMTC):</label>
-            <input type="password" id="teacherPass" placeholder="यहाँ पासकोड लिखें">
-
-            <label>छात्र चुनें:</label>
-            <select id="updateStudentSelect"></select>
-
-            <label>प्राप्त अंक (Obtained):</label>
-            <input type="number" id="updateMarksObt" value="0" min="0">
-
-            <label>कुल अंक (Total):</label>
-            <input type="number" id="updateMarksTot" value="30" min="1">
-
-            <label>फीस स्टेटस:</label>
-            <select id="updateFeeStatus">
-                <option value="Paid">Paid</option>
-                <option value="Unpaid">Unpaid</option>
-            </select>
-
-            <button class="btn btn-green" onclick="updateStudentMarks()">सेव करें</button>
-            <div id="updateMsg" style="margin-top:15px; font-weight:bold;"></div>
-        </div>
-
-        <!-- 4. VIEW DATABASE -->
-        <div id="sec-records" style="display:none;">
-            <h3>📊 पूरा रिकॉर्ड्स डेटाबेस</h3>
-            <button class="btn" onclick="downloadCSV()">📥 Excel/CSV फ़ाइल डाउनलोड करें</button>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Week</th>
-                            <th>Status</th>
-                            <th>Marks</th>
-                            <th>Fee</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recordsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
+  <!-- ===================== RECORDS TAB ===================== -->
+  <section id="sec-records" class="tab-section">
+    <div class="card">
+      <h2>📋 सभी रिकॉर्ड्स</h2>
+      <div class="filter-row">
+        <select id="filterTest" onchange="renderRecords()" style="margin-bottom:0;"></select>
+        <input type="text" id="searchBox" placeholder="नाम / ID खोजें" oninput="renderRecords()" style="margin-bottom:0;">
+      </div>
+      <div class="summary-chips" id="summaryChips"></div>
+      <div class="ledger-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>ID</th><th>Name</th><th>Test</th><th>Status</th><th>Marks</th><th>Fee</th><th></th></tr></thead>
+          <tbody id="recordsTableBody"></tbody>
+        </table>
+      </div>
+      <div class="btn-row">
+        <button class="btn-outline" onclick="downloadCSV()">⬇️ CSV</button>
+        <button class="btn-outline" onclick="exportBackup()">💾 Backup JSON</button>
+      </div>
     </div>
+  </section>
+
+  <!-- ===================== MANAGE TAB ===================== -->
+  <section id="sec-manage" class="tab-section">
+
+    <details class="accordion" open>
+      <summary>👤 छात्र (Students)<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <div class="field-row">
+          <div><label>Student ID</label><input type="text" id="newStudentId" placeholder="AMTC-116"></div>
+          <div><label>नाम</label><input type="text" id="newStudentName" placeholder="Name"></div>
+        </div>
+        <button class="btn-secondary" onclick="addStudent()">+ छात्र जोड़ें</button>
+        <div id="studentList" style="margin-top:12px;"></div>
+        <div class="btn-row">
+          <button class="btn-outline" onclick="printAllStudentQR()">🖨️ सभी के QR प्रिंट करें</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>🗂️ टेस्ट (Weekly / Monthly / Yearly)<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <label>टेस्ट का नाम</label>
+        <input type="text" id="newTestLabel" placeholder="जैसे: Week 5 / August Monthly Test">
+        <div class="field-row">
+          <div>
+            <label>टाइप</label>
+            <select id="newTestType">
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <div><label>कुल अंक</label><input type="number" id="newTestMax" value="25"></div>
+        </div>
+        <button class="btn-secondary" onclick="addTest()">+ टेस्ट जोड़ें</button>
+        <div id="testList" style="margin-top:12px;"></div>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>🔐 टीचर सुरक्षा कोड<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <p class="hint" style="margin-top:0;">यह कोड टीचर QR में सेव होगा। इसे प्रिंट करके अपने पास सुरक्षित रखें — इसे स्कैन करने पर ही मार्क्स/एब्सेंट एडिट होंगे।</p>
+        <label>सुरक्षा कोड टेक्स्ट</label>
+        <input type="text" id="teacherSecretInput">
+        <button class="btn-secondary" onclick="updateTeacherSecret()">कोड अपडेट करें व QR बनाएं</button>
+        <div id="teacherQrPreview"></div>
+        <div class="btn-row">
+          <button class="btn-outline" onclick="downloadTeacherQR()">⬇️ QR डाउनलोड करें</button>
+          <button class="btn-outline" onclick="window.print()">🖨️ प्रिंट करें</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>💾 डेटा (Backup / Reset)<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <div class="btn-row">
+          <button class="btn-outline" onclick="exportBackup()">⬇️ पूरा बैकअप (JSON)</button>
+        </div>
+        <label style="margin-top:12px;">बैकअप फाइल इम्पोर्ट करें</label>
+        <input type="file" id="importFile" accept=".json" onchange="importBackup(event)">
+        <button class="btn-danger" style="width:100%; margin-top:10px;" onclick="clearAllData()">⚠️ सारा डेटा हटाएं</button>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<div id="studentQrPrintArea">
+  <h2 style="font-family:Poppins,sans-serif;">आयुष गणित शिक्षण केंद्र — Student QR Codes</h2>
+  <div class="qr-grid" id="printQrGrid"></div>
 </div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="sec-scan" onclick="switchTab('sec-scan')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2M20 8V6a2 2 0 0 0-2-2h-2M20 16v2a2 2 0 0 1-2 2h-2"/><circle cx="12" cy="12" r="3.2"/></svg>
+    Scan
+  </button>
+  <button class="nav-btn" data-tab="sec-teacher" onclick="switchTab('sec-teacher')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>
+    Teacher
+  </button>
+  <button class="nav-btn" data-tab="sec-records" onclick="switchTab('sec-records')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+    Records
+  </button>
+  <button class="nav-btn" data-tab="sec-manage" onclick="switchTab('sec-manage')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.2a1.6 1.6 0 0 0-1.4 1z"/></svg>
+    Manage
+  </button>
+</nav>
 
 <script>
-    const STUDENT_DATABASE = {
-        "AMTC-101": "Ayush Kumar",
-        "AMTC-102": "Monika Kumari",
-        "AMTC-103": "Nishu kumari",
-        "AMTC-104": "Rohan kumar",
-        "AMTC-105": "Sebi kumari",
-        "AMTC-106": "Deepak kumar",
-        "AMTC-107": "Anjli kumari",
-        "AMTC-108": "Mushkan kumari",
-        "AMTC-109": "Shonakshi kumari",
-        "AMTC-110": "Ladu kumar",
-        "AMTC-111": "shroj kumar",
-        "AMTC-112": "Ravi ranjan kumar",
-        "AMTC-113": "Aaditya kumar",
-        "AMTC-114": "Rishu kumar",
-        "AMTC-115": "Monika Kumari"
-    };
+/* ==================== STORAGE / SEED DATA ==================== */
+const LS = {
+  students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret'
+};
 
-    const TEACHER_QR = "TEACHER-AMTC";
-    let records = JSON.parse(localStorage.getItem('amtc_records') || '[]');
-    let html5QrcodeScanner = null;
-    let isProcessing = false;
+const SEED_STUDENTS = [
+  {id:"AMTC-104", name:"Rohan kumar"},
+  {id:"AMTC-105", name:"Sebi kumari"},
+  {id:"AMTC-106", name:"Deepak kumar"},
+  {id:"AMTC-107", name:"Anjli kumari"},
+  {id:"AMTC-108", name:"Mushkan kumari"},
+  {id:"AMTC-109", name:"Shonakshi kumari"},
+  {id:"AMTC-110", name:"Ladu kumar"},
+  {id:"AMTC-111", name:"shroj kumar"},
+  {id:"AMTC-112", name:"Ravi ranjan kumar"},
+  {id:"AMTC-113", name:"Aaditya kumar"},
+  {id:"AMTC-114", name:"Rishu kumar"},
+  {id:"AMTC-115", name:"Monika Kumari"}
+];
 
-    window.onload = function() {
-        const select = document.getElementById('updateStudentSelect');
-        for (let id in STUDENT_DATABASE) {
-            let opt = document.createElement('option');
-            opt.value = id;
-            opt.innerText = `${STUDENT_DATABASE[id]} (${id})`;
-            select.appendChild(opt);
-        }
-        startScanner();
-    };
+const SEED_TESTS = [
+  {id:"wk1", label:"Week 1", type:"weekly", maxMarks:25},
+  {id:"wk2", label:"Week 2", type:"weekly", maxMarks:25},
+  {id:"wk3", label:"Week 3", type:"weekly", maxMarks:25},
+  {id:"wk4", label:"Week 4", type:"weekly", maxMarks:25}
+];
 
-    function switchMenu() {
-        const val = document.getElementById('menuSelect').value;
-        document.getElementById('sec-scan').style.display = val === 'scan' ? 'block' : 'none';
-        document.getElementById('sec-absent').style.display = val === 'absent' ? 'block' : 'none';
-        document.getElementById('sec-update').style.display = val === 'update' ? 'block' : 'none';
-        document.getElementById('sec-records').style.display = val === 'records' ? 'block' : 'none';
+function loadJSON(key, fallback){
+  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e){ return fallback; }
+}
+function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
 
-        if (val === 'records') renderRecords();
+let students = loadJSON(LS.students, null);
+if(!students){ students = SEED_STUDENTS; saveJSON(LS.students, students); }
+let tests = loadJSON(LS.tests, null);
+if(!tests){ tests = SEED_TESTS; saveJSON(LS.tests, tests); }
+let records = loadJSON(LS.records, []);
+let teacherSecret = localStorage.getItem(LS.secret) || "TEACHER-AMTC-2026";
+localStorage.setItem(LS.secret, teacherSecret);
+
+let teacherUnlocked = false; // resets every reload on purpose (security)
+let scanScanner = null, teacherScanner = null;
+let isProcessingScan = false, isProcessingTeacherScan = false;
+
+function studentName(id){ const s = students.find(s=>s.id===id); return s ? s.name : id; }
+function testById(id){ return tests.find(t=>t.id===id); }
+function genId(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*99); }
+
+/* ==================== TOASTS ==================== */
+function showToast(msg, type){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.innerText = msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 2600);
+}
+
+/* ==================== NAV ==================== */
+function switchTab(id){
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+
+  if(id==='sec-scan'){ populateTestSelects(); startScanScanner(); stopTeacherScanner(); }
+  else{ stopScanScanner(); }
+
+  if(id==='sec-teacher'){
+    populateTestSelects();
+    if(!teacherUnlocked) startTeacherScanner(); else stopTeacherScanner();
+  } else { stopTeacherScanner(); }
+
+  if(id==='sec-records'){ populateTestSelects(); renderRecords(); }
+  if(id==='sec-manage'){ renderStudentList(); renderTestList(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); }
+}
+
+/* ==================== TEST DROPDOWNS ==================== */
+function testOptionsHTML(includeAll){
+  const groups = {weekly:'Weekly', monthly:'Monthly', yearly:'Yearly'};
+  let html = includeAll ? '<option value="">— All Tests —</option>' : '<option value="">-- टेस्ट चुनें --</option>';
+  for(const key in groups){
+    const items = tests.filter(t=>t.type===key);
+    if(items.length===0) continue;
+    html += `<optgroup label="${groups[key]}">`;
+    items.forEach(t=> html += `<option value="${t.id}">${t.label}</option>`);
+    html += `</optgroup>`;
+  }
+  return html;
+}
+function populateTestSelects(){
+  const single = ['scanTest','absentTest','updateTest'];
+  single.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const prev = el.value;
+    el.innerHTML = testOptionsHTML(false);
+    if(tests.some(t=>t.id===prev)) el.value = prev;
+  });
+  const filterEl = document.getElementById('filterTest');
+  if(filterEl){
+    const prev = filterEl.value;
+    filterEl.innerHTML = testOptionsHTML(true);
+    if(!prev || tests.some(t=>t.id===prev)) filterEl.value = prev;
+  }
+  updatePresentCounter();
+}
+function onScanTestChange(){ updatePresentCounter(); }
+function updatePresentCounter(){
+  const testId = document.getElementById('scanTest').value;
+  const box = document.getElementById('scanCounter');
+  if(!testId){ box.style.display='none'; return; }
+  const count = records.filter(r=>r.testId===testId && r.attendance==='Present').length;
+  document.getElementById('presentCount').innerText = count;
+  box.style.display='inline-flex';
+}
+
+/* ==================== SCAN (ATTENDANCE) ==================== */
+function playLoudBeep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type='sawtooth'; osc.frequency.setValueAtTime(1200, ctx.currentTime);
+    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime+0.25);
+  }catch(e){}
+}
+
+function startScanScanner(){
+  if(scanScanner) return;
+  scanScanner = new Html5QrcodeScanner("reader", {fps:20, qrbox:{width:230,height:230}, facingMode:"environment"}, false);
+  scanScanner.render(onScanSuccess);
+}
+function stopScanScanner(){
+  if(scanScanner){ try{ scanScanner.clear(); }catch(e){} scanScanner=null; }
+}
+
+function onScanSuccess(decodedText){
+  if(isProcessingScan) return;
+  const testId = document.getElementById('scanTest').value;
+  const resBox = document.getElementById('result-box');
+  if(!testId){
+    resBox.className='result-box error';
+    resBox.innerHTML = '⚠️ पहले टेस्ट चुनें!';
+    return;
+  }
+  isProcessingScan = true;
+  const sid = decodedText.trim().toUpperCase();
+  const fee = document.getElementById('scanFee').value;
+  const test = testById(testId);
+  playLoudBeep();
+
+  if(sid === teacherSecret.toUpperCase()){
+    resBox.className='result-box error';
+    resBox.innerHTML = '⚠️ यह टीचर QR है — Teacher टैब में स्कैन करें।';
+  } else if(students.some(s=>s.id===sid)){
+    const name = studentName(sid);
+    const date = new Date().toLocaleDateString('en-GB');
+    const exists = records.some(r=>r.studentId===sid && r.testId===testId && r.attendance==='Present');
+    if(exists){
+      resBox.className='result-box error';
+      resBox.innerHTML = `⚠️ ${name} (${sid}) की अटेंडेंस पहले से दर्ज है!`;
+    } else {
+      records.push({date, studentId:sid, name, testId, testLabel:test.label, testType:test.type,
+        attendance:'Present', marksObtained:'', totalMarks:test.maxMarks, fee});
+      saveJSON(LS.records, records);
+      resBox.className='result-box success';
+      resBox.innerHTML = `🎉 ATTENDANCE SUCCESSFUL!<br>नाम: ${name} (${sid})`;
+      updatePresentCounter();
     }
+  } else {
+    resBox.className='result-box error';
+    resBox.innerHTML = `❌ अमान्य QR कोड: ${decodedText}`;
+  }
 
-    function playLoudBeep() {
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.25);
-        } catch(e) {}
+  setTimeout(()=>{
+    resBox.className='result-box';
+    resBox.innerHTML = '🎥 QR कोड को कैमरे के सामने लाएं...';
+    isProcessingScan = false;
+  }, 2200);
+}
+
+/* ==================== TEACHER UNLOCK ==================== */
+function startTeacherScanner(){
+  if(teacherScanner) return;
+  teacherScanner = new Html5QrcodeScanner("teacherReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
+  teacherScanner.render(onTeacherScanSuccess);
+}
+function stopTeacherScanner(){
+  if(teacherScanner){ try{ teacherScanner.clear(); }catch(e){} teacherScanner=null; }
+}
+function onTeacherScanSuccess(decodedText){
+  if(isProcessingTeacherScan) return;
+  isProcessingTeacherScan = true;
+  const code = decodedText.trim();
+  if(code.toUpperCase() === teacherSecret.toUpperCase()){
+    unlockTeacher();
+  } else {
+    showToast('❌ गलत टीचर कोड', 'error');
+  }
+  setTimeout(()=>{ isProcessingTeacherScan = false; }, 1200);
+}
+function toggleManualUnlock(){
+  const box = document.getElementById('manualUnlockBox');
+  box.style.display = box.style.display==='none' ? 'block' : 'none';
+}
+function tryManualUnlock(){
+  const val = document.getElementById('manualCode').value.trim();
+  if(val.toUpperCase() === teacherSecret.toUpperCase()) unlockTeacher();
+  else showToast('❌ गलत कोड', 'error');
+}
+function unlockTeacher(){
+  teacherUnlocked = true;
+  stopTeacherScanner();
+  document.getElementById('teacherLockedView').style.display='none';
+  document.getElementById('teacherUnlockedView').style.display='block';
+  document.getElementById('lockBadge').classList.add('unlocked');
+  document.getElementById('lockIcon').innerText='🔓';
+  document.getElementById('lockText').innerText='Teacher Mode';
+  populateTestSelects();
+  refreshUpdateStudentOptions();
+  showToast('🔓 टीचर मोड अनलॉक हो गया', 'success');
+}
+function lockTeacher(){
+  teacherUnlocked = false;
+  document.getElementById('teacherLockedView').style.display='block';
+  document.getElementById('teacherUnlockedView').style.display='none';
+  document.getElementById('lockBadge').classList.remove('unlocked');
+  document.getElementById('lockIcon').innerText='🔒';
+  document.getElementById('lockText').innerText='Locked';
+  startTeacherScanner();
+}
+
+/* ==================== ABSENT / MARKS (teacher only) ==================== */
+function markAbsentees(){
+  const testId = document.getElementById('absentTest').value;
+  if(!testId){ showToast('पहले टेस्ट चुनें', 'error'); return; }
+  const test = testById(testId);
+  const date = new Date().toLocaleDateString('en-GB');
+  let count = 0;
+  students.forEach(s=>{
+    const exists = records.some(r=>r.studentId===s.id && r.testId===testId);
+    if(!exists){
+      records.push({date, studentId:s.id, name:s.name, testId, testLabel:test.label, testType:test.type,
+        attendance:'Absent', marksObtained:'0', totalMarks:test.maxMarks, fee:'Unpaid'});
+      count++;
     }
+  });
+  saveJSON(LS.records, records);
+  document.getElementById('absentMsg').innerText = `✅ ${count} बच्चों की Absent मार्क हो गई!`;
+  updatePresentCounter();
+}
 
-    function startScanner() {
-        if (!html5QrcodeScanner) {
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: { width: 230, height: 230 }, facingMode: "environment" }, false);
-            html5QrcodeScanner.render(onScanSuccess);
-        }
+function refreshUpdateStudentOptions(){
+  const testId = document.getElementById('updateTest').value;
+  const sel = document.getElementById('updateStudentSelect');
+  sel.innerHTML = '';
+  const relevant = testId ? records.filter(r=>r.testId===testId) : [];
+  if(relevant.length===0){
+    students.forEach(s=>{
+      const opt = document.createElement('option');
+      opt.value = s.id; opt.innerText = `${s.name} (${s.id})`;
+      sel.appendChild(opt);
+    });
+  } else {
+    relevant.forEach(r=>{
+      const opt = document.createElement('option');
+      opt.value = r.studentId; opt.innerText = `${r.name} (${r.studentId}) — ${r.attendance}`;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function updateStudentMarks(){
+  const testId = document.getElementById('updateTest').value;
+  const msg = document.getElementById('updateMsg');
+  if(!testId){ msg.style.color='red'; msg.innerText='पहले टेस्ट चुनें!'; return; }
+  const sid = document.getElementById('updateStudentSelect').value;
+  const obt = document.getElementById('updateMarksObt').value;
+  const tot = document.getElementById('updateMarksTot').value;
+  const fee = document.getElementById('updateFeeStatus').value;
+
+  let found = false;
+  records.forEach(r=>{
+    if(r.studentId===sid && r.testId===testId){
+      if(obt !== '') r.marksObtained = obt;
+      if(tot !== '') r.totalMarks = tot;
+      r.fee = fee;
+      found = true;
     }
+  });
 
-    function onScanSuccess(decodedText) {
-        if (isProcessing) return;
-        isProcessing = true;
+  if(found){
+    saveJSON(LS.records, records);
+    msg.style.color='green';
+    msg.innerText = `✅ ${studentName(sid)} का डेटा सफलतापूर्वक अपडेट हो गया!`;
+    refreshUpdateStudentOptions();
+  } else {
+    msg.style.color='red';
+    msg.innerText = '❌ इस टेस्ट में छात्र की अटेंडेंस रिकॉर्ड नहीं मिली! पहले अटेंडेंस/एब्सेंट मार्क करें।';
+  }
+}
 
-        const sid = decodedText.trim().toUpperCase();
-        const week = document.getElementById('scanWeek').value;
-        const fee = document.getElementById('scanFee').value;
-        const resBox = document.getElementById('result-box');
+/* ==================== RECORDS ==================== */
+function renderRecords(){
+  const tbody = document.getElementById('recordsTableBody');
+  const testFilter = document.getElementById('filterTest').value;
+  const search = document.getElementById('searchBox').value.trim().toLowerCase();
 
-        playLoudBeep();
+  let filtered = records.filter(r=>{
+    if(testFilter && r.testId !== testFilter) return false;
+    if(search && !(r.name.toLowerCase().includes(search) || r.studentId.toLowerCase().includes(search))) return false;
+    return true;
+  });
 
-        if (STUDENT_DATABASE[sid]) {
-            const name = STUDENT_DATABASE[sid];
-            const date = new Date().toLocaleDateString('en-GB');
+  tbody.innerHTML='';
+  if(filtered.length===0){
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">कोई रिकॉर्ड नहीं मिला</div></td></tr>`;
+  } else {
+    filtered.slice().reverse().forEach(r=>{
+      const idx = records.indexOf(r);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.date}</td><td>${r.studentId}</td><td>${r.name}</td><td>${r.testLabel}</td>
+        <td class="${r.attendance==='Present'?'att-present':'att-absent'}">${r.attendance}</td>
+        <td>${r.marksObtained||'--'}/${r.totalMarks}</td><td>${r.fee}</td>
+        <td><button class="del-btn" onclick="deleteRecord(${idx})">🗑️</button></td>`;
+      tbody.appendChild(tr);
+    });
+  }
 
-            const exists = records.some(r => r.Student_ID === sid && r.Test_Week === week && r.Attendance === 'Present');
+  const present = records.filter(r=>r.attendance==='Present').length;
+  const absent = records.filter(r=>r.attendance==='Absent').length;
+  document.getElementById('summaryChips').innerHTML = `
+    <span class="chip">कुल: ${records.length}</span>
+    <span class="chip green">Present: ${present}</span>
+    <span class="chip red">Absent: ${absent}</span>`;
+}
+function deleteRecord(idx){
+  if(!confirm('यह रिकॉर्ड हटाना है?')) return;
+  records.splice(idx,1);
+  saveJSON(LS.records, records);
+  renderRecords();
+  showToast('रिकॉर्ड हटा दिया गया', 'success');
+}
+function downloadCSV(){
+  if(records.length===0){ showToast('कोई डेटा उपलब्ध नहीं है!','error'); return; }
+  let csv = "Date,Student_ID,Name,Test,Type,Attendance,Marks_Obtained,Total_Marks,Fee\n";
+  records.forEach(r=>{ csv += `${r.date},${r.studentId},${r.name},${r.testLabel},${r.testType},${r.attendance},${r.marksObtained},${r.totalMarks},${r.fee}\n`; });
+  const uri = encodeURI("data:text/csv;charset=utf-8," + csv);
+  const link = document.createElement('a');
+  link.href = uri; link.download = "AMTC_Records.csv";
+  document.body.appendChild(link); link.click(); link.remove();
+}
 
-            if (exists) {
-                resBox.className = "error";
-                resBox.innerHTML = `⚠️ ${name} (${sid}) की अटेंडेंस पहले से दर्ज है!`;
-            } else {
-                records.push({ Date: date, Student_ID: sid, Name: name, Test_Week: week, Attendance: "Present", Marks_Obtained: "Pending", Total_Marks: "--", Test_Fee: fee });
-                localStorage.setItem('amtc_records', JSON.stringify(records));
-                resBox.className = "success";
-                resBox.innerHTML = `🎉 ATTENDANCE SUCCESSFUL!<br>नाम: ${name} (${sid})`;
-            }
-        } else {
-            resBox.className = "error";
-            resBox.innerHTML = `❌ अमान्य QR कोड: ${decodedText}`;
-        }
+/* ==================== MANAGE: STUDENTS ==================== */
+function renderStudentList(){
+  const box = document.getElementById('studentList');
+  box.innerHTML='';
+  students.forEach(s=>{
+    const row = document.createElement('div');
+    row.className='list-item';
+    row.innerHTML = `<div>${s.name} <span class="meta mono">${s.id}</span></div>
+      <button class="btn-icon" onclick="removeStudent('${s.id}')">🗑️</button>`;
+    box.appendChild(row);
+  });
+}
+function addStudent(){
+  const id = document.getElementById('newStudentId').value.trim().toUpperCase();
+  const name = document.getElementById('newStudentName').value.trim();
+  if(!id || !name){ showToast('ID और नाम दोनों भरें', 'error'); return; }
+  if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
+  students.push({id, name});
+  saveJSON(LS.students, students);
+  document.getElementById('newStudentId').value='';
+  document.getElementById('newStudentName').value='';
+  renderStudentList();
+  showToast('✅ छात्र जोड़ा गया', 'success');
+}
+function removeStudent(id){
+  const hasRecords = records.some(r=>r.studentId===id);
+  const msg = hasRecords ? 'इस छात्र के रिकॉर्ड्स भी हैं। फिर भी हटाना है?' : 'यह छात्र हटाना है?';
+  if(!confirm(msg)) return;
+  students = students.filter(s=>s.id!==id);
+  saveJSON(LS.students, students);
+  renderStudentList();
+  showToast('छात्र हटा दिया गया', 'success');
+}
 
-        setTimeout(() => {
-            resBox.className = "";
-            resBox.style.backgroundColor = "#e3f2fd";
-            resBox.style.color = "#0d47a1";
-            resBox.innerHTML = "🎥 QR कोड को कैमरे के सामने लाएं...";
-            isProcessing = false;
-        }, 2200);
-    }
+/* ==================== MANAGE: TESTS ==================== */
+function renderTestList(){
+  const box = document.getElementById('testList');
+  box.innerHTML='';
+  tests.forEach(t=>{
+    const count = records.filter(r=>r.testId===t.id).length;
+    const row = document.createElement('div');
+    row.className='list-item';
+    row.innerHTML = `<div>${t.label}<span class="tag ${t.type}">${t.type}</span>
+      <div class="meta">${count} records • Max ${t.maxMarks}</div></div>
+      <button class="btn-icon" onclick="removeTest('${t.id}')">🗑️</button>`;
+    box.appendChild(row);
+  });
+}
+function addTest(){
+  const label = document.getElementById('newTestLabel').value.trim();
+  const type = document.getElementById('newTestType').value;
+  const max = document.getElementById('newTestMax').value || 25;
+  if(!label){ showToast('टेस्ट का नाम डालें', 'error'); return; }
+  tests.push({id:genId('t'), label, type, maxMarks:Number(max)});
+  saveJSON(LS.tests, tests);
+  document.getElementById('newTestLabel').value='';
+  renderTestList();
+  populateTestSelects();
+  showToast('✅ टेस्ट जोड़ा गया', 'success');
+}
+function removeTest(id){
+  const count = records.filter(r=>r.testId===id).length;
+  const msg = count>0 ? `⚠️ इस टेस्ट के ${count} रिकॉर्ड्स भी डिलीट हो जाएंगे। जारी रखें?` : 'यह टेस्ट हटाना है?';
+  if(!confirm(msg)) return;
+  tests = tests.filter(t=>t.id!==id);
+  records = records.filter(r=>r.testId!==id);
+  saveJSON(LS.tests, tests);
+  saveJSON(LS.records, records);
+  renderTestList();
+  populateTestSelects();
+  showToast('टेस्ट हटा दिया गया', 'success');
+}
 
-    function markAbsentees() {
-        const week = document.getElementById('absentWeek').value;
-        const date = new Date().toLocaleDateString('en-GB');
-        let count = 0;
+/* ==================== MANAGE: TEACHER QR ==================== */
+function renderTeacherQR(){
+  const box = document.getElementById('teacherQrPreview');
+  box.innerHTML='';
+  new QRCode(box, {text: teacherSecret, width:170, height:170, colorDark:"#131B3A", colorLight:"#ffffff"});
+}
+function updateTeacherSecret(){
+  const val = document.getElementById('teacherSecretInput').value.trim();
+  if(!val){ showToast('कोड खाली नहीं हो सकता', 'error'); return; }
+  teacherSecret = val;
+  localStorage.setItem(LS.secret, teacherSecret);
+  renderTeacherQR();
+  showToast('✅ टीचर QR अपडेट हो गया — नया QR प्रिंट करना न भूलें', 'success');
+}
+function downloadTeacherQR(){
+  const canvas = document.querySelector('#teacherQrPreview canvas');
+  if(!canvas){ showToast('QR तैयार नहीं है', 'error'); return; }
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = 'AMTC_Teacher_QR.png';
+  link.click();
+}
 
-        for (let sid in STUDENT_DATABASE) {
-            const exists = records.some(r => r.Student_ID === sid && r.Test_Week === week);
-            if (!exists) {
-                records.push({ Date: date, Student_ID: sid, Name: STUDENT_DATABASE[sid], Test_Week: week, Attendance: "Absent", Marks_Obtained: "0", Total_Marks: "--", Test_Fee: "Unpaid" });
-                count++;
-            }
-        }
-        localStorage.setItem('amtc_records', JSON.stringify(records));
-        document.getElementById('absentMsg').innerText = `✅ ${count} बच्चों की Absent मार्क हो गई!`;
-    }
+/* ==================== PRINT STUDENT QRs ==================== */
+function printAllStudentQR(){
+  const grid = document.getElementById('printQrGrid');
+  grid.innerHTML='';
+  students.forEach(s=>{
+    const cell = document.createElement('div');
+    cell.className='qr-cell';
+    const qrDiv = document.createElement('div');
+    qrDiv.className='qrbox';
+    cell.appendChild(qrDiv);
+    const label = document.createElement('div');
+    label.innerHTML = `<b>${s.name}</b><br>${s.id}`;
+    cell.appendChild(label);
+    grid.appendChild(cell);
+    new QRCode(qrDiv, {text:s.id, width:110, height:110});
+  });
+  setTimeout(()=>window.print(), 300);
+}
 
-    function updateStudentMarks() {
-        const pass = document.getElementById('teacherPass').value;
-        const msg = document.getElementById('updateMsg');
+/* ==================== BACKUP / RESTORE ==================== */
+function exportBackup(){
+  const data = {students, tests, records, teacherSecret, exportedAt:new Date().toISOString()};
+  const uri = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  const link = document.createElement('a');
+  link.href = uri; link.download = 'AMTC_Backup.json';
+  document.body.appendChild(link); link.click(); link.remove();
+}
+function importBackup(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!confirm('मौजूदा डेटा को इस बैकअप से बदल दें?')) return;
+      students = data.students || students;
+      tests = data.tests || tests;
+      records = data.records || records;
+      teacherSecret = data.teacherSecret || teacherSecret;
+      saveJSON(LS.students, students); saveJSON(LS.tests, tests);
+      saveJSON(LS.records, records); localStorage.setItem(LS.secret, teacherSecret);
+      renderStudentList(); renderTestList(); renderTeacherQR();
+      populateTestSelects(); renderRecords();
+      showToast('✅ बैकअप इम्पोर्ट हो गया', 'success');
+    }catch(err){ showToast('❌ फाइल पढ़ने में गलती हुई', 'error'); }
+  };
+  reader.readAsText(file);
+}
+function clearAllData(){
+  const confirmText = prompt('सारा डेटा हमेशा के लिए हट जाएगा। पक्का करने के लिए DELETE टाइप करें:');
+  if(confirmText !== 'DELETE'){ showToast('रद्द किया गया'); return; }
+  records = [];
+  saveJSON(LS.records, records);
+  renderRecords(); renderTestList();
+  showToast('सारा रिकॉर्ड डेटा हटा दिया गया', 'success');
+}
 
-        if (pass.trim().toUpperCase() !== TEACHER_QR) {
-            msg.style.color = "red";
-            msg.innerText = "❌ Security Check Failed! अमान्य टीचर कोड।";
-            return;
-        }
-
-        const sid = document.getElementById('updateStudentSelect').value;
-        const obt = document.getElementById('updateMarksObt').value;
-        const tot = document.getElementById('updateMarksTot').value;
-        const fee = document.getElementById('updateFeeStatus').value;
-
-        let found = false;
-        records.forEach(r => {
-            if (r.Student_ID === sid) {
-                r.Marks_Obtained = obt;
-                r.Total_Marks = tot;
-                r.Test_Fee = fee;
-                found = true;
-            }
-        });
-
-        if (found) {
-            localStorage.setItem('amtc_records', JSON.stringify(records));
-            msg.style.color = "green";
-            msg.innerText = `✅ ${STUDENT_DATABASE[sid]} का डेटा सफलतापूर्वक अपडेट हो गया!`;
-        } else {
-            msg.style.color = "red";
-            msg.innerText = "❌ छात्र की अटेंडेंस रिकॉर्ड नहीं मिली!";
-        }
-    }
-
-    function renderRecords() {
-        const tbody = document.getElementById('recordsTableBody');
-        tbody.innerHTML = "";
-        records.forEach(r => {
-            let tr = document.createElement('tr');
-            tr.innerHTML = `<td>${r.Date}</td><td>${r.Student_ID}</td><td>${r.Name}</td><td>${r.Test_Week}</td><td>${r.Attendance}</td><td>${r.Marks_Obtained}/${r.Total_Marks}</td><td>${r.Test_Fee}</td>`;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function downloadCSV() {
-        if (records.length === 0) { alert("कोई डेटा उपलब्ध नहीं है!"); return; }
-        let csv = "Date,Student_ID,Name,Test_Week,Attendance,Marks_Obtained,Total_Marks,Test_Fee\n";
-        records.forEach(r => { csv += `${r.Date},${r.Student_ID},${r.Name},${r.Test_Week},${r.Attendance},${r.Marks_Obtained},${r.Total_Marks},${r.Test_Fee}\n`; });
-        const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "AMTC_Records.csv");
-        document.body.appendChild(link);
-        link.click();
-    }
+/* ==================== INIT ==================== */
+window.onload = function(){
+  populateTestSelects();
+  startScanScanner();
+};
 </script>
 </body>
 </html>
