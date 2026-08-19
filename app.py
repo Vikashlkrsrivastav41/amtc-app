@@ -38,9 +38,9 @@ menu = [
 ]
 choice = st.sidebar.selectbox("मेन्यू चुनें:", menu)
 
-# --- 1. LIVE AUTOMATIC SCANNER WITH BEEP SOUND ---
+# --- 1. LIVE FAST SCANNER WITH LOUD BEEP ---
 if choice == "1. अटेंडेंस स्कैन करें (Live Scan)":
-    st.subheader("📸 ऑटो-स्कैनर (कैमरे के सामने QR लाएं)")
+    st.subheader("📸 ऑटो-स्कैनर (कैमरा ऑन रखें)")
     week_name = st.text_input("टेस्ट का हफ्ता:", value="Week 1")
     fee_default = st.selectbox("डिफ़ॉल्ट फीस स्टेटस:", ["Unpaid", "Paid"])
 
@@ -66,7 +66,9 @@ if choice == "1. अटेंडेंस स्कैन करें (Live Sca
                     already_marked = True
 
             if already_marked:
-                st.warning(f"⚠️ {student_name} ({sid}) की अटेंडेंस आज पहले से दर्ज है!")
+                st.warning(
+                    f"⚠️ {student_name} ({sid}) की अटेंडेंस आज पहले से दर्ज है!"
+                )
             else:
                 record = {
                     "Date": [today_date],
@@ -92,79 +94,77 @@ if choice == "1. अटेंडेंस स्कैन करें (Live Sca
         else:
             st.error(f"❌ अमान्य QR कोड: '{scanned_qr}'")
 
-        # Clear query params after processing
         st.query_params.clear()
 
-    # JS Code for Continuous Auto Camera Scanning and Audio Feedback
+    # Optimized Fast HTML5 Scanner Script
     scanner_html = """
     <!DOCTYPE html>
     <html>
     <head>
         <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
         <style>
-            #reader { width: 100%; max-width: 450px; margin: 0 auto; border: 2px solid #0D47A1; border-radius: 10px; overflow: hidden; }
-            #status-box { text-align: center; font-size: 18px; font-weight: bold; color: green; margin-top: 10px; }
+            #reader { width: 100%; max-width: 400px; margin: 0 auto; border: 3px solid #0D47A1; border-radius: 12px; }
+            #status-box { text-align: center; font-size: 16px; font-weight: bold; color: #1565C0; margin-top: 8px; }
         </style>
     </head>
     <body>
         <div id="reader"></div>
-        <div id="status-box">🎥 कैमरा चालू है, QR सामने लाएं...</div>
+        <div id="status-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
 
         <script>
-            // Classic Audio Beep Generator using Web Audio API
-            function playClassicBeep() {
+            // LOUD CLASSIC BEEP SOUND GENERATOR
+            function playLoudBeep() {
                 try {
                     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
                     
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 880Hz Pitch
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    osc.type = 'square'; // Square wave creates a sharper, louder beep
+                    osc.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1000Hz Clear Pitch
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); // Louder Volume
                     
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
                     
                     osc.start();
-                    osc.stop(audioCtx.currentTime + 0.25); // 0.25 second duration
+                    osc.stop(audioCtx.currentTime + 0.2); // Short sharp beep
                 } catch(e) {
                     console.log("Audio Error:", e);
                 }
             }
 
-            function onScanSuccess(decodedText, decodedResult) {
-                // Play audio beep immediately
-                playClassicBeep();
-                
+            function onScanSuccess(decodedText) {
+                playLoudBeep();
                 document.getElementById('status-box').innerText = "✅ SCANNED: " + decodedText;
                 
-                // Stop scanner briefly to prevent multiple duplicate hits
                 html5QrcodeScanner.clear().then(_ => {
-                    // Send scanned value back to Streamlit URL
                     const currentUrl = new URL(window.top.location.href);
                     currentUrl.searchParams.set("qr_data", decodedText);
-                    window.top.location.href = currentUrl.toString();
+                    
+                    // Fast reload (1.2 seconds delay)
+                    setTimeout(function() {
+                        window.top.location.href = currentUrl.toString();
+                    }, 1200);
                 }).catch(err => {
-                    console.error("Failed to clear scanner", err);
+                    console.error("Scanner Error", err);
                 });
             }
 
             let html5QrcodeScanner = new Html5QrcodeScanner(
                 "reader", 
                 { 
-                    fps: 10, 
-                    qrbox: {width: 250, height: 250},
-                    rememberLastUsedCamera: true,
-                    facingMode: "environment" // Use back camera on phone
+                    fps: 15, // Higher FPS for fast detection
+                    qrbox: {width: 220, height: 220},
+                    facingMode: "environment"
                 },
-                /* verbose= */ false
+                false
             );
             html5QrcodeScanner.render(onScanSuccess);
         </script>
     </body>
     </html>
     """
-    components.html(scanner_html, height=450)
+    components.html(scanner_html, height=420)
 
 # --- 2. MARK ABSENTEES ---
 elif choice == "2. अनुपस्थित लगाएं (Mark Absentees)":
