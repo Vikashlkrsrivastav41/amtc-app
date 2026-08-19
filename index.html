@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMTC Instant Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 15px;
+        }
+        h2 { color: #0D47A1; margin-bottom: 5px; }
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        #reader { width: 100%; border-radius: 10px; overflow: hidden; border: 3px solid #0D47A1; }
+        #result-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            min-height: 50px;
+        }
+        .success { background-color: #2e7d32 !important; color: white !important; }
+        .error { background-color: #c62828 !important; color: white !important; }
+        .count-box { font-size: 14px; margin-top: 10px; color: #555; }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #0D47A1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📐 AMTC Teaching Center</h2>
+    <p style="margin-top:0; color:#666;">Zero-Delay Attendance Scanner</p>
+
+    <div id="reader"></div>
+
+    <div id="result-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
+    <div class="count-box">आज कुल उपस्थित बच्चे: <span id="total-count">0</span></div>
+
+    <button onclick="downloadCSV()">📥 Excel Record Download करें</button>
+</div>
+
+<script>
+    // Student Database
+    const STUDENT_DATABASE = {
+        "AMTC-101": "Ayush Kumar",
+        "AMTC-102": "Monika Kumari",
+        "AMTC-103": "Nishu kumari",
+        "AMTC-104": "Rohan kumar",
+        "AMTC-105": "Sebi kumari",
+        "AMTC-106": "Deepak kumar",
+        "AMTC-107": "Anjli kumari",
+        "AMTC-108": "Mushkan kumari",
+        "AMTC-109": "Shonakshi kumari",
+        "AMTC-110": "Ladu kumar",
+        "AMTC-111": "shroj kumar",
+        "AMTC-112": "Ravi ranjan kumar",
+        "AMTC-113": "Aaditya kumar",
+        "AMTC-114": "Rishu kumar",
+        "AMTC-115": "Monika Kumari"
+    };
+
+    let attendanceRecords = [];
+    let isProcessing = false;
+
+    // Loud Sharp Beep Sound
+    function playLoudBeep() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+        } catch(e) {
+            console.log("Audio Error:", e);
+        }
+    }
+
+    function onScanSuccess(decodedText) {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        const sid = decodedText.trim().toUpperCase();
+        const resBox = document.getElementById('result-box');
+
+        playLoudBeep();
+
+        if (STUDENT_DATABASE[sid]) {
+            const name = STUDENT_DATABASE[sid];
+            const time = new Date().toLocaleTimeString();
+            const date = new Date().toLocaleDateString();
+
+            // Duplicate Check
+            const exists = attendanceRecords.some(r => r.id === sid);
+
+            if (exists) {
+                resBox.className = "error";
+                resBox.innerHTML = `⚠️ ${name}<br>अटेंडेंस पहले से दर्ज है!`;
+            } else {
+                attendanceRecords.push({ date, time, id: sid, name, status: "Present" });
+                document.getElementById('total-count').innerText = attendanceRecords.length;
+
+                resBox.className = "success";
+                resBox.innerHTML = `🎉 ATTENDANCE SUCCESS!<br>${name} (${sid})`;
+            }
+        } else {
+            resBox.className = "error";
+            resBox.innerHTML = `❌ अमान्य QR कोड: ${decodedText}`;
+        }
+
+        // Reset display after 2 seconds without reloading page!
+        setTimeout(() => {
+            resBox.className = "";
+            resBox.style.backgroundColor = "#e3f2fd";
+            resBox.style.color = "#0d47a1";
+            resBox.innerHTML = "🎥 QR कोड को कैमरे के सामने लाएं...";
+            isProcessing = false;
+        }, 2200);
+    }
+
+    // Start Camera Scanner
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", 
+        { fps: 20, qrbox: { width: 230, height: 230 }, facingMode: "environment" },
+        false
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+
+    // Download CSV Attendance Sheet
+    function downloadCSV() {
+        if (attendanceRecords.length === 0) {
+            alert("अभी तक कोई अटेंडेंस दर्ज नहीं हुई है!");
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,Date,Time,Student_ID,Name,Status\n";
+        attendanceRecords.forEach(r => {
+            csvContent += `${r.date},${r.time},${r.id},${r.name},${r.status}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `AMTC_Attendance_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+    }
+</script>
+
+</body>
+</html>
