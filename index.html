@@ -8,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
   :root{
     --navy:#131B3A; --navy2:#1C2B57; --navy-soft:#26356A;
@@ -79,11 +82,40 @@
     white-space:nowrap; flex-shrink:0;
   }
   .lock-badge.unlocked{background:rgba(44,155,103,0.22); border-color:rgba(44,155,103,0.4); color:#B7EFD1;}
+  .lock-badge.synced{background:rgba(44,155,103,0.18); border-color:rgba(44,155,103,0.35); color:#B7EFD1; font-size:11px; padding:5px 10px;}
+  .lock-badge.offline{background:rgba(214,69,69,0.2); border-color:rgba(214,69,69,0.4); color:#F6B9B9; font-size:11px; padding:5px 10px;}
+  #cloudStatus{font-size:11px; padding:5px 10px;}
 
   main{max-width:480px; margin:0 auto; padding:16px 14px 20px;}
   .tab-section{display:none; animation:fadeIn .25s ease;}
   .tab-section.active{display:block;}
   @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---------- responsive: tablet & laptop ---------- */
+  /* Below 700px: unchanged mobile layout. Above that, the app is shown as a
+     centered "app frame" so it doesn't stretch into a broken full-width mess. */
+  @media (min-width:701px){
+    html{
+      background:linear-gradient(160deg, var(--navy) 0%, #060914 100%);
+      min-height:100vh;
+    }
+    body{
+      max-width:640px; margin:0 auto;
+      box-shadow:0 24px 70px rgba(0,0,0,0.45);
+      border-radius:20px; overflow:hidden;
+    }
+    main{max-width:none; padding:20px 26px 26px; font-size:15px;}
+    .card, details.accordion{padding:18px 20px;}
+    nav.bottom-nav{position:sticky; max-width:640px; margin:0 auto;}
+    .gallery-grid{grid-template-columns:repeat(4,1fr);}
+    .topbar-row{max-width:none;}
+  }
+  @media (min-width:1000px){
+    body{max-width:760px;}
+    nav.bottom-nav{max-width:760px;}
+    main{padding:26px 40px 32px;}
+    .gallery-grid{grid-template-columns:repeat(5,1fr);}
+  }
 
   .card{
     background:var(--paper); border-radius:var(--radius);
@@ -363,6 +395,9 @@
       </button>
     </div>
   </div>
+  <div id="cloudStatus" class="lock-badge" style="margin-top:9px; width:fit-content; position:relative; z-index:1;">
+    <span>☁️</span><span>कनेक्ट हो रहा है...</span>
+  </div>
 </div>
 
 <main>
@@ -395,6 +430,8 @@
   <section id="sec-scan" class="tab-section">
     <div class="card">
       <h2>📷 अटेंडेंस स्कैन करें</h2>
+      <label>बैच चुनें</label>
+      <select id="scanBatch" onchange="onScanBatchChange()"></select>
       <label>टेस्ट चुनें</label>
       <select id="scanTest" onchange="onScanTestChange()"></select>
       <label>फीस स्टेटस</label>
@@ -417,6 +454,12 @@
     <div class="unlocked-banner">
       <span>🔓 टीचर मोड सक्रिय है</span>
       <button class="btn-sm btn-outline" style="width:auto;" onclick="lockTeacher()">लॉक करें</button>
+    </div>
+
+    <div class="card">
+      <h2>🏫 बैच चुनें</h2>
+      <select id="teacherBatch" onchange="onTeacherBatchChange()"></select>
+      <p class="hint" style="margin:6px 0 0;">नीचे के दोनों कार्ड इसी बैच के अनुसार टेस्ट व छात्र दिखाएंगे।</p>
     </div>
 
     <div class="card">
@@ -453,9 +496,10 @@
     <div class="card">
       <h2>📋 सभी रिकॉर्ड्स</h2>
       <div class="filter-row">
+        <select id="filterBatch" onchange="onFilterBatchChange()" style="margin-bottom:0;"></select>
         <select id="filterTest" onchange="renderRecords()" style="margin-bottom:0;"></select>
-        <input type="text" id="searchBox" placeholder="नाम / ID खोजें" oninput="renderRecords()" style="margin-bottom:0;">
       </div>
+      <input type="text" id="searchBox" placeholder="नाम / ID खोजें" oninput="renderRecords()">
       <div class="summary-chips" id="summaryChips"></div>
       <div class="ledger-wrap">
         <table>
@@ -468,10 +512,29 @@
         <button class="btn-outline" onclick="exportBackup()">💾 Backup JSON</button>
       </div>
     </div>
+
+    <div class="card">
+      <h2>📊 अटेंडेंस ग्राफ</h2>
+      <p class="hint" style="margin-top:0;">हर टेस्ट में कितने % छात्र उपस्थित रहे (ऊपर चुने गए बैच के अनुसार)</p>
+      <div style="position:relative; height:230px;">
+        <canvas id="attendanceChartCanvas"></canvas>
+      </div>
+      <div id="chartEmptyState" class="empty-state" style="display:none;">अभी चार्ट के लिए पर्याप्त डेटा नहीं है</div>
+    </div>
   </section>
 
   <!-- ===================== MANAGE TAB ===================== -->
   <section id="sec-manage" class="tab-section">
+
+    <details class="accordion" open>
+      <summary>🏫 बैच (Batch/Class)<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <p class="hint" style="margin-top:0;">अलग-अलग क्लास/शिफ्ट (जैसे Morning, Evening) को अलग बैच बना कर मैनेज करें।</p>
+        <input type="text" id="newBatchName" placeholder="बैच का नाम, जैसे: Evening Batch">
+        <button class="btn-secondary" onclick="addBatch()">+ बैच जोड़ें</button>
+        <div id="batchList" style="margin-top:12px;"></div>
+      </div>
+    </details>
 
     <details class="accordion" open>
       <summary>👤 छात्र (Students)<span class="chev">›</span></summary>
@@ -480,6 +543,8 @@
           <div><label>Student ID</label><input type="text" id="newStudentId" placeholder="AMTC-116"></div>
           <div><label>नाम</label><input type="text" id="newStudentName" placeholder="Name"></div>
         </div>
+        <label>बैच</label>
+        <select id="newStudentBatch"></select>
         <button class="btn-secondary" onclick="addStudent()">+ छात्र जोड़ें</button>
         <div id="studentList" style="margin-top:12px;"></div>
         <div class="btn-row">
@@ -504,6 +569,8 @@
           </div>
           <div><label>कुल अंक</label><input type="number" id="newTestMax" value="25"></div>
         </div>
+        <label>बैच</label>
+        <select id="newTestBatch"></select>
         <button class="btn-secondary" onclick="addTest()">+ टेस्ट जोड़ें</button>
         <div id="testList" style="margin-top:12px;"></div>
       </div>
@@ -619,44 +686,154 @@
 </nav>
 
 <script>
+/* ==================== FIREBASE (cross-device cloud sync) ==================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCTpNHBkvj3X04__V9bRV-2PuDpSymSkPs",
+  authDomain: "amtc-4a47e.firebaseapp.com",
+  projectId: "amtc-4a47e",
+  storageBucket: "amtc-4a47e.firebasestorage.app",
+  messagingSenderId: "508101093482",
+  appId: "1:508101093482:web:9ca0213769254f63d88213"
+};
+let db = null, cloudReady = false, cloudDocLoaded = false, cloudSyncTimer = null, applyingRemoteUpdate = false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+  cloudReady = true;
+}catch(e){ console.error('Firebase init failed', e); }
+
+function setCloudStatus(state){
+  // state: 'connecting' | 'synced' | 'offline'
+  const el = document.getElementById('cloudStatus');
+  if(!el) return;
+  const map = {
+    connecting: {icon:'☁️', text:'कनेक्ट हो रहा है...', cls:''},
+    synced:     {icon:'☁️', text:'Synced', cls:'synced'},
+    offline:    {icon:'📴', text:'Offline', cls:'offline'}
+  };
+  const m = map[state] || map.connecting;
+  el.className = 'lock-badge ' + m.cls;
+  el.innerHTML = `<span>${m.icon}</span><span>${m.text}</span>`;
+}
+
+function queueCloudSync(){
+  if(!cloudReady || applyingRemoteUpdate) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(pushStateToCloud, 500);
+}
+function pushStateToCloud(){
+  if(!cloudReady) return;
+  db.collection('amtc').doc('state').set({
+    students, tests, batches, records, teacherSecret,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true}).then(()=>{
+    setCloudStatus('synced');
+  }).catch(err=>{
+    console.error('Cloud sync failed', err);
+    setCloudStatus('offline');
+  });
+}
+function startCloudSync(){
+  if(!cloudReady) return;
+  setCloudStatus('connecting');
+  db.collection('amtc').doc('state').onSnapshot(snap=>{
+    if(!snap.exists){
+      // first ever run on this project — seed the cloud with current local data
+      pushStateToCloud();
+      cloudDocLoaded = true;
+      return;
+    }
+    const data = snap.data();
+    applyingRemoteUpdate = true;
+    if(data.students) students = data.students;
+    if(data.tests) tests = data.tests;
+    if(data.batches) batches = data.batches;
+    if(data.records) records = data.records;
+    if(data.teacherSecret) teacherSecret = data.teacherSecret;
+    localStorage.setItem(LS.students, JSON.stringify(students));
+    localStorage.setItem(LS.tests, JSON.stringify(tests));
+    localStorage.setItem(LS.batches, JSON.stringify(batches));
+    localStorage.setItem(LS.records, JSON.stringify(records));
+    localStorage.setItem(LS.secret, teacherSecret);
+    applyingRemoteUpdate = false;
+    cloudDocLoaded = true;
+    setCloudStatus(snap.metadata.fromCache ? 'offline' : 'synced');
+    refreshActiveTab();
+  }, err=>{
+    console.error('Cloud listen failed', err);
+    setCloudStatus('offline');
+  });
+}
+function refreshActiveTab(){
+  const activeSection = document.querySelector('.tab-section.active');
+  if(!activeSection) return;
+  const id = activeSection.id;
+  populateTestSelects();
+  if(id==='sec-teacher'){ refreshUpdateStudentOptions(); }
+  if(id==='sec-records'){ renderRecords(); renderAttendanceChart(); }
+  if(id==='sec-manage'){ renderBatchList(); renderStudentList(); renderTestList(); }
+}
+
 /* ==================== STORAGE / SEED DATA ==================== */
 const LS = {
   students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret',
-  gallery:'amtc_gallery', theme:'amtc_theme'
+  gallery:'amtc_gallery', theme:'amtc_theme', batches:'amtc_batches'
 };
 
 const SEED_STUDENTS = [
-  {id:"AMTC-104", name:"Rohan kumar"},
-  {id:"AMTC-105", name:"Sebi kumari"},
-  {id:"AMTC-106", name:"Deepak kumar"},
-  {id:"AMTC-107", name:"Anjli kumari"},
-  {id:"AMTC-108", name:"Mushkan kumari"},
-  {id:"AMTC-109", name:"Shonakshi kumari"},
-  {id:"AMTC-110", name:"Ladu kumar"},
-  {id:"AMTC-111", name:"shroj kumar"},
-  {id:"AMTC-112", name:"Ravi ranjan kumar"},
-  {id:"AMTC-113", name:"Aaditya kumar"},
-  {id:"AMTC-114", name:"Rishu kumar"},
-  {id:"AMTC-115", name:"Monika Kumari"}
+  {id:"AMTC-104", name:"Rohan kumar", batch:"B1"},
+  {id:"AMTC-105", name:"Sebi kumari", batch:"B1"},
+  {id:"AMTC-106", name:"Deepak kumar", batch:"B1"},
+  {id:"AMTC-107", name:"Anjli kumari", batch:"B1"},
+  {id:"AMTC-108", name:"Mushkan kumari", batch:"B1"},
+  {id:"AMTC-109", name:"Shonakshi kumari", batch:"B1"},
+  {id:"AMTC-110", name:"Ladu kumar", batch:"B1"},
+  {id:"AMTC-111", name:"shroj kumar", batch:"B1"},
+  {id:"AMTC-112", name:"Ravi ranjan kumar", batch:"B1"},
+  {id:"AMTC-113", name:"Aaditya kumar", batch:"B1"},
+  {id:"AMTC-114", name:"Rishu kumar", batch:"B1"},
+  {id:"AMTC-115", name:"Monika Kumari", batch:"B1"}
 ];
 
 const SEED_TESTS = [
-  {id:"wk1", label:"Week 1", type:"weekly", maxMarks:25},
-  {id:"wk2", label:"Week 2", type:"weekly", maxMarks:25},
-  {id:"wk3", label:"Week 3", type:"weekly", maxMarks:25},
-  {id:"wk4", label:"Week 4", type:"weekly", maxMarks:25}
+  {id:"wk1", label:"Week 1", type:"weekly", maxMarks:25, batch:"B1"},
+  {id:"wk2", label:"Week 2", type:"weekly", maxMarks:25, batch:"B1"},
+  {id:"wk3", label:"Week 3", type:"weekly", maxMarks:25, batch:"B1"},
+  {id:"wk4", label:"Week 4", type:"weekly", maxMarks:25, batch:"B1"}
+];
+
+const SEED_BATCHES = [
+  {id:"B1", name:"Batch 1"}
 ];
 
 function loadJSON(key, fallback){
   try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
   catch(e){ return fallback; }
 }
-function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+function saveJSON(key, val){
+  localStorage.setItem(key, JSON.stringify(val));
+  if(key===LS.students || key===LS.tests || key===LS.batches || key===LS.records) queueCloudSync();
+}
+function setTeacherSecret(val){
+  teacherSecret = val;
+  localStorage.setItem(LS.secret, teacherSecret);
+  queueCloudSync();
+}
 
 let students = loadJSON(LS.students, null);
 if(!students){ students = SEED_STUDENTS; saveJSON(LS.students, students); }
 let tests = loadJSON(LS.tests, null);
 if(!tests){ tests = SEED_TESTS; saveJSON(LS.tests, tests); }
+let batches = loadJSON(LS.batches, null);
+if(!batches){ batches = SEED_BATCHES; saveJSON(LS.batches, batches); }
+// migrate old data that has no batch field yet
+let migrated = false;
+students.forEach(s=>{ if(!s.batch){ s.batch = batches[0].id; migrated = true; } });
+tests.forEach(t=>{ if(!t.batch){ t.batch = batches[0].id; migrated = true; } });
+if(migrated){ saveJSON(LS.students, students); saveJSON(LS.tests, tests); }
+let currentBatch = batches[0] ? batches[0].id : null;
+let attendanceChart = null;
 let records = loadJSON(LS.records, []);
 let gallery = loadJSON(LS.gallery, []);
 let teacherSecret = localStorage.getItem(LS.secret) || "TEACHER-AMTC-2026";
@@ -672,6 +849,13 @@ let resultMode = 'id';
 function studentName(id){ const s = students.find(s=>s.id===id); return s ? s.name : id; }
 function testById(id){ return tests.find(t=>t.id===id); }
 function genId(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*99); }
+function batchById(id){ return batches.find(b=>b.id===id); }
+function batchName(id){ const b = batchById(id); return b ? b.name : '—'; }
+function batchOptionsHTML(includeAll){
+  let html = includeAll ? `<option value="ALL">सभी बैच</option>` : '';
+  batches.forEach(b=>{ html += `<option value="${b.id}">${b.name}</option>`; });
+  return html;
+}
 
 /* ==================== TOASTS ==================== */
 function showToast(msg, type){
@@ -698,8 +882,8 @@ function switchTab(id){
   if(id==='sec-result'){ /* scanner only starts when user chooses QR mode */ } else { stopResultScanner(); }
 
   if(id==='sec-teacher'){ populateTestSelects(); refreshUpdateStudentOptions(); }
-  if(id==='sec-records'){ populateTestSelects(); renderRecords(); }
-  if(id==='sec-manage'){ renderStudentList(); renderTestList(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); }
+  if(id==='sec-records'){ populateTestSelects(); renderRecords(); renderAttendanceChart(); }
+  if(id==='sec-manage'){ renderBatchList(); renderStudentList(); renderTestList(); populateBatchSelects(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); }
   if(id==='sec-gallery'){ renderGallery(); }
 }
 
@@ -721,12 +905,14 @@ function handleLockBadgeTap(){
   else { openGate('sec-teacher'); }
 }
 
-/* ==================== TEST DROPDOWNS ==================== */
-function testOptionsHTML(includeAll){
+/* ==================== TEST DROPDOWNS (batch-aware) ==================== */
+function testOptionsHTML(includeAll, batchId){
   const groups = {weekly:'Weekly', monthly:'Monthly', yearly:'Yearly'};
+  let pool = tests;
+  if(batchId && batchId!=='ALL') pool = tests.filter(t=>t.batch===batchId);
   let html = includeAll ? '<option value="">— All Tests —</option>' : '<option value="">-- टेस्ट चुनें --</option>';
   for(const key in groups){
-    const items = tests.filter(t=>t.type===key);
+    const items = pool.filter(t=>t.type===key);
     if(items.length===0) continue;
     html += `<optgroup label="${groups[key]}">`;
     items.forEach(t=> html += `<option value="${t.id}">${t.label}</option>`);
@@ -734,23 +920,52 @@ function testOptionsHTML(includeAll){
   }
   return html;
 }
-function populateTestSelects(){
-  const single = ['scanTest','absentTest','updateTest'];
-  single.forEach(id=>{
+function populateBatchSelects(){
+  ['scanBatch','teacherBatch','filterBatch','newStudentBatch','newTestBatch'].forEach(id=>{
     const el = document.getElementById(id);
     if(!el) return;
     const prev = el.value;
-    el.innerHTML = testOptionsHTML(false);
-    if(tests.some(t=>t.id===prev)) el.value = prev;
+    el.innerHTML = (id==='filterBatch') ? batchOptionsHTML(true) : batchOptionsHTML(false);
+    if(batches.some(b=>b.id===prev) || prev==='ALL'){ el.value = prev; }
+    else if(id!=='filterBatch' && currentBatch){ el.value = currentBatch; }
+  });
+}
+function populateTestSelects(){
+  populateBatchSelects();
+
+  const scanBatchEl = document.getElementById('scanBatch');
+  const teacherBatchEl = document.getElementById('teacherBatch');
+  const filterBatchEl = document.getElementById('filterBatch');
+
+  const scanBatchVal = scanBatchEl ? scanBatchEl.value : currentBatch;
+  const teacherBatchVal = teacherBatchEl ? teacherBatchEl.value : currentBatch;
+  const filterBatchVal = filterBatchEl ? filterBatchEl.value : 'ALL';
+
+  ['scanTest'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const prev = el.value;
+    el.innerHTML = testOptionsHTML(false, scanBatchVal);
+    if(tests.some(t=>t.id===prev && t.batch===scanBatchVal)) el.value = prev;
+  });
+  ['absentTest','updateTest'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const prev = el.value;
+    el.innerHTML = testOptionsHTML(false, teacherBatchVal);
+    if(tests.some(t=>t.id===prev && t.batch===teacherBatchVal)) el.value = prev;
   });
   const filterEl = document.getElementById('filterTest');
   if(filterEl){
     const prev = filterEl.value;
-    filterEl.innerHTML = testOptionsHTML(true);
+    filterEl.innerHTML = testOptionsHTML(true, filterBatchVal);
     if(!prev || tests.some(t=>t.id===prev)) filterEl.value = prev;
   }
   updatePresentCounter();
 }
+function onScanBatchChange(){ populateTestSelects(); }
+function onTeacherBatchChange(){ populateTestSelects(); refreshUpdateStudentOptions(); }
+function onFilterBatchChange(){ populateTestSelects(); renderRecords(); renderAttendanceChart(); }
 function onScanTestChange(){ updatePresentCounter(); }
 function updatePresentCounter(){
   const testId = document.getElementById('scanTest').value;
@@ -852,12 +1067,17 @@ function onScanSuccess(decodedText){
     speak('यह टीचर का क्यू.आर. कोड है। कृपया छात्र का क्यू.आर. कोड दिखाएं।');
   } else if(students.some(s=>s.id===sid)){
     const name = studentName(sid);
+    const stu = students.find(s=>s.id===sid);
     const date = new Date().toLocaleDateString('en-GB');
     const exists = records.some(r=>r.studentId===sid && r.testId===testId && r.attendance==='Present');
     if(exists){
       resBox.className='result-box error';
       resBox.innerHTML = `⚠️ ${name} (${sid}) की अटेंडेंस पहले से दर्ज है!`;
       speak(`${name} जी, आपकी उपस्थिति पहले से ही दर्ज की जा चुकी है। धन्यवाद।`);
+    } else if(stu.batch !== test.batch){
+      resBox.className='result-box error';
+      resBox.innerHTML = `⚠️ ${name} (${sid}) — ${batchName(stu.batch)} का छात्र है, यह टेस्ट ${batchName(test.batch)} का है। कृपया सही बैच चुनें।`;
+      speak(`यह छात्र दूसरे बैच का है। कृपया सही बैच चुनें।`);
     } else {
       records.push({date, studentId:sid, name, testId, testLabel:test.label, testType:test.type,
         attendance:'Present', marksObtained:'', totalMarks:test.maxMarks, fee});
@@ -940,7 +1160,7 @@ function markAbsentees(){
   const test = testById(testId);
   const date = new Date().toLocaleDateString('en-GB');
   let count = 0;
-  students.forEach(s=>{
+  students.filter(s=>s.batch===test.batch).forEach(s=>{
     const exists = records.some(r=>r.studentId===s.id && r.testId===testId);
     if(!exists){
       records.push({date, studentId:s.id, name:s.name, testId, testLabel:test.label, testType:test.type,
@@ -960,7 +1180,9 @@ function refreshUpdateStudentOptions(){
   sel.innerHTML = '';
   const relevant = testId ? records.filter(r=>r.testId===testId) : [];
   if(relevant.length===0){
-    students.forEach(s=>{
+    const test = testById(testId);
+    const pool = test ? students.filter(s=>s.batch===test.batch) : students;
+    pool.forEach(s=>{
       const opt = document.createElement('option');
       opt.value = s.id; opt.innerText = `${s.name} (${s.id})`;
       sel.appendChild(opt);
@@ -1009,10 +1231,15 @@ function updateStudentMarks(){
 function renderRecords(){
   const tbody = document.getElementById('recordsTableBody');
   const testFilter = document.getElementById('filterTest').value;
+  const batchFilter = document.getElementById('filterBatch') ? document.getElementById('filterBatch').value : 'ALL';
   const search = document.getElementById('searchBox').value.trim().toLowerCase();
 
   let filtered = records.filter(r=>{
     if(testFilter && r.testId !== testFilter) return false;
+    if(batchFilter && batchFilter!=='ALL'){
+      const stu = students.find(s=>s.id===r.studentId);
+      if(!stu || stu.batch !== batchFilter) return false;
+    }
     if(search && !(r.name.toLowerCase().includes(search) || r.studentId.toLowerCase().includes(search))) return false;
     return true;
   });
@@ -1032,10 +1259,10 @@ function renderRecords(){
     });
   }
 
-  const present = records.filter(r=>r.attendance==='Present').length;
-  const absent = records.filter(r=>r.attendance==='Absent').length;
+  const present = filtered.filter(r=>r.attendance==='Present').length;
+  const absent = filtered.filter(r=>r.attendance==='Absent').length;
   document.getElementById('summaryChips').innerHTML = `
-    <span class="chip">कुल: ${records.length}</span>
+    <span class="chip">कुल: ${filtered.length}</span>
     <span class="chip green">Present: ${present}</span>
     <span class="chip red">Absent: ${absent}</span>`;
 }
@@ -1044,16 +1271,68 @@ function deleteRecord(idx){
   records.splice(idx,1);
   saveJSON(LS.records, records);
   renderRecords();
+  renderAttendanceChart();
   showToast('रिकॉर्ड हटा दिया गया', 'success');
 }
 function downloadCSV(){
   if(records.length===0){ showToast('कोई डेटा उपलब्ध नहीं है!','error'); return; }
-  let csv = "Date,Student_ID,Name,Test,Type,Attendance,Marks_Obtained,Total_Marks,Fee\n";
-  records.forEach(r=>{ csv += `${r.date},${r.studentId},${r.name},${r.testLabel},${r.testType},${r.attendance},${r.marksObtained},${r.totalMarks},${r.fee}\n`; });
+  let csv = "Date,Student_ID,Name,Batch,Test,Type,Attendance,Marks_Obtained,Total_Marks,Fee\n";
+  records.forEach(r=>{
+    const stu = students.find(s=>s.id===r.studentId);
+    const bname = stu ? batchName(stu.batch) : '';
+    csv += `${r.date},${r.studentId},${r.name},${bname},${r.testLabel},${r.testType},${r.attendance},${r.marksObtained},${r.totalMarks},${r.fee}\n`;
+  });
   const uri = encodeURI("data:text/csv;charset=utf-8," + csv);
   const link = document.createElement('a');
   link.href = uri; link.download = "AMTC_Records.csv";
   document.body.appendChild(link); link.click(); link.remove();
+}
+
+/* ==================== ATTENDANCE CHART ==================== */
+function renderAttendanceChart(){
+  const canvas = document.getElementById('attendanceChartCanvas');
+  if(!canvas || typeof Chart === 'undefined') return;
+  const batchFilter = document.getElementById('filterBatch') ? document.getElementById('filterBatch').value : 'ALL';
+
+  const relevantTests = (batchFilter && batchFilter!=='ALL') ? tests.filter(t=>t.batch===batchFilter) : tests;
+  const labels = [];
+  const dataPct = [];
+  relevantTests.forEach(t=>{
+    const testRecords = records.filter(r=>r.testId===t.id && (batchFilter==='ALL' || !batchFilter || (students.find(s=>s.id===r.studentId)||{}).batch===batchFilter));
+    if(testRecords.length===0) return;
+    const present = testRecords.filter(r=>r.attendance==='Present').length;
+    labels.push(t.label);
+    dataPct.push(Math.round((present/testRecords.length)*100));
+  });
+
+  const emptyState = document.getElementById('chartEmptyState');
+  if(labels.length===0){
+    canvas.style.display='none';
+    emptyState.style.display='block';
+    if(attendanceChart){ attendanceChart.destroy(); attendanceChart=null; }
+    return;
+  }
+  canvas.style.display='block';
+  emptyState.style.display='none';
+
+  const styles = getComputedStyle(document.documentElement);
+  const gridColor = styles.getPropertyValue('--rule').trim() || '#C9D9EE';
+  const textColor = styles.getPropertyValue('--slate').trim() || '#6B7280';
+  const barColor = styles.getPropertyValue('--saffron').trim() || '#F2A93B';
+
+  if(attendanceChart) attendanceChart.destroy();
+  attendanceChart = new Chart(canvas, {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'उपस्थिति %', data:dataPct, backgroundColor:barColor, borderRadius:6, maxBarThickness:38 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        y:{ min:0, max:100, ticks:{color:textColor, callback:v=>v+'%'}, grid:{color:gridColor} },
+        x:{ ticks:{color:textColor}, grid:{display:false} }
+      }
+    }
+  });
 }
 
 /* ==================== RESULT (public, student self-lookup) ==================== */
@@ -1136,7 +1415,8 @@ function renderResultSlip(student){
       <p>Student Result Slip</p>
     </div>
     <div class="slip-student">
-      <div><h4>${student.name}</h4><div class="sid mono">${student.id}</div></div>
+      <div><h4>${student.name}</h4><div class="sid mono">${student.id}</div>
+        <div class="sid" style="margin-top:2px;">🏫 ${batchName(student.batch)}</div></div>
       <div style="font-size:26px;">🎓</div>
     </div>
     <div class="slip-stats">
@@ -1169,13 +1449,58 @@ function printResultSlip(){
 }
 
 /* ==================== MANAGE: STUDENTS ==================== */
+/* ==================== MANAGE: BATCHES ==================== */
+function renderBatchList(){
+  const box = document.getElementById('batchList');
+  if(!box) return;
+  box.innerHTML='';
+  batches.forEach(b=>{
+    const count = students.filter(s=>s.batch===b.id).length;
+    const row = document.createElement('div');
+    row.className='list-item';
+    row.innerHTML = `<div>${b.name}<div class="meta">${count} छात्र</div></div>
+      <button class="btn-icon" onclick="removeBatch('${b.id}')">🗑️</button>`;
+    box.appendChild(row);
+  });
+}
+function addBatch(){
+  const name = document.getElementById('newBatchName').value.trim();
+  if(!name){ showToast('बैच का नाम डालें', 'error'); return; }
+  batches.push({id:genId('b'), name});
+  saveJSON(LS.batches, batches);
+  document.getElementById('newBatchName').value='';
+  renderBatchList();
+  populateBatchSelects();
+  showToast('✅ बैच जोड़ा गया', 'success');
+}
+function removeBatch(id){
+  if(batches.length<=1){ showToast('कम से कम एक बैच ज़रूरी है', 'error'); return; }
+  const count = students.filter(s=>s.batch===id).length;
+  const msg = count>0 ? `⚠️ इस बैच में ${count} छात्र हैं, वे पहले बैच में शिफ्ट हो जाएंगे। जारी रखें?` : 'यह बैच हटाना है?';
+  if(!confirm(msg)) return;
+  batches = batches.filter(b=>b.id!==id);
+  const fallback = batches[0].id;
+  students.forEach(s=>{ if(s.batch===id) s.batch = fallback; });
+  tests.forEach(t=>{ if(t.batch===id) t.batch = fallback; });
+  saveJSON(LS.batches, batches);
+  saveJSON(LS.students, students);
+  saveJSON(LS.tests, tests);
+  renderBatchList();
+  renderStudentList();
+  renderTestList();
+  populateBatchSelects();
+  showToast('बैच हटा दिया गया', 'success');
+}
+
+/* ==================== MANAGE: STUDENTS ==================== */
 function renderStudentList(){
   const box = document.getElementById('studentList');
   box.innerHTML='';
   students.forEach(s=>{
     const row = document.createElement('div');
     row.className='list-item';
-    row.innerHTML = `<div>${s.name} <span class="meta mono">${s.id}</span></div>
+    row.innerHTML = `<div>${s.name} <span class="meta mono">${s.id}</span>
+        <div class="meta">🏫 ${batchName(s.batch)}</div></div>
       <button class="btn-icon" onclick="removeStudent('${s.id}')">🗑️</button>`;
     box.appendChild(row);
   });
@@ -1183,13 +1508,15 @@ function renderStudentList(){
 function addStudent(){
   const id = document.getElementById('newStudentId').value.trim().toUpperCase();
   const name = document.getElementById('newStudentName').value.trim();
+  const batch = document.getElementById('newStudentBatch').value || (batches[0] && batches[0].id);
   if(!id || !name){ showToast('ID और नाम दोनों भरें', 'error'); return; }
   if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
-  students.push({id, name});
+  students.push({id, name, batch});
   saveJSON(LS.students, students);
   document.getElementById('newStudentId').value='';
   document.getElementById('newStudentName').value='';
   renderStudentList();
+  renderBatchList();
   showToast('✅ छात्र जोड़ा गया', 'success');
 }
 function removeStudent(id){
@@ -1199,6 +1526,7 @@ function removeStudent(id){
   students = students.filter(s=>s.id!==id);
   saveJSON(LS.students, students);
   renderStudentList();
+  renderBatchList();
   showToast('छात्र हटा दिया गया', 'success');
 }
 
@@ -1211,7 +1539,7 @@ function renderTestList(){
     const row = document.createElement('div');
     row.className='list-item';
     row.innerHTML = `<div>${t.label}<span class="tag ${t.type}">${t.type}</span>
-      <div class="meta">${count} records • Max ${t.maxMarks}</div></div>
+      <div class="meta">🏫 ${batchName(t.batch)} • ${count} records • Max ${t.maxMarks}</div></div>
       <button class="btn-icon" onclick="removeTest('${t.id}')">🗑️</button>`;
     box.appendChild(row);
   });
@@ -1220,8 +1548,9 @@ function addTest(){
   const label = document.getElementById('newTestLabel').value.trim();
   const type = document.getElementById('newTestType').value;
   const max = document.getElementById('newTestMax').value || 25;
+  const batch = document.getElementById('newTestBatch').value || (batches[0] && batches[0].id);
   if(!label){ showToast('टेस्ट का नाम डालें', 'error'); return; }
-  tests.push({id:genId('t'), label, type, maxMarks:Number(max)});
+  tests.push({id:genId('t'), label, type, maxMarks:Number(max), batch});
   saveJSON(LS.tests, tests);
   document.getElementById('newTestLabel').value='';
   renderTestList();
@@ -1250,8 +1579,7 @@ function renderTeacherQR(){
 function updateTeacherSecret(){
   const val = document.getElementById('teacherSecretInput').value.trim();
   if(!val){ showToast('कोड खाली नहीं हो सकता', 'error'); return; }
-  teacherSecret = val;
-  localStorage.setItem(LS.secret, teacherSecret);
+  setTeacherSecret(val);
   renderTeacherQR();
   showToast('✅ टीचर QR अपडेट हो गया — नया QR प्रिंट करना न भूलें', 'success');
 }
@@ -1285,7 +1613,7 @@ function printAllStudentQR(){
 
 /* ==================== BACKUP / RESTORE ==================== */
 function exportBackup(){
-  const data = {students, tests, records, teacherSecret, exportedAt:new Date().toISOString()};
+  const data = {students, tests, records, batches, gallery, teacherSecret, exportedAt:new Date().toISOString()};
   const uri = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const link = document.createElement('a');
   link.href = uri; link.download = 'AMTC_Backup.json';
@@ -1302,11 +1630,14 @@ function importBackup(evt){
       students = data.students || students;
       tests = data.tests || tests;
       records = data.records || records;
+      batches = data.batches || batches;
+      gallery = data.gallery || gallery;
       teacherSecret = data.teacherSecret || teacherSecret;
       saveJSON(LS.students, students); saveJSON(LS.tests, tests);
-      saveJSON(LS.records, records); localStorage.setItem(LS.secret, teacherSecret);
-      renderStudentList(); renderTestList(); renderTeacherQR();
-      populateTestSelects(); renderRecords();
+      saveJSON(LS.records, records); saveJSON(LS.batches, batches); saveJSON(LS.gallery, gallery);
+      setTeacherSecret(teacherSecret);
+      renderBatchList(); renderStudentList(); renderTestList(); renderTeacherQR();
+      populateTestSelects(); renderRecords(); renderAttendanceChart();
       showToast('✅ बैकअप इम्पोर्ट हो गया', 'success');
     }catch(err){ showToast('❌ फाइल पढ़ने में गलती हुई', 'error'); }
   };
@@ -1317,7 +1648,7 @@ function clearAllData(){
   if(confirmText !== 'DELETE'){ showToast('रद्द किया गया'); return; }
   records = [];
   saveJSON(LS.records, records);
-  renderRecords(); renderTestList();
+  renderRecords(); renderTestList(); renderAttendanceChart();
   showToast('सारा रिकॉर्ड डेटा हटा दिया गया', 'success');
 }
 
@@ -1447,6 +1778,7 @@ function toggleTheme(){
 window.onload = function(){
   applyTheme(localStorage.getItem(LS.theme) || 'light');
   populateTestSelects();
+  startCloudSync();
 };
 </script>
 </body>
