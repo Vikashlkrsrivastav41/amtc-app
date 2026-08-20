@@ -701,6 +701,7 @@ function startScanScanner(){
   if(scanScanner) return;
   scanScanner = new Html5QrcodeScanner("reader", {fps:20, qrbox:{width:230,height:230}, facingMode:"environment"}, false);
   scanScanner.render(onScanSuccess);
+  speak('कृपया अपना ID कार्ड स्कैन करें।');
 }
 function stopScanScanner(){
   if(scanScanner){ try{ scanScanner.clear(); }catch(e){} scanScanner=null; }
@@ -759,6 +760,7 @@ function startGateScanner(){
   if(gateScanner) return;
   gateScanner = new Html5QrcodeScanner("gateReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
   gateScanner.render(onGateScanSuccess);
+  speak('कृपया टीचर QR कोड स्कैन करें।');
 }
 function stopGateScanner(){
   if(gateScanner){ try{ gateScanner.clear(); }catch(e){} gateScanner=null; }
@@ -791,6 +793,7 @@ function unlockTeacher(){
   document.getElementById('lockIcon').innerText='🔓';
   document.getElementById('lockText').innerText='Teacher Mode';
   showToast('🔓 टीचर मोड अनलॉक हो गया', 'success');
+  speak('टीचर मोड अनलॉक हो गया।');
   const target = pendingTab || 'sec-teacher';
   pendingTab = null;
   switchTab(target);
@@ -801,6 +804,7 @@ function lockTeacher(){
   document.getElementById('lockIcon').innerText='🔒';
   document.getElementById('lockText').innerText='Locked';
   showToast('🔒 टीचर मोड लॉक हो गया', 'success');
+  speak('टीचर मोड लॉक हो गया।');
   switchTab('sec-result');
 }
 
@@ -821,6 +825,7 @@ function markAbsentees(){
   });
   saveJSON(LS.records, records);
   document.getElementById('absentMsg').innerText = `✅ ${count} बच्चों की Absent मार्क हो गई!`;
+  speak(`${count} बच्चों को Absent मार्क कर दिया गया है।`);
   updatePresentCounter();
 }
 
@@ -867,6 +872,7 @@ function updateStudentMarks(){
     saveJSON(LS.records, records);
     msg.style.color='green';
     msg.innerText = `✅ ${studentName(sid)} का डेटा सफलतापूर्वक अपडेट हो गया!`;
+    speak(`${studentName(sid)} का डेटा अपडेट हो गया।`);
     refreshUpdateStudentOptions();
   } else {
     msg.style.color='red';
@@ -938,6 +944,7 @@ function startResultScanner(){
   if(resultScanner) return;
   resultScanner = new Html5QrcodeScanner("resultReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
   resultScanner.render(onResultScanSuccess);
+  speak('कृपया अपना ID कार्ड स्कैन करें।');
 }
 function stopResultScanner(){
   if(resultScanner){ try{ resultScanner.clear(); }catch(e){} resultScanner=null; }
