@@ -19,7 +19,20 @@
     --rule:#C9D9EE; --margin:#E3A6A6;
     --radius:16px; --radius-sm:10px;
     --shadow: 0 6px 24px rgba(19,27,58,0.08);
+    --input-bg:#FCFBF8; --input-border:#E5E1D6; --chip-bg:#F1EEE5; --hover-bg:#F1EEE5;
   }
+  html[data-theme="dark"]{
+    --navy:#0B1024; --navy2:#141C3D; --navy-soft:#1E2A55;
+    --cream:#11141F; --paper:#1A1E2E;
+    --ink:#EDEFF7; --slate:#9BA3BE; --slate-light:#6B7290;
+    --saffron:#F2B25C; --saffron-dark:#F2A93B;
+    --green:#4CC98A; --green-bg:#12301F;
+    --red:#F16D6D; --red-bg:#331616;
+    --rule:#2B3358; --margin:#4A3550;
+    --shadow: 0 6px 24px rgba(0,0,0,0.4);
+    --input-bg:#22273D; --input-border:#323A5C; --chip-bg:#242B47; --hover-bg:#242B47;
+  }
+  html, body{transition:background-color .25s ease, color .25s ease;}
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{
@@ -83,7 +96,7 @@
   label{display:block; font-size:12.5px; font-weight:600; color:var(--slate); margin:0 0 6px;}
   select, input[type=text], input[type=number], input[type=password]{
     width:100%; padding:11px 12px; border-radius:var(--radius-sm);
-    border:1.5px solid #E5E1D6; background:#FCFBF8; color:var(--ink);
+    border:1.5px solid var(--input-border); background:var(--input-bg); color:var(--ink);
     font-size:14.5px; font-family:inherit; margin-bottom:12px;
     transition:border-color .15s;
   }
@@ -102,19 +115,19 @@
     box-shadow:0 4px 14px rgba(242,169,59,0.35);
   }
   .btn-primary:hover{background:var(--saffron-dark);}
-  .btn-primary:disabled{background:#E5E1D6; color:var(--slate-light); box-shadow:none; cursor:not-allowed;}
+  .btn-primary:disabled{background:var(--input-border); color:var(--slate-light); box-shadow:none; cursor:not-allowed;}
   .btn-secondary{
     background:var(--navy-soft); color:#fff; padding:11px 14px; width:100%;
     display:flex; align-items:center; justify-content:center; gap:8px;
   }
   .btn-outline{
     background:transparent; color:var(--navy); padding:10px 14px; width:100%;
-    border:1.5px solid #DCE0EA; display:flex; align-items:center; justify-content:center; gap:8px;
+    border:1.5px solid var(--input-border); display:flex; align-items:center; justify-content:center; gap:8px;
   }
   .btn-danger{background:var(--red); color:#fff; padding:11px 14px;}
   .btn-sm{padding:7px 10px; font-size:12.5px; width:auto;}
   .btn-icon{background:transparent; padding:6px; border-radius:8px; display:inline-flex;}
-  .btn-icon:hover{background:#F1EEE5;}
+  .btn-icon:hover{background:var(--chip-bg);}
   .btn-row{display:flex; gap:8px; margin-top:8px;}
   .btn-row > *{flex:1;}
 
@@ -123,14 +136,14 @@
 
   .result-box{
     padding:14px; border-radius:var(--radius-sm); font-size:14px; font-weight:600;
-    text-align:center; transition:all .2s; background:#EEF3FB; color:var(--navy2);
+    text-align:center; transition:all .2s; background:var(--chip-bg); color:var(--navy2);
     line-height:1.5;
   }
   .result-box.success{background:var(--green-bg); color:var(--green);}
   .result-box.error{background:var(--red-bg); color:var(--red);}
 
   .counter-chip{
-    display:inline-flex; align-items:center; gap:6px; background:#EEF3FB; color:var(--navy2);
+    display:inline-flex; align-items:center; gap:6px; background:var(--chip-bg); color:var(--navy2);
     padding:6px 12px; border-radius:999px; font-size:12.5px; font-weight:600; margin-top:10px;
   }
   .counter-chip b{font-family:'JetBrains Mono',monospace; font-size:13px;}
@@ -171,7 +184,7 @@
     border:2px dashed rgba(19,27,58,0.25); box-shadow:0 4px 12px rgba(217,143,29,0.35);
   }
   .id-toggle-row{display:flex; gap:8px; margin-bottom:12px;}
-  .id-toggle-row button{flex:1; background:#F1EEE5; color:var(--navy2); padding:9px; font-size:12.5px;}
+  .id-toggle-row button{flex:1; background:var(--chip-bg); color:var(--navy2); padding:9px; font-size:12.5px;}
   .id-toggle-row button.active{background:var(--navy); color:#fff;}
 
   .slip{
@@ -208,16 +221,44 @@
 
   @media (max-width:360px){ nav.bottom-nav button{font-size:9.5px;} nav.bottom-nav button svg{width:19px; height:19px;} }
 
+  /* ---------- gallery ---------- */
+  .gallery-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  .gallery-item{
+    position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:var(--chip-bg);
+    cursor:pointer;
+  }
+  .gallery-item img, .gallery-item video{width:100%; height:100%; object-fit:cover; display:block;}
+  .gallery-item .play-badge{
+    position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.6); color:#fff;
+    border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:11px;
+  }
+  .gallery-item .gcap{
+    position:absolute; bottom:0; left:0; right:0; background:linear-gradient(0deg,rgba(0,0,0,0.65),transparent);
+    color:#fff; font-size:9.5px; padding:10px 5px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .gallery-item .gdel{
+    position:absolute; top:3px; right:3px; background:rgba(0,0,0,0.55); color:#fff; border:none;
+    border-radius:50%; width:22px; height:22px; font-size:12px; padding:0;
+  }
+  .lightbox{
+    position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:300; display:none;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .lightbox.show{display:flex;}
+  .lightbox-inner{max-width:100%; max-height:100%; text-align:center;}
+  .lightbox-inner img, .lightbox-inner video{max-width:100%; max-height:80vh; border-radius:10px;}
+  .lightbox-inner p{color:#fff; margin-top:10px; font-size:13px;}
+
   /* records table - ledger style */
   .filter-row{display:flex; gap:8px; margin-bottom:10px;}
   .summary-chips{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;}
-  .chip{background:#F1EEE5; padding:6px 11px; border-radius:999px; font-size:12px; font-weight:600; color:var(--navy2);}
+  .chip{background:var(--chip-bg); padding:6px 11px; border-radius:999px; font-size:12px; font-weight:600; color:var(--navy2);}
   .chip.green{background:var(--green-bg); color:var(--green);}
   .chip.red{background:var(--red-bg); color:var(--red);}
 
   .ledger-wrap{
     background:repeating-linear-gradient(#fff, #fff 30px, var(--rule) 31px);
-    border-radius:var(--radius-sm); border:1px solid #EDE9DE; overflow-x:auto;
+    border-radius:var(--radius-sm); border:1px solid var(--input-border); overflow-x:auto;
     position:relative; padding-left:14px; border-left:2px solid var(--margin);
   }
   table{border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px;}
@@ -248,11 +289,11 @@
 
   .list-item{
     display:flex; align-items:center; justify-content:space-between; padding:9px 0;
-    border-bottom:1px solid #F1EEE5; font-size:13.5px;
+    border-bottom:1px solid var(--chip-bg); font-size:13.5px;
   }
   .list-item:last-child{border-bottom:none;}
   .list-item .meta{color:var(--slate); font-size:11.5px;}
-  .tag{font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:999px; background:#EEF3FB; color:var(--navy2); margin-left:6px;}
+  .tag{font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:999px; background:var(--chip-bg); color:var(--navy2); margin-left:6px;}
   .tag.monthly{background:#FBF1E0; color:var(--saffron-dark);}
   .tag.yearly{background:#F3E8F7; color:#8C4DAF;}
 
@@ -295,6 +336,12 @@
   .qr-cell div.qrbox{display:flex; justify-content:center; margin-bottom:4px;}
 </style>
 </head>
+<script>
+  try{
+    var t = localStorage.getItem('amtc_theme');
+    if(t) document.documentElement.setAttribute('data-theme', t);
+  }catch(e){}
+</script>
 <body>
 
 <div class="topbar">
@@ -307,9 +354,14 @@
         <p class="brand-sub">आयुष मैथमेटिक्स टीचिंग डिजिटल सेंटर</p>
       </div>
     </div>
-    <button id="lockBadge" class="lock-badge" onclick="handleLockBadgeTap()" title="Teacher access">
-      <span id="lockIcon">🔒</span><span id="lockText">Locked</span>
-    </button>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button id="themeToggle" class="lock-badge" onclick="toggleTheme()" title="Dark/Light mode" style="padding:7px 10px;">
+        <span id="themeIcon">🌙</span>
+      </button>
+      <button id="lockBadge" class="lock-badge" onclick="handleLockBadgeTap()" title="Teacher access">
+        <span id="lockIcon">🔒</span><span id="lockText">Locked</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -325,6 +377,7 @@
         <button id="idTabBtn" class="active" onclick="setResultMode('id')">🔢 ID से देखें</button>
         <button id="qrTabBtn" onclick="setResultMode('qr')">📷 QR स्कैन करें</button>
       </div>
+      <button class="link-toggle" onclick="testVoice()">🔊 आवाज़ जांचें</button>
       <div id="resultIdBox">
         <input type="text" id="resultIdInput" placeholder="जैसे: AMTC-104" style="text-transform:uppercase;">
         <button class="btn-primary" onclick="lookupResult()">🔍 परिणाम देखें</button>
@@ -484,7 +537,35 @@
     </details>
   </section>
 
+  <!-- ===================== GALLERY TAB (public, students can view anytime) ===================== -->
+  <section id="sec-gallery" class="tab-section">
+    <div class="card" id="galleryUploadCard" style="display:none;">
+      <h2>📷 फोटो / वीडियो जोड़ें</h2>
+      <p class="hint" style="margin-top:0;">यह सिर्फ टीचर के लिए है। बच्चे यहाँ सिर्फ देख सकते हैं।</p>
+      <input type="text" id="galleryCaption" placeholder="कैप्शन (जैसे: Diwali Party 2026)">
+      <label>फोटो चुनें</label>
+      <input type="file" id="galleryPhotoInput" accept="image/*" onchange="addGalleryPhoto(event)">
+      <label style="margin-top:10px;">वीडियो चुनें (छोटा साइज़, अधिकतम ~3MB)</label>
+      <input type="file" id="galleryVideoInput" accept="video/*" onchange="addGalleryVideo(event)">
+      <p id="galleryUploadMsg" class="hint" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="card" id="galleryLockedCard">
+      <p class="hint" style="margin:0; text-align:center;">🔒 फोटो/वीडियो जोड़ने के लिए टीचर अनलॉक करें — <button class="link-toggle" style="padding:0;" onclick="openGate('sec-gallery')">यहाँ टैप करें</button></p>
+    </div>
+
+    <div class="card">
+      <h2>🖼️ गैलरी</h2>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
+
 </main>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner" id="lightboxInner" onclick="event.stopPropagation()"></div>
+</div>
+
 
 <div id="studentQrPrintArea">
   <h2 style="font-family:'Playfair Display',serif;">Ayush Mathematics Teaching Digital Centre — Student QR Codes</h2>
@@ -527,6 +608,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
     Records
   </button>
+  <button class="nav-btn" data-tab="sec-gallery" onclick="switchTab('sec-gallery')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="m5 18 4.5-4.5c.6-.6 1.4-.6 2 0L15 17M15 13.5l1-1c.6-.6 1.4-.6 2 0L21 15.5"/><path d="M8 5V3.5A1.5 1.5 0 0 1 9.5 2h5A1.5 1.5 0 0 1 16 3.5V5"/></svg>
+    Gallery
+  </button>
   <button class="nav-btn" data-tab="sec-manage" onclick="switchTab('sec-manage')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.2a1.6 1.6 0 0 0-1.4 1z"/></svg>
     Manage
@@ -536,7 +621,8 @@
 <script>
 /* ==================== STORAGE / SEED DATA ==================== */
 const LS = {
-  students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret'
+  students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret',
+  gallery:'amtc_gallery', theme:'amtc_theme'
 };
 
 const SEED_STUDENTS = [
@@ -572,6 +658,7 @@ if(!students){ students = SEED_STUDENTS; saveJSON(LS.students, students); }
 let tests = loadJSON(LS.tests, null);
 if(!tests){ tests = SEED_TESTS; saveJSON(LS.tests, tests); }
 let records = loadJSON(LS.records, []);
+let gallery = loadJSON(LS.gallery, []);
 let teacherSecret = localStorage.getItem(LS.secret) || "TEACHER-AMTC-2026";
 localStorage.setItem(LS.secret, teacherSecret);
 
@@ -613,6 +700,7 @@ function switchTab(id){
   if(id==='sec-teacher'){ populateTestSelects(); refreshUpdateStudentOptions(); }
   if(id==='sec-records'){ populateTestSelects(); renderRecords(); }
   if(id==='sec-manage'){ renderStudentList(); renderTestList(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); }
+  if(id==='sec-gallery'){ renderGallery(); }
 }
 
 /* ==================== TEACHER GATE (nav-level lock) ==================== */
@@ -675,33 +763,70 @@ function updatePresentCounter(){
 
 /* ==================== SCAN (ATTENDANCE) ==================== */
 let hindiVoice = null;
+let pendingUtterances = [];
+let speechPrimed = false;
 function loadHindiVoice(){
   try{
     const voices = window.speechSynthesis.getVoices();
-    hindiVoice = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('hi')) || null;
+    const hindiVoices = voices.filter(v=>v.lang && v.lang.toLowerCase().startsWith('hi'));
+    if(hindiVoices.length===0){ hindiVoice = null; return; }
+    // Prefer higher-quality online voices (Google/Microsoft) over the robotic default local one
+    hindiVoice = hindiVoices.find(v=>/google/i.test(v.name)) ||
+                 hindiVoices.find(v=>!v.localService) ||
+                 hindiVoices[0];
   }catch(e){}
 }
 if('speechSynthesis' in window){
   loadHindiVoice();
   window.speechSynthesis.onvoiceschanged = loadHindiVoice;
+  // Many mobile browsers only allow speech after a real user tap — unlock it on first touch/click anywhere.
+  const primeSpeech = function(){
+    if(speechPrimed) return;
+    speechPrimed = true;
+    try{
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+    document.removeEventListener('click', primeSpeech);
+    document.removeEventListener('touchstart', primeSpeech);
+  };
+  document.addEventListener('click', primeSpeech, {once:true});
+  document.addEventListener('touchstart', primeSpeech, {once:true});
 }
 function speak(text){
   try{
     if(!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
     const utt = new SpeechSynthesisUtterance(text);
     utt.lang = 'hi-IN';
     if(hindiVoice) utt.voice = hindiVoice;
-    utt.rate = 0.98; utt.pitch = 1;
-    window.speechSynthesis.speak(utt);
+    utt.rate = 0.9; utt.pitch = 0.95; utt.volume = 1;
+    pendingUtterances.push(utt); // keep a reference so Chrome doesn't garbage-collect it mid-speech
+    if(pendingUtterances.length > 6) pendingUtterances.shift();
+    if(synth.speaking || synth.pending){
+      synth.cancel();
+      setTimeout(()=>{ try{ synth.speak(utt); }catch(e){} }, 60);
+    } else {
+      synth.speak(utt);
+    }
   }catch(e){}
+}
+function testVoice(){
+  if(!('speechSynthesis' in window)){
+    showToast('❌ यह ब्राउज़र आवाज़ सपोर्ट नहीं करता', 'error');
+    return;
+  }
+  speechPrimed = true;
+  speak('नमस्ते। यह आपकी आवाज़ है। टेस्ट सफल रहा।');
+  showToast('🔊 आवाज़ बजाई जा रही है...', 'success');
 }
 
 function startScanScanner(){
   if(scanScanner) return;
   scanScanner = new Html5QrcodeScanner("reader", {fps:20, qrbox:{width:230,height:230}, facingMode:"environment"}, false);
   scanScanner.render(onScanSuccess);
-  speak('कृपया अपना ID कार्ड स्कैन करें।');
+  speak('नमस्ते। कृपया अपना आई.डी. कार्ड स्कैन करें।');
 }
 function stopScanScanner(){
   if(scanScanner){ try{ scanScanner.clear(); }catch(e){} scanScanner=null; }
@@ -724,7 +849,7 @@ function onScanSuccess(decodedText){
   if(sid === teacherSecret.toUpperCase()){
     resBox.className='result-box error';
     resBox.innerHTML = '⚠️ यह टीचर QR है — Teacher टैब में स्कैन करें।';
-    speak('यह टीचर का क्यूआर कोड है, कृपया छात्र का क्यूआर कोड दिखाएं।');
+    speak('यह टीचर का क्यू.आर. कोड है। कृपया छात्र का क्यू.आर. कोड दिखाएं।');
   } else if(students.some(s=>s.id===sid)){
     const name = studentName(sid);
     const date = new Date().toLocaleDateString('en-GB');
@@ -732,7 +857,7 @@ function onScanSuccess(decodedText){
     if(exists){
       resBox.className='result-box error';
       resBox.innerHTML = `⚠️ ${name} (${sid}) की अटेंडेंस पहले से दर्ज है!`;
-      speak(`${name}, आपकी अटेंडेंस पहले से दर्ज है।`);
+      speak(`${name} जी, आपकी उपस्थिति पहले से ही दर्ज की जा चुकी है। धन्यवाद।`);
     } else {
       records.push({date, studentId:sid, name, testId, testLabel:test.label, testType:test.type,
         attendance:'Present', marksObtained:'', totalMarks:test.maxMarks, fee});
@@ -740,12 +865,12 @@ function onScanSuccess(decodedText){
       resBox.className='result-box success';
       resBox.innerHTML = `🎉 ATTENDANCE SUCCESSFUL!<br>नाम: ${name} (${sid})`;
       updatePresentCounter();
-      speak(`${name}, आपकी अटेंडेंस हो गई है!`);
+      speak(`${name} जी, आपकी उपस्थिति सफलतापूर्वक दर्ज कर ली गई है। धन्यवाद।`);
     }
   } else {
     resBox.className='result-box error';
     resBox.innerHTML = `❌ अमान्य QR कोड: ${decodedText}`;
-    speak('क्यूआर कोड सही से नहीं पढ़ा गया, कृपया किसी को दिखाएं।');
+    speak('क्षमा करें, क्यू.आर. कोड सही से नहीं पढ़ा गया। कृपया अपना कार्ड किसी अध्यापक को दिखाएं।');
   }
 
   setTimeout(()=>{
@@ -760,7 +885,7 @@ function startGateScanner(){
   if(gateScanner) return;
   gateScanner = new Html5QrcodeScanner("gateReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
   gateScanner.render(onGateScanSuccess);
-  speak('कृपया टीचर QR कोड स्कैन करें।');
+  speak('कृपया टीचर क्यू.आर. कोड स्कैन करें, अथवा सुरक्षा कोड दर्ज करें।');
 }
 function stopGateScanner(){
   if(gateScanner){ try{ gateScanner.clear(); }catch(e){} gateScanner=null; }
@@ -793,7 +918,7 @@ function unlockTeacher(){
   document.getElementById('lockIcon').innerText='🔓';
   document.getElementById('lockText').innerText='Teacher Mode';
   showToast('🔓 टीचर मोड अनलॉक हो गया', 'success');
-  speak('टीचर मोड अनलॉक हो गया।');
+  speak('टीचर मोड सफलतापूर्वक अनलॉक हो गया है।');
   const target = pendingTab || 'sec-teacher';
   pendingTab = null;
   switchTab(target);
@@ -804,7 +929,7 @@ function lockTeacher(){
   document.getElementById('lockIcon').innerText='🔒';
   document.getElementById('lockText').innerText='Locked';
   showToast('🔒 टीचर मोड लॉक हो गया', 'success');
-  speak('टीचर मोड लॉक हो गया।');
+  speak('टीचर मोड लॉक कर दिया गया है।');
   switchTab('sec-result');
 }
 
@@ -825,7 +950,7 @@ function markAbsentees(){
   });
   saveJSON(LS.records, records);
   document.getElementById('absentMsg').innerText = `✅ ${count} बच्चों की Absent मार्क हो गई!`;
-  speak(`${count} बच्चों को Absent मार्क कर दिया गया है।`);
+  speak(`कुल ${count} विद्यार्थियों को अनुपस्थित दर्ज कर दिया गया है।`);
   updatePresentCounter();
 }
 
@@ -872,7 +997,7 @@ function updateStudentMarks(){
     saveJSON(LS.records, records);
     msg.style.color='green';
     msg.innerText = `✅ ${studentName(sid)} का डेटा सफलतापूर्वक अपडेट हो गया!`;
-    speak(`${studentName(sid)} का डेटा अपडेट हो गया।`);
+    speak(`${studentName(sid)} जी का रिकॉर्ड सफलतापूर्वक अपडेट कर दिया गया है।`);
     refreshUpdateStudentOptions();
   } else {
     msg.style.color='red';
@@ -944,7 +1069,7 @@ function startResultScanner(){
   if(resultScanner) return;
   resultScanner = new Html5QrcodeScanner("resultReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
   resultScanner.render(onResultScanSuccess);
-  speak('कृपया अपना ID कार्ड स्कैन करें।');
+  speak('नमस्ते। कृपया अपना आई.डी. कार्ड स्कैन करें।');
 }
 function stopResultScanner(){
   if(resultScanner){ try{ resultScanner.clear(); }catch(e){} resultScanner=null; }
@@ -1196,8 +1321,131 @@ function clearAllData(){
   showToast('सारा रिकॉर्ड डेटा हटा दिया गया', 'success');
 }
 
+/* ==================== GALLERY (photos / videos) ==================== */
+function renderGallery(){
+  document.getElementById('galleryUploadCard').style.display = teacherUnlocked ? 'block' : 'none';
+  document.getElementById('galleryLockedCard').style.display = teacherUnlocked ? 'none' : 'block';
+
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML='';
+  if(gallery.length===0){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">अभी तक कोई फोटो/वीडियो नहीं जोड़ी गई</div>`;
+    return;
+  }
+  gallery.slice().reverse().forEach(item=>{
+    const cell = document.createElement('div');
+    cell.className='gallery-item';
+    cell.onclick = ()=>openLightbox(item.id);
+    const mediaHTML = item.type==='video'
+      ? `<video src="${item.dataUrl}" muted></video><span class="play-badge">▶</span>`
+      : `<img src="${item.dataUrl}" alt="">`;
+    cell.innerHTML = `${mediaHTML}
+      ${item.caption ? `<div class="gcap">${item.caption}</div>` : ''}
+      ${teacherUnlocked ? `<button class="gdel" onclick="event.stopPropagation(); deleteGalleryItem('${item.id}')">🗑️</button>` : ''}`;
+    grid.appendChild(cell);
+  });
+}
+function saveGallery(){ saveJSON(LS.gallery, gallery); }
+
+function addGalleryPhoto(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const caption = document.getElementById('galleryCaption').value.trim();
+  const msg = document.getElementById('galleryUploadMsg');
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const maxW = 900;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+      gallery.push({id:genId('g'), type:'image', dataUrl, caption, date:new Date().toLocaleDateString('en-GB')});
+      try{
+        saveGallery();
+        document.getElementById('galleryCaption').value='';
+        evt.target.value='';
+        msg.style.color='green'; msg.innerText='✅ फोटो जोड़ दी गई';
+        renderGallery();
+      }catch(err){
+        gallery.pop();
+        msg.style.color='red'; msg.innerText='❌ स्टोरेज फुल है — कुछ पुरानी फोटो हटाएं';
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addGalleryVideo(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const msg = document.getElementById('galleryUploadMsg');
+  const MAX_BYTES = 3.2*1024*1024;
+  if(file.size > MAX_BYTES){
+    msg.style.color='red';
+    msg.innerText = '❌ वीडियो बहुत बड़ी है (3MB से कम रखें) — फोन में वीडियो छोटा/कम क्वालिटी में ट्रिम करके डालें।';
+    evt.target.value='';
+    return;
+  }
+  const caption = document.getElementById('galleryCaption').value.trim();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    gallery.push({id:genId('g'), type:'video', dataUrl:e.target.result, caption, date:new Date().toLocaleDateString('en-GB')});
+    try{
+      saveGallery();
+      document.getElementById('galleryCaption').value='';
+      evt.target.value='';
+      msg.style.color='green'; msg.innerText='✅ वीडियो जोड़ दी गई';
+      renderGallery();
+    }catch(err){
+      gallery.pop();
+      msg.style.color='red'; msg.innerText='❌ स्टोरेज फुल है — कुछ पुरानी फोटो/वीडियो हटाएं';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteGalleryItem(id){
+  if(!confirm('यह फोटो/वीडियो हमेशा के लिए हटानी है?')) return;
+  gallery = gallery.filter(g=>g.id!==id);
+  saveGallery();
+  renderGallery();
+  showToast('हटा दिया गया', 'success');
+}
+
+function openLightbox(id){
+  const item = gallery.find(g=>g.id===id);
+  if(!item) return;
+  const inner = document.getElementById('lightboxInner');
+  inner.innerHTML = item.type==='video'
+    ? `<video src="${item.dataUrl}" controls autoplay></video>`
+    : `<img src="${item.dataUrl}" alt="">`;
+  if(item.caption) inner.innerHTML += `<p>${item.caption}${item.date ? ' • '+item.date : ''}</p>`;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(evt){
+  document.getElementById('lightboxInner').innerHTML='';
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+/* ==================== THEME (dark / light) ==================== */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeIcon').innerText = theme==='dark' ? '☀️' : '🌙';
+  localStorage.setItem(LS.theme, theme);
+}
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current==='dark' ? 'light' : 'dark');
+}
+
 /* ==================== INIT ==================== */
 window.onload = function(){
+  applyTheme(localStorage.getItem(LS.theme) || 'light');
   populateTestSelects();
 };
 </script>
