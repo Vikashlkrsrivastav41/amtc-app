@@ -524,7 +524,7 @@
     <div class="brand-group">
       <div class="brand-emblem">A</div>
       <div>
-        <p class="brand-eyebrow">Digital System</p>
+        <p class="brand-eyebrow">Digital Attendance System</p>
         <h1 class="brand-title">Ayush Mathematics<br>Teaching Digital Centre</h1>
         <p class="brand-sub">आयुष मैथमेटिक्स टीचिंग डिजिटल सेंटर</p>
       </div>
@@ -760,6 +760,17 @@
     </details>
 
     <details class="accordion">
+      <summary>👨‍🏫 अन्य टीचर जोड़ें<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <p class="hint" style="margin-top:0;">नया टीचर आए तो यहाँ से उसका नाम डालकर जोड़ें — उसके लिए अपने आप अलग कोड और QR बन जाएगा, जो ऊपर वाले कोड जितना ही काम करेगा (Teacher Mode अनलॉक)।</p>
+        <label>नए टीचर का नाम</label>
+        <input type="text" id="newTeacherName" placeholder="जैसे: Pradeep Sir">
+        <button class="btn-secondary" onclick="addTeacher()">+ टीचर जोड़ें</button>
+        <div id="teacherListWrap" style="margin-top:12px;"></div>
+      </div>
+    </details>
+
+    <details class="accordion">
       <summary>💾 डेटा (Backup / Reset)<span class="chev">›</span></summary>
       <div class="accordion-body">
         <div class="btn-row">
@@ -776,11 +787,11 @@
   <section id="sec-gallery" class="tab-section">
     <div class="card" id="galleryUploadCard" style="display:none;">
       <h2>📷 फोटो / वीडियो जोड़ें</h2>
-      <p class="hint" style="margin-top:0;">यह सिर्फ टीचर के लिए है। बच्चे यहाँ सिर्फ देख सकते हैं।</p>
+      <p class="hint" style="margin-top:0;">यह सिर्फ टीचर के लिए है। <b>फोटो</b> — cloud में save होकर सबको हर डिवाइस से दिखेंगी। <b>वीडियो</b> — साइज़ बड़ा होने की वजह से सिर्फ इसी डिवाइस पर रहेगी।</p>
       <input type="text" id="galleryCaption" placeholder="कैप्शन (जैसे: Diwali Party 2026)">
-      <label>फोटो चुनें</label>
+      <label>फोटो चुनें (सबको दिखेगी)</label>
       <input type="file" id="galleryPhotoInput" accept="image/*" onchange="addGalleryPhoto(event)">
-      <label style="margin-top:10px;">वीडियो चुनें (छोटा साइज़, अधिकतम ~3MB)</label>
+      <label style="margin-top:10px;">वीडियो चुनें (सिर्फ इसी डिवाइस पर, अधिकतम ~3MB)</label>
       <input type="file" id="galleryVideoInput" accept="video/*" onchange="addGalleryVideo(event)">
       <p id="galleryUploadMsg" class="hint" style="margin-top:8px;"></p>
     </div>
@@ -792,6 +803,30 @@
     <div class="card">
       <h2>🖼️ गैलरी</h2>
       <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===================== DIGITAL COURSE TAB (public view, teacher adds videos) ===================== -->
+  <section id="sec-course" class="tab-section">
+    <div class="card" id="courseUploadCard" style="display:none;">
+      <h2>🎥 वीडियो लेक्चर जोड़ें</h2>
+      <p class="hint" style="margin-top:0;">यह सिर्फ टीचर के लिए है। YouTube का लिंक डालें — बच्चे यहाँ से पढ़ सकेंगे।</p>
+      <label>लेक्चर का नाम</label>
+      <input type="text" id="courseTitle" placeholder="जैसे: Week 3 — Fractions">
+      <label>YouTube लिंक</label>
+      <input type="text" id="courseYtLink" placeholder="https://youtube.com/watch?v=...">
+      <button class="btn-primary" style="margin-top:6px;" onclick="addCourseVideo()">➕ जोड़ें</button>
+      <p id="courseUploadMsg" class="hint" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="card" id="courseLockedCard">
+      <p class="hint" style="margin:0; text-align:center;">🔒 वीडियो जोड़ने के लिए टीचर अनलॉक करें — <button class="link-toggle" style="padding:0;" onclick="openGate('sec-course')">यहाँ टैप करें</button></p>
+    </div>
+
+    <div class="card">
+      <h2><span class="glow-text">📚 Digital Course</span></h2>
+      <p class="hint" style="margin-top:0;">नीचे दिए वीडियो पर टैप करके पढ़ाई शुरू करें।</p>
+      <div class="gallery-grid" id="courseGrid"></div>
     </div>
   </section>
 
@@ -968,6 +1003,10 @@
 <div class="more-overlay" id="moreOverlay" onclick="closeMoreSheet(event)">
   <div class="more-sheet" onclick="event.stopPropagation()">
     <div class="more-handle"></div>
+    <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-course');">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v13H4z"/><path d="m10 8.5 5 3-5 3z" fill="currentColor" stroke="none"/><path d="M8 21h8"/></svg>
+      Digital Course
+    </button>
     <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-gallery');">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="m5 18 4.5-4.5c.6-.6 1.4-.6 2 0L15 17M15 13.5l1-1c.6-.6 1.4-.6 2 0L21 15.5"/><path d="M8 5V3.5A1.5 1.5 0 0 1 9.5 2h5A1.5 1.5 0 0 1 16 3.5V5"/></svg>
       गैलरी (Gallery)
@@ -1030,7 +1069,7 @@ function queueCloudSync(){
 function pushStateToCloud(){
   if(!cloudReady) return;
   db.collection('amtc').doc('state').set({
-    students, tests, batches, records, teacherSecret,
+    students, tests, batches, records, teacherSecret, teachers,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, {merge:true}).then(()=>{
     setCloudStatus('synced');
@@ -1056,11 +1095,13 @@ function startCloudSync(){
     if(data.batches) batches = data.batches;
     if(data.records) records = data.records;
     if(data.teacherSecret) teacherSecret = data.teacherSecret;
+    if(data.teachers) teachers = data.teachers;
     localStorage.setItem(LS.students, JSON.stringify(students));
     localStorage.setItem(LS.tests, JSON.stringify(tests));
     localStorage.setItem(LS.batches, JSON.stringify(batches));
     localStorage.setItem(LS.records, JSON.stringify(records));
     localStorage.setItem(LS.secret, teacherSecret);
+    localStorage.setItem(LS.teachers, JSON.stringify(teachers));
     applyingRemoteUpdate = false;
     cloudDocLoaded = true;
     setCloudStatus(snap.metadata.fromCache ? 'offline' : 'synced');
@@ -1102,6 +1143,73 @@ function startBannerCloudSync(){
   }, err=>console.error('Banner cloud listen failed', err));
 }
 
+/* ---- course videos cloud sync: also a fully separate Firestore doc ---- */
+let coursesDocLoaded = false, coursesApplyingRemote = false, coursesPendingSync = false, coursesSyncTimer = null;
+function queueCoursesCloudSync(){
+  if(!cloudReady || coursesApplyingRemote) return;
+  if(!coursesDocLoaded){ coursesPendingSync = true; return; }
+  clearTimeout(coursesSyncTimer);
+  coursesSyncTimer = setTimeout(pushCoursesToCloud, 500);
+}
+function pushCoursesToCloud(){
+  if(!cloudReady) return;
+  db.collection('amtc').doc('courses').set({
+    items: courses, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(err=>console.error('Courses cloud sync failed', err));
+}
+function startCoursesCloudSync(){
+  if(!cloudReady) return;
+  db.collection('amtc').doc('courses').onSnapshot(snap=>{
+    if(!snap.exists){ pushCoursesToCloud(); coursesDocLoaded = true; return; }
+    const data = snap.data();
+    coursesApplyingRemote = true;
+    if(data.items) courses = data.items;
+    localStorage.setItem(LS.courses, JSON.stringify(courses));
+    coursesApplyingRemote = false;
+    coursesDocLoaded = true;
+    if(document.querySelector('#sec-course.active')) renderCourseList();
+    if(coursesPendingSync){ coursesPendingSync = false; queueCoursesCloudSync(); }
+  }, err=>console.error('Courses cloud listen failed', err));
+}
+
+/* ---- gallery PHOTOS cloud sync: isolated doc, so students/records are never touched.
+   Videos stay local-only (too large for a Firestore document). ---- */
+let galleryPhotosDocLoaded = false, galleryPhotosApplyingRemote = false, galleryPhotosPendingSync = false, galleryPhotosSyncTimer = null;
+function queueGalleryPhotosCloudSync(){
+  if(!cloudReady || galleryPhotosApplyingRemote) return;
+  if(!galleryPhotosDocLoaded){ galleryPhotosPendingSync = true; return; }
+  clearTimeout(galleryPhotosSyncTimer);
+  galleryPhotosSyncTimer = setTimeout(pushGalleryPhotosToCloud, 500);
+}
+function pushGalleryPhotosToCloud(){
+  if(!cloudReady) return;
+  const photos = gallery.filter(g=>g.type==='image');
+  db.collection('amtc').doc('gallery_photos').set({
+    photos, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(err=>console.error('Gallery photo sync failed', err));
+}
+function startGalleryPhotosCloudSync(){
+  if(!cloudReady) return;
+  db.collection('amtc').doc('gallery_photos').onSnapshot(snap=>{
+    if(!snap.exists){
+      // first ever run — seed cloud with whatever photos already exist on this device
+      pushGalleryPhotosToCloud();
+      galleryPhotosDocLoaded = true;
+      return;
+    }
+    const data = snap.data();
+    galleryPhotosApplyingRemote = true;
+    const cloudPhotos = data.photos || [];
+    const localVideos = gallery.filter(g=>g.type==='video');
+    gallery = [...localVideos, ...cloudPhotos];
+    saveGallery();
+    galleryPhotosApplyingRemote = false;
+    galleryPhotosDocLoaded = true;
+    if(document.querySelector('#sec-gallery.active')) renderGallery();
+    if(galleryPhotosPendingSync){ galleryPhotosPendingSync = false; queueGalleryPhotosCloudSync(); }
+  }, err=>console.error('Gallery photo listen failed', err));
+}
+
 function refreshActiveTab(){
   const activeSection = document.querySelector('.tab-section.active');
   if(!activeSection) return;
@@ -1116,7 +1224,7 @@ function refreshActiveTab(){
 const LS = {
   students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret',
   gallery:'amtc_gallery', theme:'amtc_theme', batches:'amtc_batches', complaints:'amtc_complaints',
-  banner:'amtc_banner'
+  banner:'amtc_banner', courses:'amtc_courses', teachers:'amtc_teachers', galleryPhotos:'amtc_gallery_photos'
 };
 
 const SEED_STUDENTS = [
@@ -1151,7 +1259,7 @@ function loadJSON(key, fallback){
 }
 function saveJSON(key, val){
   localStorage.setItem(key, JSON.stringify(val));
-  if(key===LS.students || key===LS.tests || key===LS.batches || key===LS.records) queueCloudSync();
+  if(key===LS.students || key===LS.tests || key===LS.batches || key===LS.records || key===LS.teachers) queueCloudSync();
 }
 function setTeacherSecret(val){
   teacherSecret = val;
@@ -1176,8 +1284,10 @@ let records = loadJSON(LS.records, []);
 let gallery = loadJSON(LS.gallery, []);
 let complaints = loadJSON(LS.complaints, []);
 let bannerImages = loadJSON(LS.banner, []);
+let courses = loadJSON(LS.courses, []);
 let teacherSecret = localStorage.getItem(LS.secret) || "TEACHER-AMTC-2026";
 localStorage.setItem(LS.secret, teacherSecret);
+let teachers = loadJSON(LS.teachers, []);
 
 let teacherUnlocked = false; // resets every reload on purpose (security)
 let scanScanner = null, gateScanner = null, resultScanner = null, cmpScanner = null;
@@ -1208,7 +1318,7 @@ function showToast(msg, type){
 }
 
 /* ==================== NAV ==================== */
-const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint'];
+const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint','sec-course'];
 function switchTab(id){
   if(PROTECTED_TABS.includes(id) && !teacherUnlocked){
     openGate(id);
@@ -1226,8 +1336,9 @@ function switchTab(id){
 
   if(id==='sec-teacher'){ populateTestSelects(); refreshUpdateStudentOptions(); }
   if(id==='sec-records'){ populateTestSelects(); renderRecords(); renderAttendanceChart(); }
-  if(id==='sec-manage'){ renderBatchList(); renderStudentList(); renderTestList(); populateBatchSelects(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); renderComplaints(); renderBannerManage(); }
+  if(id==='sec-manage'){ renderBatchList(); renderStudentList(); renderTestList(); populateBatchSelects(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); renderComplaints(); renderBannerManage(); renderTeacherList(); }
   if(id==='sec-gallery'){ renderGallery(); }
+  if(id==='sec-course'){ renderCourseList(); }
   if(id==='sec-complaint'){ resetComplaintGate(); } else { stopCmpScanner(); if(isRecording){ stopRecordingStream(true); } }
   updateMoreComplaintBadge();
 }
@@ -1416,7 +1527,7 @@ function onScanSuccess(decodedText){
   const fee = document.getElementById('scanFee').value;
   const test = testById(testId);
 
-  if(sid === teacherSecret.toUpperCase()){
+  if(isValidTeacherCode(sid)){
     resBox.className='result-box error';
     resBox.innerHTML = '⚠️ यह टीचर QR है — Teacher टैब में स्कैन करें।';
     speak('यह टीचर का क्यू.आर. कोड है। कृपया छात्र का क्यू.आर. कोड दिखाएं।');
@@ -1465,11 +1576,17 @@ function startGateScanner(){
 function stopGateScanner(){
   if(gateScanner){ try{ gateScanner.clear(); }catch(e){} gateScanner=null; }
 }
+function isValidTeacherCode(code){
+  code = (code||'').trim().toUpperCase();
+  if(!code) return false;
+  if(code === teacherSecret.toUpperCase()) return true;
+  return teachers.some(t=>t.code.toUpperCase()===code);
+}
 function onGateScanSuccess(decodedText){
   if(isProcessingGateScan) return;
   isProcessingGateScan = true;
   const code = decodedText.trim();
-  if(code.toUpperCase() === teacherSecret.toUpperCase()){
+  if(isValidTeacherCode(code)){
     unlockTeacher();
   } else {
     showToast('❌ गलत टीचर कोड', 'error');
@@ -1482,7 +1599,7 @@ function toggleManualUnlock(){
 }
 function tryManualUnlock(){
   const val = document.getElementById('manualCode').value.trim();
-  if(val.toUpperCase() === teacherSecret.toUpperCase()) unlockTeacher();
+  if(isValidTeacherCode(val)) unlockTeacher();
   else showToast('❌ गलत कोड', 'error');
 }
 function unlockTeacher(){
@@ -1712,7 +1829,7 @@ function onResultScanSuccess(decodedText){
   if(isProcessingResultScan) return;
   isProcessingResultScan = true;
   const sid = decodedText.trim().toUpperCase();
-  if(sid === teacherSecret.toUpperCase()){
+  if(isValidTeacherCode(sid)){
     document.getElementById('resultMsg').innerText = '⚠️ यह टीचर QR है, छात्र QR स्कैन करें।';
   } else {
     document.getElementById('resultIdInput').value = sid;
@@ -1947,6 +2064,65 @@ function downloadTeacherQR(){
   link.click();
 }
 
+/* ==================== MANAGE: ADDITIONAL TEACHERS ==================== */
+function addTeacher(){
+  const nameInput = document.getElementById('newTeacherName');
+  const name = nameInput.value.trim();
+  if(!name){ showToast('टीचर का नाम लिखें', 'error'); return; }
+  const code = 'TCHR-' + name.replace(/[^A-Za-z]/g,'').slice(0,4).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  teachers.push({id:genId('tch'), name, code});
+  saveJSON(LS.teachers, teachers);
+  nameInput.value='';
+  renderTeacherList();
+  showToast('✅ टीचर जोड़ दिया गया', 'success');
+}
+function deleteTeacher(id){
+  if(!confirm('इस टीचर का access हटाना है?')) return;
+  teachers = teachers.filter(t=>t.id!==id);
+  saveJSON(LS.teachers, teachers);
+  renderTeacherList();
+  showToast('टीचर हटा दिया गया', 'success');
+}
+function renderTeacherList(){
+  const wrap = document.getElementById('teacherListWrap');
+  if(!wrap) return;
+  if(teachers.length===0){
+    wrap.innerHTML = `<div class="empty-state">अभी तक कोई अतिरिक्त टीचर नहीं जोड़ा गया</div>`;
+    return;
+  }
+  wrap.innerHTML='';
+  teachers.forEach(t=>{
+    const row = document.createElement('div');
+    row.className = 'contact-row';
+    row.style.background = 'var(--chip-bg)';
+    row.style.border = '1px solid var(--input-border)';
+    row.innerHTML = `
+      <div class="contact-info">
+        <span class="contact-name" style="color:var(--ink);">${t.name.replace(/</g,'&lt;')}</span>
+        <span class="contact-role" style="color:var(--slate); font-family:'JetBrains Mono',monospace;">${t.code}</span>
+      </div>
+      <div class="contact-actions">
+        <button class="contact-btn" style="background:var(--navy); color:#fff;" onclick="showTeacherQR('${t.id}')" aria-label="QR दिखाएं">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg>
+        </button>
+        <button class="contact-btn" style="background:var(--red);" onclick="deleteTeacher('${t.id}')" aria-label="हटाएं">🗑️</button>
+      </div>
+    `;
+    wrap.appendChild(row);
+  });
+}
+function showTeacherQR(id){
+  const t = teachers.find(x=>x.id===id);
+  if(!t) return;
+  const inner = document.getElementById('lightboxInner');
+  inner.innerHTML = `<div style="background:#fff; padding:16px; border-radius:12px; text-align:center;">
+    <div id="tempTeacherQr" style="display:flex; justify-content:center;"></div>
+    <p style="color:#131B3A;">${t.name.replace(/</g,'&lt;')}</p>
+  </div>`;
+  document.getElementById('lightbox').classList.add('show');
+  new QRCode(document.getElementById('tempTeacherQr'), {text:t.code, width:200, height:200, colorDark:"#131B3A", colorLight:"#ffffff"});
+}
+
 /* ==================== PRINT STUDENT QRs ==================== */
 function printAllStudentQR(){
   const grid = document.getElementById('printQrGrid');
@@ -2058,7 +2234,7 @@ function onCmpScanSuccess(decodedText){
   if(isProcessingCmpScan) return;
   isProcessingCmpScan = true;
   const sid = decodedText.trim().toUpperCase();
-  if(sid === teacherSecret.toUpperCase()){
+  if(isValidTeacherCode(sid)){
     document.getElementById('cmpVerifyMsg').textContent = '⚠️ यह टीचर QR है, अपना स्टूडेंट QR स्कैन करें।';
   } else {
     document.getElementById('cmpVerifyId').value = sid;
@@ -2350,6 +2526,89 @@ function deleteBannerImage(id){
   showToast('फोटो हटा दी गई', 'success');
 }
 
+/* ==================== DIGITAL COURSE (YouTube lectures, isolated cloud doc) ==================== */
+function extractYoutubeId(url){
+  if(!url) return null;
+  url = url.trim();
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+    /(?:youtu\.be\/)([\w-]{11})/,
+    /(?:youtube\.com\/embed\/)([\w-]{11})/,
+    /(?:youtube\.com\/shorts\/)([\w-]{11})/
+  ];
+  for(const p of patterns){
+    const m = url.match(p);
+    if(m) return m[1];
+  }
+  if(/^[\w-]{11}$/.test(url)) return url; // raw video ID pasted directly
+  return null;
+}
+
+function renderCourseTeacherUI(){
+  const upload = document.getElementById('courseUploadCard');
+  const locked = document.getElementById('courseLockedCard');
+  if(!upload) return;
+  upload.style.display = teacherUnlocked ? 'block' : 'none';
+  locked.style.display = teacherUnlocked ? 'none' : 'block';
+}
+
+function addCourseVideo(){
+  const title = document.getElementById('courseTitle').value.trim();
+  const link = document.getElementById('courseYtLink').value.trim();
+  const msg = document.getElementById('courseUploadMsg');
+  if(!title){ msg.style.color='red'; msg.innerText='❌ लेक्चर का नाम लिखें'; return; }
+  const ytId = extractYoutubeId(link);
+  if(!ytId){ msg.style.color='red'; msg.innerText='❌ सही YouTube लिंक डालें'; return; }
+
+  courses.unshift({id:genId('crs'), title, youtubeId:ytId, addedAt:new Date().toISOString()});
+  localStorage.setItem(LS.courses, JSON.stringify(courses));
+  queueCoursesCloudSync();
+
+  document.getElementById('courseTitle').value='';
+  document.getElementById('courseYtLink').value='';
+  msg.style.color='green'; msg.innerText='✅ वीडियो जोड़ दिया गया — सबको दिखेगा';
+  renderCourseList();
+}
+
+function deleteCourseVideo(id){
+  courses = courses.filter(c=>c.id!==id);
+  localStorage.setItem(LS.courses, JSON.stringify(courses));
+  queueCoursesCloudSync();
+  renderCourseList();
+  showToast('वीडियो हटा दिया गया', 'success');
+}
+
+function renderCourseList(){
+  renderCourseTeacherUI();
+  const grid = document.getElementById('courseGrid');
+  if(!grid) return;
+  if(courses.length===0){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">अभी तक कोई वीडियो लेक्चर नहीं जोड़ा गया</div>`;
+    return;
+  }
+  grid.innerHTML='';
+  courses.forEach(c=>{
+    const cell = document.createElement('div');
+    cell.className='gallery-item';
+    cell.onclick = ()=>openCourseVideo(c.id);
+    cell.innerHTML = `<img src="https://img.youtube.com/vi/${c.youtubeId}/hqdefault.jpg" alt=""><span class="play-badge">▶</span>
+      <div class="gcap">${c.title.replace(/</g,'&lt;')}</div>
+      ${teacherUnlocked ? `<button class="gdel" onclick="event.stopPropagation(); deleteCourseVideo('${c.id}')">🗑️</button>` : ''}`;
+    grid.appendChild(cell);
+  });
+}
+
+function openCourseVideo(id){
+  const c = courses.find(x=>x.id===id);
+  if(!c) return;
+  const inner = document.getElementById('lightboxInner');
+  inner.innerHTML = `<iframe width="100%" height="230" style="border-radius:12px; aspect-ratio:16/9; height:auto;"
+    src="https://www.youtube.com/embed/${c.youtubeId}?autoplay=1&rel=0" title="${c.title.replace(/"/g,'&quot;')}"
+    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <p>${c.title.replace(/</g,'&lt;')}</p>`;
+  document.getElementById('lightbox').classList.add('show');
+}
+
 /* ==================== GALLERY (photos / videos) ==================== */
 function renderGallery(){
   document.getElementById('galleryUploadCard').style.display = teacherUnlocked ? 'block' : 'none';
@@ -2395,9 +2654,10 @@ function addGalleryPhoto(evt){
       gallery.push({id:genId('g'), type:'image', dataUrl, caption, date:new Date().toLocaleDateString('en-GB')});
       try{
         saveGallery();
+        queueGalleryPhotosCloudSync();
         document.getElementById('galleryCaption').value='';
         evt.target.value='';
-        msg.style.color='green'; msg.innerText='✅ फोटो जोड़ दी गई';
+        msg.style.color='green'; msg.innerText='✅ फोटो जोड़ दी गई — सबको दिखेगी';
         renderGallery();
       }catch(err){
         gallery.pop();
@@ -2440,8 +2700,10 @@ function addGalleryVideo(evt){
 
 function deleteGalleryItem(id){
   if(!confirm('यह फोटो/वीडियो हमेशा के लिए हटानी है?')) return;
+  const item = gallery.find(g=>g.id===id);
   gallery = gallery.filter(g=>g.id!==id);
   saveGallery();
+  if(item && item.type==='image') queueGalleryPhotosCloudSync();
   renderGallery();
   showToast('हटा दिया गया', 'success');
 }
@@ -2480,6 +2742,8 @@ window.onload = function(){
   renderHeroSlider();
   startCloudSync();
   startBannerCloudSync();
+  startCoursesCloudSync();
+  startGalleryPhotosCloudSync();
 };
 </script>
 </body>
