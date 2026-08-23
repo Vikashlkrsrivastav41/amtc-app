@@ -356,7 +356,8 @@
 
   @media print{
     nav.bottom-nav, .topbar, main{display:none !important;}
-    #studentQrPrintArea{display:block !important;}
+    #studentQrPrintArea{display:none;}
+    body.print-qr-mode #studentQrPrintArea{display:block !important;}
     body.print-slip main{display:block !important; padding:0;}
     body.print-slip #sec-result{display:block !important;}
     body.print-slip .tab-section:not(#sec-result){display:none !important;}
@@ -366,6 +367,80 @@
   .qr-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
   .qr-cell{text-align:center; font-size:11px; font-family:'JetBrains Mono',monospace; break-inside:avoid;}
   .qr-cell div.qrbox{display:flex; justify-content:center; margin-bottom:4px;}
+
+  /* ==================== DOCUMENT GENERATOR (ID/Admit/Marksheet/Certificate) ==================== */
+  .doc-type-tabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+  .doc-type-tabs .doc-type-btn{flex:1; min-width:70px; background:var(--chip-bg); color:var(--navy2); padding:9px 4px; font-size:11.5px; border-radius:10px;}
+  .doc-type-tabs .doc-type-btn.active{background:var(--navy); color:#fff;}
+  .doc-fields{margin-top:4px;}
+  .subj-row{display:flex; gap:6px; align-items:center; margin-bottom:8px;}
+  .subj-row input{margin-bottom:0;}
+  .subj-row .subj-name{flex:2;}
+  .subj-row .subj-max, .subj-row .subj-obt{flex:1; min-width:0;}
+
+  .doc-overlay{position:fixed; inset:0; background:rgba(19,27,58,0.85); z-index:400; display:none; overflow-y:auto; padding:20px 14px 40px;}
+  .doc-overlay.show{display:block;}
+  .doc-overlay-actions{display:flex; gap:10px; max-width:480px; margin:0 auto 14px; justify-content:center;}
+
+  .doc-page{position:relative; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,0.32); max-width:480px; margin:0 auto 16px; font-family:'Inter','Noto Sans Devanagari',sans-serif; color:#20263B;
+    border:1px solid #E7D9B8; outline:6px solid #fff; outline-offset:-14px;}
+  .doc-page::before{content:""; position:absolute; inset:7px; border:1.5px solid #D9A441; border-radius:8px; pointer-events:none; z-index:2;}
+  .doc-tricolor{height:10px; background:linear-gradient(90deg,#FF9933 0% 33%,#fff 33% 66%,#138808 66% 100%);}
+  .doc-watermark{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0.06; pointer-events:none; z-index:0;}
+  .doc-watermark svg{width:220px; height:auto;}
+  .doc-amrit-badge{text-align:center; background:linear-gradient(90deg,#FFF4E0,#FFE8C2,#FFF4E0); color:#8C4A00; font-size:10.5px; font-weight:700; letter-spacing:.03em; padding:7px 10px; position:relative; z-index:1; border-bottom:1px dashed #E7C784;}
+  .doc-brandrow{display:flex; align-items:center; gap:10px; padding:14px 20px 8px; position:relative; z-index:1;}
+  .doc-brand-title{font-family:'Playfair Display',serif; font-weight:700; font-size:14.5px; color:#131B3A; line-height:1.25;}
+  .doc-brand-sub{font-size:11px; color:#6B7280;}
+  .doc-body{padding:8px 20px 20px; position:relative; z-index:1;}
+  .doc-body table{width:100% !important; min-width:0 !important; border-collapse:collapse;}
+  .doc-body table td, .doc-body table th{padding:6px 6px; word-break:break-word;}
+  .doc-seal{width:64px; height:64px; border-radius:50%; margin:0 auto; position:relative;
+    background:radial-gradient(circle at 35% 30%, #F2C878, #D9A441 60%, #B9812A 100%);
+    border:2px solid #8C4A00; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 8px rgba(140,74,0,0.35); }
+  .doc-seal::before{content:""; position:absolute; inset:5px; border:1px dashed rgba(19,27,58,0.55); border-radius:50%;}
+  .doc-seal span{font-family:'Playfair Display',serif; font-weight:800; font-size:10px; color:#131B3A; text-align:center; line-height:1.1;}
+
+  /* elegant CS50-style certificate variant — landscape layout */
+  .cert-page{position:relative; background:#fff; border-radius:6px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,0.32); max-width:520px; margin:0 auto 16px; font-family:'Inter','Noto Sans Devanagari',sans-serif; color:#20263B; border:1px solid #E5E1D6;}
+  .cert-strip{height:6px; background:linear-gradient(90deg,#FF9933 0% 33%,#fff 33% 66%,#138808 66% 100%);}
+  .cert-watermark{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0.05; pointer-events:none; z-index:0; gap:6px;}
+  .cert-watermark svg{width:200px; height:auto;}
+  .cert-watermark .cert-wm-motto{font-family:'Noto Sans Devanagari',serif; font-weight:700; font-size:15px; letter-spacing:.08em; color:#000080;}
+  .cert-body{position:relative; z-index:1; padding:30px 28px 22px; text-align:center;}
+  .cert-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#9CA3AF; margin-bottom:16px;}
+  .cert-congrats{font-family:'Playfair Display',serif; font-size:14px; color:#20263B; margin-bottom:7px;}
+  .cert-name{font-family:'Playfair Display',serif; font-weight:800; font-size:28px; color:#131B3A; margin:5px 0 15px; letter-spacing:.01em;}
+  .cert-desc{font-size:13px; color:#20263B; line-height:1.6; max-width:400px; margin:0 auto 6px;}
+  .cert-award-line{font-size:12.5px; color:#20263B; line-height:1.6; max-width:400px; margin:0 auto 18px;}
+  .cert-remark{color:#2C9B67; font-weight:600; font-size:12px; margin-top:6px;}
+  .cert-sig-row{display:flex; justify-content:center; gap:60px; margin:4px 0 18px;}
+  .cert-sig{text-align:center;}
+  .cert-sig svg{height:34px;}
+  .cert-sig-name{font-family:'Playfair Display',serif; font-weight:700; font-size:12.5px; border-top:1px solid #C9D9EE; padding-top:6px; margin-top:2px;}
+  .cert-sig-title{font-size:10px; color:#6B7280; max-width:190px;}
+  .cert-verify{display:flex; align-items:center; justify-content:center; gap:14px; margin-top:8px;}
+  .cert-verify-code{font-family:'JetBrains Mono',monospace; font-size:10px; color:#9CA3AF;}
+
+  @media print{
+    @page{ size:A4; margin:12mm; }
+    body.print-doc-mode nav.bottom-nav, body.print-doc-mode .topbar, body.print-doc-mode main, body.print-doc-mode footer.app-footer,
+    body.print-doc-mode #toastWrap, body.print-doc-mode #gateOverlay, body.print-doc-mode .lightbox, body.print-doc-mode #moreOverlay{display:none !important;}
+    .doc-overlay{position:static !important; background:#fff !important; padding:0 !important; overflow:visible !important;}
+    .doc-print-hide{display:none !important;}
+    .doc-page{
+      box-shadow:none !important; border-radius:0 !important; outline:none !important;
+      max-width:none !important; width:186mm !important; min-height:273mm !important;
+      margin:0 auto !important; page-break-after:always; display:flex !important; flex-direction:column;
+    }
+    .cert-page{
+      box-shadow:none !important; border-radius:0 !important; outline:none !important;
+      max-width:none !important; width:186mm !important; min-height:273mm !important;
+      margin:0 auto !important; page-break-after:always; display:flex !important; flex-direction:column;
+    }
+    .cert-body{flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 30px;}
+  }
 
   /* ==================== FUTURISTIC FX ==================== */
   @keyframes topbarShimmer{0%{background-position:0% 50%;}100%{background-position:200% 50%;}}
@@ -941,6 +1016,83 @@
     </div>
   </section>
 
+  <section id="sec-documents" class="tab-section">
+    <div class="card">
+      <h2><span class="glow-text">📜 दस्तावेज़ जनरेटर</span></h2>
+      <p class="hint" style="margin-top:0;">ID Card, Admit Card, Marksheet और Certificate — किसी भी छात्र के लिए तुरंत बनाएं। थीम: आज़ादी का अमृत महोत्सव · 80वाँ स्वतंत्रता दिवस।</p>
+
+      <div class="doc-type-tabs">
+        <button type="button" class="doc-type-btn active" data-doc="marksheet" onclick="switchDocType('marksheet')">📊 Marksheet</button>
+        <button type="button" class="doc-type-btn" data-doc="certificate" onclick="switchDocType('certificate')">🏆 Certificate</button>
+        <button type="button" class="doc-type-btn" data-doc="idcard" onclick="switchDocType('idcard')">🎫 ID Card</button>
+        <button type="button" class="doc-type-btn" data-doc="admit" onclick="switchDocType('admit')">🧾 Admit Card</button>
+      </div>
+
+      <label>छात्र चुनें</label>
+      <select id="docStudentSelect" onchange="onDocStudentChange()"></select>
+
+      <label>सेंटर लोगो (वैकल्पिक — जब तक अपलोड न करें, placeholder लोगो इस्तेमाल होगा)</label>
+      <input type="file" accept="image/*" id="docLogoInput" onchange="uploadCenterLogo(event)" style="margin-bottom:6px;">
+      <p class="hint" id="docLogoMsg" style="margin-top:0;"></p>
+
+      <label>आपका सिग्नेचर (वैकल्पिक — सिर्फ Certificate पर छपेगा, जब तक अपलोड न करें, डिफ़ॉल्ट scribble दिखेगा)</label>
+      <input type="file" accept="image/*" id="docSignatureInput" onchange="uploadCenterSignature(event)" style="margin-bottom:6px;">
+      <p class="hint" id="docSignatureMsg" style="margin-top:0;"></p>
+
+      <!-- MARKSHEET fields -->
+      <div id="docFields-marksheet" class="doc-fields">
+        <label>परीक्षा का नाम</label>
+        <input type="text" id="marksExamName" placeholder="जैसे: वार्षिक परीक्षा 2026">
+        <div class="id-toggle-row">
+          <button type="button" id="marksSrcAutoBtn" class="active" onclick="setMarksSource('auto')">📂 रिकॉर्ड से भरें</button>
+          <button type="button" id="marksSrcManualBtn" onclick="setMarksSource('manual')">✍️ खुद लिखें</button>
+        </div>
+        <div id="marksSubjectRows"></div>
+        <button type="button" class="btn-outline btn-sm" style="width:auto;" onclick="addSubjectRow()">➕ विषय जोड़ें</button>
+      </div>
+
+      <!-- CERTIFICATE fields -->
+      <div id="docFields-certificate" class="doc-fields" style="display:none;">
+        <label>कोर्स / विषय का नाम</label>
+        <input type="text" id="certCourseName" placeholder="जैसे: Basic Mathematics Course">
+        <div class="field-row">
+          <div><label>अवधि</label><input type="text" id="certDuration" placeholder="जैसे: 3 महीने"></div>
+          <div><label>पूर्ण होने की तारीख</label><input type="text" id="certDate" placeholder="dd/mm/yyyy"></div>
+        </div>
+        <div class="field-row">
+          <div><label>Awarded From (शहर/राज्य)</label><input type="text" id="certAwardedFrom" placeholder="जैसे: Purnia, Bihar"></div>
+          <div><label>वर्ष (Year)</label><input type="text" id="certYear" placeholder="जैसे: 2026"></div>
+        </div>
+        <label>टिप्पणी (वैकल्पिक)</label>
+        <input type="text" id="certRemark" placeholder="जैसे: उत्कृष्ट प्रदर्शन">
+      </div>
+
+      <!-- ID CARD fields -->
+      <div id="docFields-idcard" class="doc-fields" style="display:none;">
+        <div class="field-row">
+          <div><label>Valid Till</label><input type="text" id="idValidTill" placeholder="मार्च 2027"></div>
+          <div><label>ब्लड ग्रुप (वैकल्पिक)</label><input type="text" id="idBloodGroup" placeholder="जैसे: B+"></div>
+        </div>
+      </div>
+
+      <!-- ADMIT CARD fields -->
+      <div id="docFields-admit" class="doc-fields" style="display:none;">
+        <label>परीक्षा का नाम</label>
+        <input type="text" id="admitExamName" placeholder="जैसे: वार्षिक परीक्षा 2026">
+        <div class="field-row">
+          <div><label>परीक्षा तारीख</label><input type="text" id="admitDate" placeholder="dd/mm/yyyy"></div>
+          <div><label>समय</label><input type="text" id="admitTime" placeholder="जैसे: 10:00 AM"></div>
+        </div>
+        <label>परीक्षा केंद्र / पता</label>
+        <input type="text" id="admitVenue" placeholder="जैसे: AMTC Coaching Center">
+        <label>विषय</label>
+        <input type="text" id="admitSubject" placeholder="जैसे: Mathematics">
+      </div>
+
+      <button class="btn-primary" style="margin-top:6px;" onclick="generateDocument()">✨ दस्तावेज़ बनाएं</button>
+    </div>
+  </section>
+
 </main>
 
 <footer class="app-footer">
@@ -950,6 +1102,14 @@
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <div class="lightbox-inner" id="lightboxInner" onclick="event.stopPropagation()"></div>
+</div>
+
+<div class="doc-overlay" id="docOverlay">
+  <div class="doc-overlay-actions doc-print-hide">
+    <button class="btn-primary btn-sm" style="width:auto;" onclick="printDocument()">🖨️ प्रिंट / PDF सेव करें</button>
+    <button class="btn-outline btn-sm" style="width:auto;" onclick="closeDocPreview()">✕ बंद करें</button>
+  </div>
+  <div id="docPreviewInner"></div>
 </div>
 
 
@@ -1014,6 +1174,10 @@
     <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-complaint');">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       शिकायत / सहायता (Help)
+    </button>
+    <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-documents');">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h6M8 16h4"/></svg>
+      दस्तावेज़ (ID/Certificate)
     </button>
     <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-manage');">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.2a1.6 1.6 0 0 0-1.4 1z"/></svg>
@@ -1292,9 +1456,17 @@ let teachers = loadJSON(LS.teachers, []);
 let teacherUnlocked = false; // resets every reload on purpose (security)
 let scanScanner = null, gateScanner = null, resultScanner = null, cmpScanner = null;
 let isProcessingScan = false, isProcessingGateScan = false, isProcessingResultScan = false, isProcessingCmpScan = false;
-const PROTECTED_TABS = ['sec-scan','sec-teacher','sec-records','sec-manage'];
+const PROTECTED_TABS = ['sec-scan','sec-teacher','sec-records','sec-manage','sec-documents'];
 let pendingTab = null;
 let resultMode = 'id';
+
+const LS_LOGO = 'amtc_center_logo';
+let centerLogo = localStorage.getItem(LS_LOGO) || '';
+const LS_SIGNATURE = 'amtc_center_signature';
+let centerSignature = localStorage.getItem(LS_SIGNATURE) || '';
+let currentDocType = 'marksheet';
+let marksSource = 'auto';
+let subjectRowCount = 0;
 
 function studentName(id){ const s = students.find(s=>s.id===id); return s ? s.name : id; }
 function testById(id){ return tests.find(t=>t.id===id); }
@@ -1318,7 +1490,7 @@ function showToast(msg, type){
 }
 
 /* ==================== NAV ==================== */
-const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint','sec-course'];
+const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint','sec-course','sec-documents'];
 function switchTab(id){
   if(PROTECTED_TABS.includes(id) && !teacherUnlocked){
     openGate(id);
@@ -1338,6 +1510,7 @@ function switchTab(id){
   if(id==='sec-records'){ populateTestSelects(); renderRecords(); renderAttendanceChart(); }
   if(id==='sec-manage'){ renderBatchList(); renderStudentList(); renderTestList(); populateBatchSelects(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); renderComplaints(); renderBannerManage(); renderTeacherList(); }
   if(id==='sec-gallery'){ renderGallery(); }
+  if(id==='sec-documents'){ renderDocumentsUI(); }
   if(id==='sec-course'){ renderCourseList(); }
   if(id==='sec-complaint'){ resetComplaintGate(); } else { stopCmpScanner(); if(isRecording){ stopRecordingStream(true); } }
   updateMoreComplaintBadge();
@@ -2139,7 +2312,11 @@ function printAllStudentQR(){
     grid.appendChild(cell);
     new QRCode(qrDiv, {text:s.id, width:110, height:110});
   });
-  setTimeout(()=>window.print(), 300);
+  document.body.classList.add('print-qr-mode');
+  setTimeout(()=>{
+    window.print();
+    document.body.classList.remove('print-qr-mode');
+  }, 300);
 }
 
 /* ==================== BACKUP / RESTORE ==================== */
@@ -2722,6 +2899,381 @@ function closeLightbox(evt){
   document.getElementById('lightboxInner').innerHTML='';
   document.getElementById('lightbox').classList.remove('show');
 }
+
+/* ==================== DOCUMENT GENERATOR (ID/Admit/Marksheet/Certificate) ==================== */
+function renderDocumentsUI(){
+  const sel = document.getElementById('docStudentSelect');
+  const prev = sel.value;
+  sel.innerHTML = students.map(s=>`<option value="${s.id}">${s.name} (${s.id})</option>`).join('');
+  if(prev && students.some(s=>s.id===prev)) sel.value = prev;
+  const msg = document.getElementById('docLogoMsg');
+  msg.innerText = centerLogo ? '✅ लोगो सेट है (नया अपलोड करें तो बदल जाएगा)' : 'अभी placeholder लोगो इस्तेमाल हो रहा है';
+  const sigMsg = document.getElementById('docSignatureMsg');
+  sigMsg.innerText = centerSignature ? '✅ आपका सिग्नेचर सेट है (नया अपलोड करें तो बदल जाएगा)' : 'अभी डिफ़ॉल्ट scribble सिग्नेचर इस्तेमाल हो रहा है';
+  switchDocType(currentDocType);
+}
+
+function switchDocType(type){
+  currentDocType = type;
+  document.querySelectorAll('.doc-type-btn').forEach(b=>b.classList.toggle('active', b.dataset.doc===type));
+  ['idcard','admit','marksheet','certificate'].forEach(t=>{
+    const el = document.getElementById('docFields-'+t);
+    if(el) el.style.display = (t===type) ? 'block' : 'none';
+  });
+  if(type==='marksheet' && document.getElementById('marksSubjectRows').children.length===0){
+    setMarksSource(marksSource);
+  }
+}
+
+function uploadCenterLogo(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const maxW = 260;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      centerLogo = canvas.toDataURL('image/png', 0.9);
+      try{
+        localStorage.setItem(LS_LOGO, centerLogo);
+        document.getElementById('docLogoMsg').innerText = '✅ लोगो सेव हो गया — सभी दस्तावेज़ों पर दिखेगा';
+        showToast('✅ लोगो सेव हो गया', 'success');
+      }catch(err){
+        showToast('❌ लोगो सेव नहीं हो पाया (साइज़ बड़ा है)', 'error');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function uploadCenterSignature(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const maxW = 300;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      centerSignature = canvas.toDataURL('image/png', 0.9);
+      try{
+        localStorage.setItem(LS_SIGNATURE, centerSignature);
+        document.getElementById('docSignatureMsg').innerText = '✅ सिग्नेचर सेव हो गया — Certificate पर दिखेगा';
+        showToast('✅ सिग्नेचर सेव हो गया', 'success');
+      }catch(err){
+        showToast('❌ सिग्नेचर सेव नहीं हो पाया (साइज़ बड़ा है)', 'error');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function setMarksSource(mode){
+  marksSource = mode;
+  document.getElementById('marksSrcAutoBtn').classList.toggle('active', mode==='auto');
+  document.getElementById('marksSrcManualBtn').classList.toggle('active', mode==='manual');
+  const wrap = document.getElementById('marksSubjectRows');
+  wrap.innerHTML=''; subjectRowCount=0;
+  if(mode==='auto'){
+    loadRecordsForMarksheet();
+  } else {
+    addSubjectRow(); addSubjectRow(); addSubjectRow();
+  }
+}
+
+function loadRecordsForMarksheet(){
+  const sel = document.getElementById('docStudentSelect');
+  const sid = sel ? sel.value : '';
+  const wrap = document.getElementById('marksSubjectRows');
+  wrap.innerHTML=''; subjectRowCount=0;
+  const studentRecords = records.filter(r=>r.studentId===sid && r.marksObtained!=='' && r.marksObtained!=null);
+  if(studentRecords.length===0){
+    wrap.innerHTML = `<p class="hint" style="margin:0 0 10px;">इस छात्र के कोई मार्क्स रिकॉर्ड नहीं मिले — "खुद लिखें" चुनकर खुद भरें।</p>`;
+    return;
+  }
+  studentRecords.forEach(r=>{ addSubjectRow(r.testLabel, r.totalMarks, r.marksObtained); });
+}
+
+function onDocStudentChange(){
+  if(currentDocType==='marksheet' && marksSource==='auto') loadRecordsForMarksheet();
+}
+
+function addSubjectRow(subject, max, obtained){
+  subjectRowCount++;
+  const rid = 'srow'+subjectRowCount;
+  const wrap = document.getElementById('marksSubjectRows');
+  const div = document.createElement('div');
+  div.className='subj-row';
+  div.id=rid;
+  div.innerHTML = `
+    <input type="text" placeholder="विषय" value="${subject!=null?String(subject).replace(/"/g,'&quot;'):''}" class="subj-name">
+    <input type="number" placeholder="कुल" value="${max!=null && max!==''?max:''}" class="subj-max">
+    <input type="number" placeholder="प्राप्त" value="${obtained!=null && obtained!==''?obtained:''}" class="subj-obt">
+    <button type="button" class="del-btn" onclick="document.getElementById('${rid}').remove()">✕</button>
+  `;
+  wrap.appendChild(div);
+}
+
+function ashokaChakraSVG(color){
+  color = color || '#131B3A';
+  let spokes = '';
+  for(let i=0;i<24;i++){
+    const angle = (i*15)*Math.PI/180;
+    const x2 = 50 + 44*Math.cos(angle), y2 = 50 + 44*Math.sin(angle);
+    const x1 = 50 + 10*Math.cos(angle), y1 = 50 + 10*Math.sin(angle);
+    spokes += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="2.4"/>`;
+  }
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="${color}" stroke-width="2.4"/>
+    <circle cx="50" cy="50" r="9" fill="none" stroke="${color}" stroke-width="2.4"/>
+    ${spokes}
+  </svg>`;
+}
+
+/* Original "80 Years of Independence" watermark — tricolor arc + Ashoka Chakra + "80",
+   drawn from scratch (not a stock asset) so it's free to use anywhere in the app. */
+function eightyYearsWatermarkSVG(color){
+  color = color || '#131B3A';
+  let spokes = '';
+  for(let i=0;i<24;i++){
+    const angle = (i*15)*Math.PI/180;
+    const x2 = 100 + 21*Math.cos(angle), y2 = 150 + 21*Math.sin(angle);
+    const x1 = 100 + 5*Math.cos(angle), y1 = 150 + 5*Math.sin(angle);
+    spokes += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="1.4"/>`;
+  }
+  return `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 55 A82 82 0 0 1 182 55" fill="none" stroke="#FF9933" stroke-width="7" stroke-linecap="round"/>
+    <path d="M26 68 A74 74 0 0 1 174 68" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+    <path d="M34 81 A66 66 0 0 1 166 81" fill="none" stroke="#138808" stroke-width="7" stroke-linecap="round"/>
+    <text x="100" y="95" font-family="'Playfair Display',serif" font-weight="800" font-size="72" fill="${color}" text-anchor="middle">80</text>
+    <text x="100" y="112" font-family="'Poppins',sans-serif" font-weight="700" font-size="11" letter-spacing="2" fill="${color}" text-anchor="middle">YEARS OF INDEPENDENCE</text>
+    <circle cx="100" cy="150" r="21" fill="none" stroke="${color}" stroke-width="1.6"/>
+    <circle cx="100" cy="150" r="4" fill="none" stroke="${color}" stroke-width="1.6"/>
+    ${spokes}
+  </svg>`;
+}
+
+function docHeaderHTML(){
+  const logoHTML = centerLogo
+    ? `<img src="${centerLogo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #F2A93B;">`
+    : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(155deg,#F2A93B,#D98F1D);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:19px;color:#131B3A;border:2px solid rgba(19,27,58,0.15);flex-shrink:0;">AM</div>`;
+  return `
+    <div class="doc-tricolor"></div>
+    <div class="doc-amrit-badge">🇮🇳 आज़ादी का अमृत महोत्सव &nbsp;•&nbsp; 80वाँ स्वतंत्रता दिवस</div>
+    <div class="doc-brandrow">
+      ${logoHTML}
+      <div>
+        <div class="doc-brand-title">Ayush Mathematics Teaching Digital Centre</div>
+        <div class="doc-brand-sub">AMTC · गणित शिक्षा केंद्र</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildIdCardHTML(stu){
+  const valid = (document.getElementById('idValidTill').value || '—').trim() || '—';
+  const blood = (document.getElementById('idBloodGroup').value || '—').trim() || '—';
+  const qrId = 'idqr_'+Date.now();
+  setTimeout(()=>{ const el=document.getElementById(qrId); if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text:stu.id, width:74, height:74, colorDark:'#131B3A', colorLight:'#ffffff'}); } }, 30);
+  return `
+    ${docHeaderHTML()}
+    <div class="doc-watermark">${eightyYearsWatermarkSVG()}</div>
+    <div class="doc-body" style="text-align:center;">
+      <div style="width:84px;height:84px;border-radius:50%;background:#F1EEE5;margin:6px auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#6B7280;border:3px solid #F2A93B;">👤</div>
+      <div style="font-family:'Playfair Display',serif; font-weight:700; font-size:19px;">${stu.name}</div>
+      <div class="mono" style="font-size:13px; color:#6B7280; margin-bottom:10px;">${stu.id}</div>
+      <table style="width:100%; font-size:12.5px; margin-bottom:12px;">
+        <tr><td style="text-align:left; color:#6B7280;">बैच</td><td style="text-align:right; font-weight:600;">${batchName(stu.batch)}</td></tr>
+        <tr><td style="text-align:left; color:#6B7280;">ब्लड ग्रुप</td><td style="text-align:right; font-weight:600;">${blood}</td></tr>
+        <tr><td style="text-align:left; color:#6B7280;">Valid Till</td><td style="text-align:right; font-weight:600;">${valid}</td></tr>
+      </table>
+      <div id="${qrId}" style="display:flex; justify-content:center; margin-bottom:8px;"></div>
+      <div style="font-size:10px; color:#9CA3AF;">यह कार्ड AMTC की संपत्ति है। खो जाने पर सूचित करें।</div>
+      <div style="margin-top:16px; border-top:1px dashed #C9D9EE; padding-top:10px; display:flex; align-items:center; justify-content:space-between;">
+        <div class="doc-seal"><span>AMTC<br>OFFICIAL</span></div>
+        <div style="font-size:11px; color:#131B3A; font-weight:600; text-align:right;">Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function buildAdmitCardHTML(stu){
+  const exam = document.getElementById('admitExamName').value.trim() || 'परीक्षा';
+  const date = document.getElementById('admitDate').value.trim() || '—';
+  const time = document.getElementById('admitTime').value.trim() || '—';
+  const venue = document.getElementById('admitVenue').value.trim() || 'AMTC Coaching Center';
+  const subject = document.getElementById('admitSubject').value.trim() || '—';
+  return `
+    ${docHeaderHTML()}
+    <div class="doc-watermark">${eightyYearsWatermarkSVG()}</div>
+    <div class="doc-body">
+      <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:16px; margin-bottom:10px; text-decoration:underline;">प्रवेश पत्र / ADMIT CARD</div>
+      <table style="width:100%; font-size:13px;">
+        <tr><td style="padding:5px 0; color:#6B7280;">छात्र का नाम</td><td style="text-align:right; font-weight:600;">${stu.name}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">रोल / ID नंबर</td><td style="text-align:right; font-weight:600;" class="mono">${stu.id}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">बैच</td><td style="text-align:right; font-weight:600;">${batchName(stu.batch)}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">परीक्षा</td><td style="text-align:right; font-weight:600;">${exam}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">विषय</td><td style="text-align:right; font-weight:600;">${subject}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">तारीख</td><td style="text-align:right; font-weight:600;">${date}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">समय</td><td style="text-align:right; font-weight:600;">${time}</td></tr>
+        <tr><td style="padding:5px 0; color:#6B7280;">केंद्र</td><td style="text-align:right; font-weight:600;">${venue}</td></tr>
+      </table>
+      <div style="margin-top:12px; background:#FBEAEA; color:#D64545; font-size:11px; padding:8px 10px; border-radius:8px;">⚠️ यह Admit Card परीक्षा में साथ लाना अनिवार्य है।</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; font-size:11px; color:#131B3A; font-weight:600;">
+        <div>छात्र हस्ताक्षर<br><span style="font-weight:400; color:#9CA3AF;">................</span></div>
+        <div class="doc-seal" style="margin:0 10px;"><span>AMTC<br>OFFICIAL</span></div>
+        <div style="text-align:right;">Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function buildMarksheetHTML(stu){
+  const exam = document.getElementById('marksExamName').value.trim() || 'परीक्षा';
+  const rows = Array.from(document.querySelectorAll('#marksSubjectRows .subj-row')).map(r=>({
+    subject: r.querySelector('.subj-name').value.trim(),
+    max: parseFloat(r.querySelector('.subj-max').value) || 0,
+    obt: parseFloat(r.querySelector('.subj-obt').value) || 0
+  })).filter(r=>r.subject || r.max || r.obt);
+  const totalMax = rows.reduce((a,r)=>a+r.max,0);
+  const totalObt = rows.reduce((a,r)=>a+r.obt,0);
+  const pct = totalMax>0 ? (totalObt/totalMax*100) : 0;
+  const grade = pct>=90?'A+':pct>=75?'A':pct>=60?'B':pct>=40?'C':'D';
+  const result = totalMax>0 ? (pct>=33 ? 'उत्तीर्ण (PASS)' : 'अनुत्तीर्ण (FAIL)') : '—';
+  const rowsHTML = rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.subject || '—'}</td><td style="text-align:center;">${r.max}</td><td style="text-align:center;">${r.obt}</td></tr>`).join('');
+  return `
+    ${docHeaderHTML()}
+    <div class="doc-watermark">${eightyYearsWatermarkSVG()}</div>
+    <div class="doc-body">
+      <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:16px; margin-bottom:4px; text-decoration:underline;">अंक तालिका / MARKSHEET</div>
+      <div style="text-align:center; font-size:12px; color:#6B7280; margin-bottom:10px;">${exam}</div>
+      <table style="width:100%; font-size:12.5px; margin-bottom:10px;">
+        <tr><td style="color:#6B7280;">नाम</td><td style="text-align:right; font-weight:600;">${stu.name}</td></tr>
+        <tr><td style="color:#6B7280;">ID</td><td style="text-align:right; font-weight:600;" class="mono">${stu.id}</td></tr>
+        <tr><td style="color:#6B7280;">बैच</td><td style="text-align:right; font-weight:600;">${batchName(stu.batch)}</td></tr>
+      </table>
+      <table style="width:100%; font-size:12px; border:1px solid #E5E1D6;">
+        <tr style="background:#F8F6F0;"><th>S.No</th><th>विषय</th><th>कुल</th><th>प्राप्त</th></tr>
+        ${rowsHTML || '<tr><td colspan="4" style="text-align:center; padding:10px; color:#9CA3AF;">कोई विषय नहीं जोड़ा गया</td></tr>'}
+        <tr style="font-weight:700; background:#F8F6F0;"><td colspan="2">कुल / TOTAL</td><td style="text-align:center;">${totalMax}</td><td style="text-align:center;">${totalObt}</td></tr>
+      </table>
+      <div class="slip-stats" style="margin-top:12px;">
+        <div class="slip-stat"><b>${pct.toFixed(1)}%</b><span>प्रतिशत</span></div>
+        <div class="slip-stat"><b>${grade}</b><span>ग्रेड</span></div>
+        <div class="slip-stat"><b style="font-size:11.5px;">${result}</b><span>परिणाम</span></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; font-size:11px; color:#131B3A; font-weight:600;">
+        <div>तारीख<br><span style="font-weight:400; color:#9CA3AF;">${new Date().toLocaleDateString('en-GB')}</span></div>
+        <div class="doc-seal" style="margin:0 10px;"><span>AMTC<br>OFFICIAL</span></div>
+        <div style="text-align:right;">Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function signatureScribbleSVG(){
+  return `<svg viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#3A3F55" stroke-width="1.6" stroke-linecap="round">
+    <path d="M6 28 C14 10, 20 34, 28 18 C34 6, 38 30, 44 22 C50 14, 54 26, 62 20 C70 14, 76 30, 86 18 C94 8, 100 28, 112 16 C120 8, 126 24, 138 14 C144 10, 148 16, 154 10"/>
+  </svg>`;
+}
+
+function certVerifyCode(stu){
+  return 'AMTC-CERT-' + stu.id.replace(/[^A-Z0-9]/gi,'') + '-' + new Date().getFullYear();
+}
+
+function buildCertificateHTML(stu){
+  const course = document.getElementById('certCourseName').value.trim() || 'गणित कोर्स';
+  const duration = document.getElementById('certDuration').value.trim() || '—';
+  const date = document.getElementById('certDate').value.trim() || new Date().toLocaleDateString('en-GB');
+  const awardedFrom = document.getElementById('certAwardedFrom').value.trim() || 'Purnia, Bihar';
+  const year = document.getElementById('certYear').value.trim() || String(new Date().getFullYear());
+  const remark = document.getElementById('certRemark').value.trim();
+  const verifyCode = certVerifyCode(stu);
+  const qrId = 'certqr_'+Date.now();
+  setTimeout(()=>{ const el=document.getElementById(qrId); if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text:verifyCode, width:64, height:64, colorDark:'#131B3A', colorLight:'#ffffff'}); } }, 30);
+
+  const logoHTML = centerLogo
+    ? `<img src="${centerLogo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">`
+    : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(155deg,#F2A93B,#D98F1D);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:16px;color:#131B3A;">AM</div>`;
+
+  return `
+    <div class="cert-strip"></div>
+    <div class="cert-watermark">
+      ${eightyYearsWatermarkSVG('#000080')}
+      <div class="cert-wm-motto">सत्यमेव जयते</div>
+    </div>
+    <div class="cert-body">
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:14px;">
+        ${logoHTML}
+        <div style="text-align:left;">
+          <div style="font-family:'Playfair Display',serif; font-weight:700; font-size:12.5px; color:#131B3A;">Ayush Mathematics Teaching Digital Centre</div>
+          <div style="font-size:9.5px; color:#8C4A00; font-weight:600;">🇮🇳 आज़ादी का अमृत महोत्सव · 80वाँ स्वतंत्रता दिवस</div>
+        </div>
+      </div>
+      <div class="cert-eyebrow">AMTC Certificate</div>
+      <div class="cert-congrats">AMTC congratulates</div>
+      <div class="cert-name">${stu.name}</div>
+      <div class="cert-desc">
+        को <b>${course}</b> सफलतापूर्वक पूर्ण करने पर, जिसकी अवधि <b>${duration}</b> रही।
+        ${remark ? `<div class="cert-remark">${remark}</div>` : ''}
+      </div>
+      <div class="cert-award-line">${awardedFrom} से प्रदत्त, वर्ष ${year} में।</div>
+
+      <div class="cert-sig-row">
+        <div class="cert-sig">
+          ${centerSignature ? `<img src="${centerSignature}" style="height:38px; max-width:150px; object-fit:contain;">` : signatureScribbleSVG()}
+          <div class="cert-sig-name">Vikash Kumar</div>
+          <div class="cert-sig-title">Director, Ayush Mathematics Teaching Digital Centre</div>
+        </div>
+      </div>
+
+      <div class="cert-verify">
+        <div id="${qrId}"></div>
+        <div style="text-align:left;">
+          <div class="cert-verify-code">Verification ID:</div>
+          <div class="cert-verify-code" style="font-weight:700; color:#6B7280;">${verifyCode}</div>
+          <div class="cert-verify-code">Student ID: ${stu.id}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function generateDocument(){
+  const sel = document.getElementById('docStudentSelect');
+  const stu = students.find(s=>s.id===sel.value);
+  if(!stu){ showToast('❌ पहले छात्र चुनें', 'error'); return; }
+  let html='', wrapClass='doc-page';
+  if(currentDocType==='idcard') html = buildIdCardHTML(stu);
+  else if(currentDocType==='admit') html = buildAdmitCardHTML(stu);
+  else if(currentDocType==='marksheet') html = buildMarksheetHTML(stu);
+  else if(currentDocType==='certificate'){ html = buildCertificateHTML(stu); wrapClass='cert-page'; }
+  openDocPreview(html, wrapClass);
+}
+
+function openDocPreview(html, wrapClass){
+  document.getElementById('docPreviewInner').innerHTML = `<div class="${wrapClass || 'doc-page'}">${html}</div>`;
+  document.getElementById('docOverlay').classList.add('show');
+}
+function closeDocPreview(){
+  document.getElementById('docOverlay').classList.remove('show');
+}
+function printDocument(){
+  document.body.classList.add('print-doc-mode');
+  window.print();
+}
+window.addEventListener('afterprint', ()=>{ document.body.classList.remove('print-doc-mode'); });
 
 /* ==================== THEME (dark / light) ==================== */
 function applyTheme(theme){
