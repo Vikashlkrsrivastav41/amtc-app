@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -356,8 +358,7 @@
 
   @media print{
     nav.bottom-nav, .topbar, main{display:none !important;}
-    #studentQrPrintArea{display:none;}
-    body.print-qr-mode #studentQrPrintArea{display:block !important;}
+    #studentQrPrintArea{display:block !important;}
     body.print-slip main{display:block !important; padding:0;}
     body.print-slip #sec-result{display:block !important;}
     body.print-slip .tab-section:not(#sec-result){display:none !important;}
@@ -387,7 +388,7 @@
   .doc-page::before{content:""; position:absolute; inset:7px; border:1.5px solid #D9A441; border-radius:8px; pointer-events:none; z-index:2;}
   .doc-tricolor{height:10px; background:linear-gradient(90deg,#FF9933 0% 33%,#fff 33% 66%,#138808 66% 100%);}
   .doc-watermark{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0.06; pointer-events:none; z-index:0;}
-  .doc-watermark svg{width:220px; height:auto;}
+  .doc-watermark svg{width:230px; height:230px;}
   .doc-amrit-badge{text-align:center; background:linear-gradient(90deg,#FFF4E0,#FFE8C2,#FFF4E0); color:#8C4A00; font-size:10.5px; font-weight:700; letter-spacing:.03em; padding:7px 10px; position:relative; z-index:1; border-bottom:1px dashed #E7C784;}
   .doc-brandrow{display:flex; align-items:center; gap:10px; padding:14px 20px 8px; position:relative; z-index:1;}
   .doc-brand-title{font-family:'Playfair Display',serif; font-weight:700; font-size:14.5px; color:#131B3A; line-height:1.25;}
@@ -402,44 +403,61 @@
   .doc-seal::before{content:""; position:absolute; inset:5px; border:1px dashed rgba(19,27,58,0.55); border-radius:50%;}
   .doc-seal span{font-family:'Playfair Display',serif; font-weight:800; font-size:10px; color:#131B3A; text-align:center; line-height:1.1;}
 
-  /* elegant CS50-style certificate variant — landscape layout */
+  /* elegant CS50-style certificate variant */
   .cert-page{position:relative; background:#fff; border-radius:6px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,0.32); max-width:520px; margin:0 auto 16px; font-family:'Inter','Noto Sans Devanagari',sans-serif; color:#20263B; border:1px solid #E5E1D6;}
   .cert-strip{height:6px; background:linear-gradient(90deg,#FF9933 0% 33%,#fff 33% 66%,#138808 66% 100%);}
   .cert-watermark{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0.05; pointer-events:none; z-index:0; gap:6px;}
-  .cert-watermark svg{width:200px; height:auto;}
+  .cert-watermark svg{width:210px; height:210px;}
   .cert-watermark .cert-wm-motto{font-family:'Noto Sans Devanagari',serif; font-weight:700; font-size:15px; letter-spacing:.08em; color:#000080;}
-  .cert-body{position:relative; z-index:1; padding:30px 28px 22px; text-align:center;}
-  .cert-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#9CA3AF; margin-bottom:16px;}
-  .cert-congrats{font-family:'Playfair Display',serif; font-size:14px; color:#20263B; margin-bottom:7px;}
-  .cert-name{font-family:'Playfair Display',serif; font-weight:800; font-size:28px; color:#131B3A; margin:5px 0 15px; letter-spacing:.01em;}
-  .cert-desc{font-size:13px; color:#20263B; line-height:1.6; max-width:400px; margin:0 auto 6px;}
-  .cert-award-line{font-size:12.5px; color:#20263B; line-height:1.6; max-width:400px; margin:0 auto 18px;}
-  .cert-remark{color:#2C9B67; font-weight:600; font-size:12px; margin-top:6px;}
-  .cert-sig-row{display:flex; justify-content:center; gap:60px; margin:4px 0 18px;}
+  .cert-body{position:relative; z-index:1; padding:34px 30px 26px; text-align:center;}
+  .cert-eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#9CA3AF; margin-bottom:18px;}
+  .cert-congrats{font-family:'Playfair Display',serif; font-size:15px; color:#20263B; margin-bottom:8px;}
+  .cert-name{font-family:'Playfair Display',serif; font-weight:800; font-size:30px; color:#131B3A; margin:6px 0 18px; letter-spacing:.01em;}
+  .cert-desc{font-size:13.5px; color:#20263B; line-height:1.7; max-width:400px; margin:0 auto 6px;}
+  .cert-award-line{font-size:13px; color:#20263B; line-height:1.7; max-width:400px; margin:0 auto 22px;}
+  .cert-remark{color:#2C9B67; font-weight:600; font-size:12.5px; margin-top:6px;}
+  .cert-sig-row{display:flex; justify-content:center; gap:60px; margin:6px 0 22px;}
   .cert-sig{text-align:center;}
   .cert-sig svg{height:34px;}
   .cert-sig-name{font-family:'Playfair Display',serif; font-weight:700; font-size:12.5px; border-top:1px solid #C9D9EE; padding-top:6px; margin-top:2px;}
   .cert-sig-title{font-size:10px; color:#6B7280; max-width:190px;}
-  .cert-verify{display:flex; align-items:center; justify-content:center; gap:14px; margin-top:8px;}
+  .cert-verify{display:flex; align-items:center; justify-content:center; gap:14px; margin-top:14px;}
   .cert-verify-code{font-family:'JetBrains Mono',monospace; font-size:10px; color:#9CA3AF;}
 
   @media print{
-    @page{ size:A4; margin:12mm; }
     body.print-doc-mode nav.bottom-nav, body.print-doc-mode .topbar, body.print-doc-mode main, body.print-doc-mode footer.app-footer,
     body.print-doc-mode #toastWrap, body.print-doc-mode #gateOverlay, body.print-doc-mode .lightbox, body.print-doc-mode #moreOverlay{display:none !important;}
     .doc-overlay{position:static !important; background:#fff !important; padding:0 !important; overflow:visible !important;}
     .doc-print-hide{display:none !important;}
-    .doc-page{
-      box-shadow:none !important; border-radius:0 !important; outline:none !important;
-      max-width:none !important; width:186mm !important; min-height:273mm !important;
-      margin:0 auto !important; page-break-after:always; display:flex !important; flex-direction:column;
-    }
-    .cert-page{
-      box-shadow:none !important; border-radius:0 !important; outline:none !important;
-      max-width:none !important; width:186mm !important; min-height:273mm !important;
-      margin:0 auto !important; page-break-after:always; display:flex !important; flex-direction:column;
-    }
-    .cert-body{flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 30px;}
+    .doc-page, .cert-page{box-shadow:none !important;}
+  }
+
+  /* ==================== OMR MODULE ==================== */
+  .omr-answer-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(74px,1fr)); gap:8px; margin-top:8px; max-height:260px; overflow-y:auto; padding:4px;}
+  .omr-q-cell{background:var(--chip-bg); border-radius:10px; padding:6px; text-align:center;}
+  .omr-q-cell .qn{font-size:10px; color:var(--slate); margin-bottom:4px;}
+  .omr-q-cell .opts{display:flex; gap:3px; justify-content:center; flex-wrap:wrap;}
+  .omr-q-cell .opt-btn{width:22px; height:22px; border-radius:50%; border:1px solid var(--line); background:var(--card-bg); font-size:10px; font-weight:700; color:var(--navy2); cursor:pointer; padding:0;}
+  .omr-q-cell .opt-btn.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+
+  .omr-result-card{background:var(--chip-bg); border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:12.5px;}
+  .omr-result-card.flag{border:1.5px solid #E0A030;}
+  .omr-result-card .rtop{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-weight:700;}
+  .omr-result-card select{margin-bottom:6px;}
+
+  .omr-sheet{position:relative; background:#fff; width:100%; max-width:480px; margin:0 auto 18px; padding:26px; box-sizing:border-box; page-break-after:always; color:#131B3A; font-family:'Inter',sans-serif;}
+  .omr-canvas{position:relative; width:100%; padding-bottom:6px;}
+  .omr-corner{position:absolute; width:16px; height:16px; background:#000; transform:translate(-50%,-50%);}
+  .omr-sheet-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; padding:0 6px;}
+  .omr-sheet-title{font-family:'Playfair Display',serif; font-weight:700; font-size:15px;}
+  .omr-sheet-sub{font-size:11px; color:#6B7280; margin-top:2px;}
+  .omr-q-row{display:flex; align-items:center; gap:8px; padding:5px 6px; font-size:11.5px;}
+  .omr-q-num{width:22px; font-weight:700; flex-shrink:0;}
+  .omr-bubble{width:16px; height:16px; border-radius:50%; border:1.4px solid #131B3A; display:inline-flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; flex-shrink:0;}
+  .omr-bubble-row{display:flex; gap:10px;}
+
+  @media print{
+    .omr-sheet{page-break-after:always; max-width:none;}
   }
 
   /* ==================== FUTURISTIC FX ==================== */
@@ -782,12 +800,29 @@
     <details class="accordion" open>
       <summary>👤 छात्र (Students)<span class="chev">›</span></summary>
       <div class="accordion-body">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+          <div id="newStudentPhotoPreview" style="width:56px;height:56px;border-radius:50%;background:var(--chip-bg);display:flex;align-items:center;justify-content:center;font-size:22px;color:#9CA3AF;flex-shrink:0;overflow:hidden;">👤</div>
+          <div style="flex:1;">
+            <label style="margin-bottom:4px;">फोटो (वैकल्पिक)</label>
+            <input type="file" accept="image/*" id="newStudentPhotoInput" onchange="previewNewStudentPhoto(event)">
+          </div>
+        </div>
         <div class="field-row">
           <div><label>Student ID</label><input type="text" id="newStudentId" placeholder="AMTC-116"></div>
           <div><label>नाम</label><input type="text" id="newStudentName" placeholder="Name"></div>
         </div>
         <label>बैच</label>
         <select id="newStudentBatch"></select>
+        <div class="field-row">
+          <div><label>पिता/अभिभावक का नाम</label><input type="text" id="newStudentFather" placeholder="Father's Name"></div>
+          <div><label>फ़ोन नंबर</label><input type="text" id="newStudentPhone" placeholder="98xxxxxxxx"></div>
+        </div>
+        <div class="field-row">
+          <div><label>जन्म तिथि (DOB)</label><input type="text" id="newStudentDob" placeholder="dd/mm/yyyy"></div>
+          <div><label>प्रवेश तिथि</label><input type="text" id="newStudentAdmission" placeholder="dd/mm/yyyy"></div>
+        </div>
+        <label>पता</label>
+        <input type="text" id="newStudentAddress" placeholder="गाँव/शहर, ज़िला">
         <button class="btn-secondary" onclick="addStudent()">+ छात्र जोड़ें</button>
         <div id="studentList" style="margin-top:12px;"></div>
         <div class="btn-row">
@@ -795,6 +830,37 @@
         </div>
       </div>
     </details>
+
+    <div class="doc-overlay" id="studentDetailOverlay">
+      <div class="doc-overlay-actions doc-print-hide">
+        <button class="btn-primary btn-sm" style="width:auto;" onclick="saveStudentDetail()">💾 सेव करें</button>
+        <button class="btn-outline btn-sm" style="width:auto;" onclick="closeStudentDetail()">✕ बंद करें</button>
+      </div>
+      <div class="doc-page" style="padding:20px; text-align:left;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          <div id="editStudentPhotoPreview" style="width:64px;height:64px;border-radius:50%;background:var(--chip-bg);display:flex;align-items:center;justify-content:center;font-size:26px;color:#9CA3AF;overflow:hidden;flex-shrink:0;">👤</div>
+          <div style="flex:1;">
+            <label style="margin-bottom:4px;">फोटो बदलें</label>
+            <input type="file" accept="image/*" id="editStudentPhotoInput" onchange="previewEditStudentPhoto(event)">
+          </div>
+        </div>
+        <input type="hidden" id="editStudentId">
+        <label>नाम</label>
+        <input type="text" id="editStudentName">
+        <label>बैच</label>
+        <select id="editStudentBatch"></select>
+        <div class="field-row">
+          <div><label>पिता/अभिभावक का नाम</label><input type="text" id="editStudentFather"></div>
+          <div><label>फ़ोन नंबर</label><input type="text" id="editStudentPhone"></div>
+        </div>
+        <div class="field-row">
+          <div><label>जन्म तिथि (DOB)</label><input type="text" id="editStudentDob"></div>
+          <div><label>प्रवेश तिथि</label><input type="text" id="editStudentAdmission"></div>
+        </div>
+        <label>पता</label>
+        <input type="text" id="editStudentAddress">
+      </div>
+    </div>
 
     <details class="accordion">
       <summary>🗂️ टेस्ट (Weekly / Monthly / Yearly)<span class="chev">›</span></summary>
@@ -1016,6 +1082,57 @@
     </div>
   </section>
 
+  <section id="sec-omr" class="tab-section">
+    <div class="card">
+      <h2><span class="glow-text">🔲 OMR टेस्ट चेकर</span></h2>
+      <p class="hint" style="margin-top:0;">OMR शीट बनाओ, प्रिंट करो, बच्चों से भरवाओ, फिर स्कैन की हुई फाइल अपलोड करो — मार्क्स अपने आप चेक होकर रिकॉर्ड में सेव हो जाएंगे।</p>
+
+      <details class="accordion" open>
+        <summary>1️⃣ नया OMR टेस्ट बनाएं<span class="chev">›</span></summary>
+        <div class="accordion-body">
+          <label>टेस्ट का नाम</label>
+          <input type="text" id="omrTestName" placeholder="जैसे: Monthly Test — September">
+          <div class="field-row">
+            <div><label>कितने प्रश्न?</label><input type="number" id="omrNumQ" value="20" min="1" max="200" oninput="rebuildOmrAnswerGrid()"></div>
+            <div><label>कितने विकल्प? (A/B/C...)</label><input type="number" id="omrNumOpt" value="4" min="2" max="6" oninput="rebuildOmrAnswerGrid()"></div>
+          </div>
+          <div class="field-row">
+            <div><label>प्रति प्रश्न अंक</label><input type="number" id="omrMarksPerQ" value="1" min="1"></div>
+            <div><label>बैच</label><select id="omrBatch"></select></div>
+          </div>
+          <label>सही उत्तर चुनें (Answer Key)</label>
+          <div id="omrAnswerGrid" class="omr-answer-grid"></div>
+          <button class="btn-primary" style="margin-top:10px;" onclick="saveOmrTest()">💾 OMR टेस्ट सेव करें</button>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>2️⃣ शीट बनाएं और प्रिंट करें<span class="chev">›</span></summary>
+        <div class="accordion-body">
+          <label>OMR टेस्ट चुनें</label>
+          <select id="omrPrintTestSelect" onchange="updateOmrPrintInfo()"></select>
+          <p class="hint" id="omrPrintInfo" style="margin-top:6px;"></p>
+          <button class="btn-secondary" onclick="generateOmrSheets()">🖨️ सभी छात्रों की शीट बनाएं</button>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>3️⃣ स्कैन की हुई फाइल अपलोड करके चेक करें<span class="chev">›</span></summary>
+        <div class="accordion-body">
+          <label>OMR टेस्ट चुनें</label>
+          <select id="omrScanTestSelect"></select>
+          <label>स्कैन की हुई फाइल (Image या Multi-page PDF)</label>
+          <input type="file" accept="image/*,application/pdf" id="omrScanFile" onchange="processOmrScan(event)">
+          <p class="hint" id="omrScanStatus" style="margin-top:6px;"></p>
+          <div id="omrResultsWrap" style="display:none;">
+            <div id="omrResultsList" style="margin-top:10px;"></div>
+            <button class="btn-primary" style="margin-top:10px;" onclick="saveOmrResults()">✅ सभी रिजल्ट रिकॉर्ड में सेव करें</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
   <section id="sec-documents" class="tab-section">
     <div class="card">
       <h2><span class="glow-text">📜 दस्तावेज़ जनरेटर</span></h2>
@@ -1026,16 +1143,19 @@
         <button type="button" class="doc-type-btn" data-doc="certificate" onclick="switchDocType('certificate')">🏆 Certificate</button>
         <button type="button" class="doc-type-btn" data-doc="idcard" onclick="switchDocType('idcard')">🎫 ID Card</button>
         <button type="button" class="doc-type-btn" data-doc="admit" onclick="switchDocType('admit')">🧾 Admit Card</button>
+        <button type="button" class="doc-type-btn" data-doc="notice" onclick="switchDocType('notice')">📢 सूचना/छुट्टी</button>
       </div>
 
-      <label>छात्र चुनें</label>
-      <select id="docStudentSelect" onchange="onDocStudentChange()"></select>
+      <div id="docStudentRow">
+        <label>छात्र चुनें</label>
+        <select id="docStudentSelect" onchange="onDocStudentChange()"></select>
+      </div>
 
       <label>सेंटर लोगो (वैकल्पिक — जब तक अपलोड न करें, placeholder लोगो इस्तेमाल होगा)</label>
       <input type="file" accept="image/*" id="docLogoInput" onchange="uploadCenterLogo(event)" style="margin-bottom:6px;">
       <p class="hint" id="docLogoMsg" style="margin-top:0;"></p>
 
-      <label>आपका सिग्नेचर (वैकल्पिक — सिर्फ Certificate पर छपेगा, जब तक अपलोड न करें, डिफ़ॉल्ट scribble दिखेगा)</label>
+      <label>आपका डिजिटल हस्ताक्षर (Signature)</label>
       <input type="file" accept="image/*" id="docSignatureInput" onchange="uploadCenterSignature(event)" style="margin-bottom:6px;">
       <p class="hint" id="docSignatureMsg" style="margin-top:0;"></p>
 
@@ -1087,6 +1207,46 @@
         <input type="text" id="admitVenue" placeholder="जैसे: AMTC Coaching Center">
         <label>विषय</label>
         <input type="text" id="admitSubject" placeholder="जैसे: Mathematics">
+      </div>
+
+      <!-- NOTICE / LEAVE fields -->
+      <div id="docFields-notice" class="doc-fields" style="display:none;">
+        <label>सूचना किस प्रकार की है?</label>
+        <select id="noticeType" onchange="onNoticeTypeChange()">
+          <option value="leave">छुट्टी की सूचना (Leave Notice)</option>
+          <option value="general">सामान्य सूचना (General Notice)</option>
+        </select>
+
+        <div id="noticeLeaveOnlyFields">
+          <label>छुट्टी किसकी है?</label>
+          <select id="noticeLeaveWho">
+            <option value="center">पूरा सेंटर (पूरे केंद्र में छुट्टी)</option>
+            <option value="teacher">शिक्षक/डायरेक्टर की छुट्टी</option>
+            <option value="student">किसी छात्र की छुट्टी</option>
+            <option value="batch">किसी बैच की छुट्टी</option>
+          </select>
+          <label>नाम / बैच (जिसकी छुट्टी है)</label>
+          <input type="text" id="noticeWhoName" placeholder="जैसे: Vikash Kumar / Rohan kumar / Batch 1">
+          <label>छुट्टी का कारण</label>
+          <input type="text" id="noticeReason" placeholder="जैसे: पारिवारिक कार्यक्रम / बीमारी / त्योहार">
+          <div class="field-row">
+            <div><label>तारीख (from)</label><input type="text" id="noticeFromDate" placeholder="dd/mm/yyyy"></div>
+            <div><label>तारीख (to)</label><input type="text" id="noticeToDate" placeholder="dd/mm/yyyy"></div>
+          </div>
+        </div>
+
+        <div id="noticeGeneralOnlyFields" style="display:none;">
+          <label>सूचना का शीर्षक</label>
+          <input type="text" id="noticeTitle" placeholder="जैसे: फीस जमा करने की सूचना">
+          <label>सूचना तारीख</label>
+          <input type="text" id="noticeDate" placeholder="dd/mm/yyyy">
+        </div>
+
+        <label>अतिरिक्त संदेश (वैकल्पिक)</label>
+        <textarea id="noticeExtraMsg" rows="3" placeholder="कोई और जानकारी जो सूचना में जोड़नी हो..."></textarea>
+
+        <label>जारीकर्ता (किसकी तरफ से जारी)</label>
+        <input type="text" id="noticeIssuedBy" value="Vikash Kumar, Director — AMTC">
       </div>
 
       <button class="btn-primary" style="margin-top:6px;" onclick="generateDocument()">✨ दस्तावेज़ बनाएं</button>
@@ -1178,6 +1338,10 @@
     <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-documents');">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h6M8 16h4"/></svg>
       दस्तावेज़ (ID/Certificate)
+    </button>
+    <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-omr');">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM19 14h2M14 19h2M19 19h2"/></svg>
+      OMR टेस्ट चेकर
     </button>
     <button class="more-item" onclick="closeMoreSheet(); switchTab('sec-manage');">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.2a1.6 1.6 0 0 0-1.4 1z"/></svg>
@@ -1388,7 +1552,8 @@ function refreshActiveTab(){
 const LS = {
   students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret',
   gallery:'amtc_gallery', theme:'amtc_theme', batches:'amtc_batches', complaints:'amtc_complaints',
-  banner:'amtc_banner', courses:'amtc_courses', teachers:'amtc_teachers', galleryPhotos:'amtc_gallery_photos'
+  banner:'amtc_banner', courses:'amtc_courses', teachers:'amtc_teachers', galleryPhotos:'amtc_gallery_photos',
+  omrTests:'amtc_omr_tests'
 };
 
 const SEED_STUDENTS = [
@@ -1443,6 +1608,7 @@ students.forEach(s=>{ if(!s.batch){ s.batch = batches[0].id; migrated = true; } 
 tests.forEach(t=>{ if(!t.batch){ t.batch = batches[0].id; migrated = true; } });
 if(migrated){ saveJSON(LS.students, students); saveJSON(LS.tests, tests); }
 let currentBatch = batches[0] ? batches[0].id : null;
+let omrTests = loadJSON(LS.omrTests, []);
 let attendanceChart = null;
 let records = loadJSON(LS.records, []);
 let gallery = loadJSON(LS.gallery, []);
@@ -1456,7 +1622,7 @@ let teachers = loadJSON(LS.teachers, []);
 let teacherUnlocked = false; // resets every reload on purpose (security)
 let scanScanner = null, gateScanner = null, resultScanner = null, cmpScanner = null;
 let isProcessingScan = false, isProcessingGateScan = false, isProcessingResultScan = false, isProcessingCmpScan = false;
-const PROTECTED_TABS = ['sec-scan','sec-teacher','sec-records','sec-manage','sec-documents'];
+const PROTECTED_TABS = ['sec-scan','sec-teacher','sec-records','sec-manage','sec-documents','sec-omr'];
 let pendingTab = null;
 let resultMode = 'id';
 
@@ -1490,7 +1656,7 @@ function showToast(msg, type){
 }
 
 /* ==================== NAV ==================== */
-const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint','sec-course','sec-documents'];
+const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint','sec-course','sec-documents','sec-omr'];
 function switchTab(id){
   if(PROTECTED_TABS.includes(id) && !teacherUnlocked){
     openGate(id);
@@ -1511,6 +1677,7 @@ function switchTab(id){
   if(id==='sec-manage'){ renderBatchList(); renderStudentList(); renderTestList(); populateBatchSelects(); document.getElementById('teacherSecretInput').value = teacherSecret; renderTeacherQR(); renderComplaints(); renderBannerManage(); renderTeacherList(); }
   if(id==='sec-gallery'){ renderGallery(); }
   if(id==='sec-documents'){ renderDocumentsUI(); }
+  if(id==='sec-omr'){ renderOmrUI(); }
   if(id==='sec-course'){ renderCourseList(); }
   if(id==='sec-complaint'){ resetComplaintGate(); } else { stopCmpScanner(); if(isRecording){ stopRecordingStream(true); } }
   updateMoreComplaintBadge();
@@ -1560,7 +1727,7 @@ function testOptionsHTML(includeAll, batchId){
   return html;
 }
 function populateBatchSelects(){
-  ['scanBatch','teacherBatch','filterBatch','newStudentBatch','newTestBatch'].forEach(id=>{
+  ['scanBatch','teacherBatch','filterBatch','newStudentBatch','newTestBatch','editStudentBatch','omrBatch'].forEach(id=>{
     const el = document.getElementById(id);
     if(!el) return;
     const prev = el.value;
@@ -2138,32 +2305,128 @@ function removeBatch(id){
 }
 
 /* ==================== MANAGE: STUDENTS ==================== */
+let pendingNewStudentPhoto = '';
+let pendingEditStudentPhoto = '';
+
 function renderStudentList(){
   const box = document.getElementById('studentList');
   box.innerHTML='';
   students.forEach(s=>{
     const row = document.createElement('div');
     row.className='list-item';
-    row.innerHTML = `<div>${s.name} <span class="meta mono">${s.id}</span>
-        <div class="meta">🏫 ${batchName(s.batch)}</div></div>
-      <button class="btn-icon" onclick="removeStudent('${s.id}')">🗑️</button>`;
+    const avatar = s.photo
+      ? `<img src="${s.photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:8px;flex-shrink:0;">`
+      : `<div style="width:36px;height:36px;border-radius:50%;background:var(--chip-bg);display:flex;align-items:center;justify-content:center;font-size:16px;color:#9CA3AF;margin-right:8px;flex-shrink:0;">👤</div>`;
+    row.innerHTML = `<div style="display:flex; align-items:center;">${avatar}<div>${s.name} <span class="meta mono">${s.id}</span>
+        <div class="meta">🏫 ${batchName(s.batch)}</div></div></div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-icon" onclick="editStudent('${s.id}')">✏️</button>
+        <button class="btn-icon" onclick="removeStudent('${s.id}')">🗑️</button>
+      </div>`;
     box.appendChild(row);
   });
 }
+
+function previewNewStudentPhoto(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const maxW = 200;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      pendingNewStudentPhoto = canvas.toDataURL('image/jpeg', 0.85);
+      document.getElementById('newStudentPhotoPreview').innerHTML = `<img src="${pendingNewStudentPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function addStudent(){
   const id = document.getElementById('newStudentId').value.trim().toUpperCase();
   const name = document.getElementById('newStudentName').value.trim();
   const batch = document.getElementById('newStudentBatch').value || (batches[0] && batches[0].id);
+  const father = document.getElementById('newStudentFather').value.trim();
+  const phone = document.getElementById('newStudentPhone').value.trim();
+  const dob = document.getElementById('newStudentDob').value.trim();
+  const admission = document.getElementById('newStudentAdmission').value.trim();
+  const address = document.getElementById('newStudentAddress').value.trim();
   if(!id || !name){ showToast('ID और नाम दोनों भरें', 'error'); return; }
   if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
-  students.push({id, name, batch});
+  students.push({id, name, batch, photo:pendingNewStudentPhoto, father, phone, dob, admission, address});
   saveJSON(LS.students, students);
-  document.getElementById('newStudentId').value='';
-  document.getElementById('newStudentName').value='';
+  ['newStudentId','newStudentName','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
+  document.getElementById('newStudentPhotoInput').value='';
+  document.getElementById('newStudentPhotoPreview').innerHTML='👤';
+  pendingNewStudentPhoto='';
   renderStudentList();
   renderBatchList();
   showToast('✅ छात्र जोड़ा गया', 'success');
 }
+
+function editStudent(id){
+  const s = students.find(x=>x.id===id);
+  if(!s) return;
+  pendingEditStudentPhoto = s.photo || '';
+  document.getElementById('editStudentId').value = s.id;
+  document.getElementById('editStudentName').value = s.name || '';
+  document.getElementById('editStudentBatch').value = s.batch || '';
+  document.getElementById('editStudentFather').value = s.father || '';
+  document.getElementById('editStudentPhone').value = s.phone || '';
+  document.getElementById('editStudentDob').value = s.dob || '';
+  document.getElementById('editStudentAdmission').value = s.admission || '';
+  document.getElementById('editStudentAddress').value = s.address || '';
+  document.getElementById('editStudentPhotoPreview').innerHTML = s.photo ? `<img src="${s.photo}" style="width:100%;height:100%;object-fit:cover;">` : '👤';
+  document.getElementById('studentDetailOverlay').classList.add('show');
+}
+function closeStudentDetail(){
+  document.getElementById('studentDetailOverlay').classList.remove('show');
+}
+function previewEditStudentPhoto(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = function(e){
+    img.onload = function(){
+      const maxW = 200;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale; canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      pendingEditStudentPhoto = canvas.toDataURL('image/jpeg', 0.85);
+      document.getElementById('editStudentPhotoPreview').innerHTML = `<img src="${pendingEditStudentPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function saveStudentDetail(){
+  const id = document.getElementById('editStudentId').value;
+  const s = students.find(x=>x.id===id);
+  if(!s) return;
+  s.name = document.getElementById('editStudentName').value.trim() || s.name;
+  s.batch = document.getElementById('editStudentBatch').value || s.batch;
+  s.father = document.getElementById('editStudentFather').value.trim();
+  s.phone = document.getElementById('editStudentPhone').value.trim();
+  s.dob = document.getElementById('editStudentDob').value.trim();
+  s.admission = document.getElementById('editStudentAdmission').value.trim();
+  s.address = document.getElementById('editStudentAddress').value.trim();
+  s.photo = pendingEditStudentPhoto;
+  saveJSON(LS.students, students);
+  renderStudentList();
+  renderBatchList();
+  closeStudentDetail();
+  showToast('✅ छात्र की जानकारी अपडेट हो गई', 'success');
+}
+
 function removeStudent(id){
   const hasRecords = records.some(r=>r.studentId===id);
   const msg = hasRecords ? 'इस छात्र के रिकॉर्ड्स भी हैं। फिर भी हटाना है?' : 'यह छात्र हटाना है?';
@@ -2312,11 +2575,7 @@ function printAllStudentQR(){
     grid.appendChild(cell);
     new QRCode(qrDiv, {text:s.id, width:110, height:110});
   });
-  document.body.classList.add('print-qr-mode');
-  setTimeout(()=>{
-    window.print();
-    document.body.classList.remove('print-qr-mode');
-  }, 300);
+  setTimeout(()=>window.print(), 300);
 }
 
 /* ==================== BACKUP / RESTORE ==================== */
@@ -2900,6 +3159,360 @@ function closeLightbox(evt){
   document.getElementById('lightbox').classList.remove('show');
 }
 
+/* ==================== OMR TEST CHECKER ==================== */
+let omrAnswerKeyDraft = [];
+let omrScanResults = [];
+
+function renderOmrUI(){
+  document.getElementById('omrBatch').innerHTML = batchOptionsHTML(false);
+  if(omrAnswerKeyDraft.length===0){ rebuildOmrAnswerGrid(); }
+  renderOmrTestSelects();
+}
+
+function rebuildOmrAnswerGrid(){
+  let numQ = parseInt(document.getElementById('omrNumQ').value) || 20;
+  let numOpt = parseInt(document.getElementById('omrNumOpt').value) || 4;
+  numQ = Math.max(1, Math.min(100, numQ));
+  numOpt = Math.max(2, Math.min(6, numOpt));
+  document.getElementById('omrNumQ').value = numQ;
+  document.getElementById('omrNumOpt').value = numOpt;
+  const old = omrAnswerKeyDraft;
+  omrAnswerKeyDraft = Array.from({length:numQ}, (_,i)=> (old[i]!=null && old[i]<numOpt) ? old[i] : null);
+  const grid = document.getElementById('omrAnswerGrid');
+  grid.innerHTML = omrAnswerKeyDraft.map((val,qi)=>{
+    let opts='';
+    for(let o=0;o<numOpt;o++){
+      const letter = String.fromCharCode(65+o);
+      opts += `<button type="button" class="opt-btn ${val===o?'active':''}" onclick="setOmrAnswer(${qi},${o})">${letter}</button>`;
+    }
+    return `<div class="omr-q-cell"><div class="qn">Q${qi+1}</div><div class="opts">${opts}</div></div>`;
+  }).join('');
+}
+function setOmrAnswer(qi, oi){
+  omrAnswerKeyDraft[qi] = oi;
+  rebuildOmrAnswerGrid();
+}
+
+function saveOmrTest(){
+  const name = document.getElementById('omrTestName').value.trim();
+  const numQ = parseInt(document.getElementById('omrNumQ').value) || 0;
+  const numOpt = parseInt(document.getElementById('omrNumOpt').value) || 4;
+  const marksPerQ = parseFloat(document.getElementById('omrMarksPerQ').value) || 1;
+  const batch = document.getElementById('omrBatch').value || (batches[0] && batches[0].id);
+  if(!name){ showToast('❌ टेस्ट का नाम लिखें', 'error'); return; }
+  if(numQ<1 || numQ>100){ showToast('❌ 1 से 100 के बीच प्रश्न रखें', 'error'); return; }
+  if(omrAnswerKeyDraft.length!==numQ || omrAnswerKeyDraft.some(v=>v==null)){ showToast('❌ सभी प्रश्नों के सही उत्तर चुनें', 'error'); return; }
+  const id = 'OMR-'+Date.now();
+  tests.push({id, label:name, type:'omr', maxMarks:numQ*marksPerQ, batch});
+  saveJSON(LS.tests, tests);
+  omrTests.push({id, name, numQuestions:numQ, numOptions:numOpt, marksPerQ, batch, answerKey:[...omrAnswerKeyDraft], createdAt:Date.now()});
+  saveJSON(LS.omrTests, omrTests);
+  document.getElementById('omrTestName').value='';
+  document.getElementById('omrNumQ').value=20;
+  document.getElementById('omrNumOpt').value=4;
+  omrAnswerKeyDraft=[];
+  rebuildOmrAnswerGrid();
+  renderOmrTestSelects();
+  showToast('✅ OMR टेस्ट सेव हो गया', 'success');
+}
+
+function renderOmrTestSelects(){
+  const optsHTML = omrTests.length
+    ? omrTests.map(t=>`<option value="${t.id}">${t.name} (${t.numQuestions}Q · ${batchName(t.batch)})</option>`).join('')
+    : '<option value="">कोई OMR टेस्ट नहीं बना</option>';
+  document.getElementById('omrPrintTestSelect').innerHTML = optsHTML;
+  document.getElementById('omrScanTestSelect').innerHTML = optsHTML;
+  updateOmrPrintInfo();
+}
+function updateOmrPrintInfo(){
+  const t = omrTests.find(x=>x.id===document.getElementById('omrPrintTestSelect').value);
+  const info = document.getElementById('omrPrintInfo');
+  if(!t){ info.innerText=''; return; }
+  const cnt = students.filter(s=>s.batch===t.batch).length;
+  info.innerText = `${batchName(t.batch)} में ${cnt} छात्र हैं — ${cnt} शीट बनेंगी (अधिकतम 100 प्रश्न प्रति शीट)।`;
+}
+
+function omrLayout(numQuestions, numOptions){
+  const ROWS_PER_COL = 25;
+  const numCols = Math.max(1, Math.ceil(numQuestions/ROWS_PER_COL));
+  const colWidth = 1/numCols;
+  const gridTop = 0.17, gridBottom = 0.97;
+  const rowHeight = (gridBottom-gridTop)/ROWS_PER_COL;
+  const questions = [];
+  for(let q=0;q<numQuestions;q++){
+    const c = Math.floor(q/ROWS_PER_COL);
+    const r = q % ROWS_PER_COL;
+    const colStart = c*colWidth + 0.02;
+    const optAreaStart = colStart + 0.045;
+    const optAreaWidth = colWidth - 0.065;
+    const optSpacing = optAreaWidth/numOptions;
+    const v = gridTop + r*rowHeight + rowHeight/2;
+    const cells = [];
+    for(let o=0;o<numOptions;o++){
+      cells.push({opt:o, label:String.fromCharCode(65+o), u:optAreaStart+o*optSpacing+optSpacing/2, v});
+    }
+    questions.push({q, num:q+1, numU:colStart, cells});
+  }
+  return { qrBox:{u0:0.74,v0:0.02,u1:0.98,v1:0.24}, questions, numCols };
+}
+
+function generateOmrSheets(){
+  const testId = document.getElementById('omrPrintTestSelect').value;
+  const omrTest = omrTests.find(t=>t.id===testId);
+  if(!omrTest){ showToast('❌ पहले एक OMR टेस्ट चुनें', 'error'); return; }
+  const batchStudents = students.filter(s=>s.batch===omrTest.batch);
+  if(batchStudents.length===0){ showToast('❌ इस बैच में कोई छात्र नहीं है', 'error'); return; }
+  const layout = omrLayout(omrTest.numQuestions, omrTest.numOptions);
+  const qrJobs = [];
+  let html='';
+  batchStudents.forEach(stu=>{
+    const qrId = 'omrqr_'+stu.id.replace(/[^A-Za-z0-9]/g,'')+'_'+Math.floor(Math.random()*1e6);
+    qrJobs.push({qrId, text: stu.id});
+    const bubblesHTML = layout.questions.map(qq=>`
+      <div style="position:absolute; left:${(qq.numU*100).toFixed(2)}%; top:${(qq.cells[0].v*100).toFixed(2)}%; transform:translateY(-50%); font-size:10px; font-weight:700;">${qq.num}.</div>
+      ${qq.cells.map(c=>`<div class="omr-bubble" style="position:absolute; left:${(c.u*100).toFixed(2)}%; top:${(c.v*100).toFixed(2)}%; transform:translate(-50%,-50%);">${c.label}</div>`).join('')}
+    `).join('');
+    html += `
+      <div class="omr-sheet">
+        <div class="omr-sheet-head">
+          <div>
+            <div class="omr-sheet-title">${omrTest.name}</div>
+            <div class="omr-sheet-sub">AMTC RAJIPUR · ${batchName(omrTest.batch)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700; font-size:12.5px;">${stu.name}</div>
+            <div class="mono" style="font-size:11px; color:#6B7280;">${stu.id}</div>
+          </div>
+        </div>
+        <div class="omr-canvas">
+          <div class="omr-corner" style="left:0%; top:0%;"></div>
+          <div class="omr-corner" style="left:100%; top:0%;"></div>
+          <div class="omr-corner" style="left:0%; top:100%;"></div>
+          <div class="omr-corner" style="left:100%; top:100%;"></div>
+          <div id="${qrId}" style="position:absolute; left:${(layout.qrBox.u0*100).toFixed(2)}%; top:${(layout.qrBox.v0*100).toFixed(2)}%; width:${((layout.qrBox.u1-layout.qrBox.u0)*100).toFixed(2)}%; height:${((layout.qrBox.v1-layout.qrBox.v0)*100).toFixed(2)}%;"></div>
+          ${bubblesHTML}
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('docPreviewInner').innerHTML = html;
+  document.getElementById('docOverlay').classList.add('show');
+  setTimeout(()=>{
+    qrJobs.forEach(({qrId,text})=>{
+      const el = document.getElementById(qrId);
+      if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text, width:60, height:60, colorDark:'#000000', colorLight:'#ffffff'}); }
+    });
+  }, 60);
+}
+
+function loadImageFromFile(file){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e=>{ img.onload=()=>resolve(img); img.onerror=reject; img.src=e.target.result; };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function runOmrPipeline(fullCanvas, omrTest){
+  const fullCtx = fullCanvas.getContext('2d');
+  const fullW = fullCanvas.width, fullH = fullCanvas.height;
+
+  const workW = 900;
+  const scale = workW/fullW;
+  const workH = Math.max(1, Math.round(fullH*scale));
+  const work = document.createElement('canvas');
+  work.width = workW; work.height = workH;
+  work.getContext('2d').drawImage(fullCanvas, 0,0, workW, workH);
+  const workData = work.getContext('2d').getImageData(0,0,workW,workH).data;
+
+  function luminanceAt(x,y){
+    x = Math.max(0, Math.min(workW-1, Math.round(x)));
+    y = Math.max(0, Math.min(workH-1, Math.round(y)));
+    const idx = (y*workW+x)*4;
+    return 0.299*workData[idx] + 0.587*workData[idx+1] + 0.114*workData[idx+2];
+  }
+  function findCorner(xFrom,xTo,yFrom,yTo){
+    let sumX=0,sumY=0,count=0;
+    for(let y=yFrom;y<yTo;y+=2){
+      for(let x=xFrom;x<xTo;x+=2){
+        if(luminanceAt(x,y) < 90){ sumX+=x; sumY+=y; count++; }
+      }
+    }
+    if(count<10) return null;
+    return {x:sumX/count, y:sumY/count};
+  }
+
+  const marginX = Math.round(workW*0.22), marginY = Math.round(workH*0.22);
+  const c00 = findCorner(0, marginX, 0, marginY);
+  const c10 = findCorner(workW-marginX, workW, 0, marginY);
+  const c01 = findCorner(0, marginX, workH-marginY, workH);
+  const c11 = findCorner(workW-marginX, workW, workH-marginY, workH);
+
+  const flagged = [];
+  if(!c00 || !c10 || !c01 || !c11){ flagged.push('कॉर्नर मार्क सही से नहीं मिले'); }
+  const P00 = c00 || {x:0,y:0};
+  const P10 = c10 || {x:workW,y:0};
+  const P01 = c01 || {x:0,y:workH};
+  const P11 = c11 || {x:workW,y:workH};
+
+  function mapNorm(u,v){
+    const topX = P00.x + u*(P10.x-P00.x), topY = P00.y + u*(P10.y-P00.y);
+    const botX = P01.x + u*(P11.x-P01.x), botY = P01.y + u*(P11.y-P01.y);
+    return { x: topX + v*(botX-topX), y: topY + v*(botY-topY) };
+  }
+
+  const layout = omrLayout(omrTest.numQuestions, omrTest.numOptions);
+  const answers = [];
+  const SAMPLE_R = Math.max(2, Math.round(workW*0.012));
+  layout.questions.forEach(qq=>{
+    const darks = qq.cells.map(c=>{
+      const p = mapNorm(c.u, c.v);
+      let total=0, n=0;
+      for(let dy=-SAMPLE_R; dy<=SAMPLE_R; dy+=2){
+        for(let dx=-SAMPLE_R; dx<=SAMPLE_R; dx+=2){
+          if(dx*dx+dy*dy <= SAMPLE_R*SAMPLE_R){ total += luminanceAt(p.x+dx, p.y+dy); n++; }
+        }
+      }
+      return n ? total/n : 255;
+    });
+    const sorted = [...darks].sort((a,b)=>a-b);
+    const minVal = sorted[0];
+    const gap = (sorted[1]!=null ? sorted[1]-sorted[0] : 999);
+    const minIdx = darks.indexOf(minVal);
+    if(minVal < 165 && gap > 18){ answers.push(minIdx); }
+    else { answers.push(null); flagged.push('Q'+qq.num); }
+  });
+
+  const qb = layout.qrBox;
+  const invScale = 1/scale;
+  let studentId = null;
+  try{
+    const p0 = mapNorm(qb.u0,qb.v0), p1 = mapNorm(qb.u1,qb.v1);
+    const qx0 = Math.max(0, p0.x*invScale - 20), qy0 = Math.max(0, p0.y*invScale - 20);
+    const qx1 = Math.min(fullW, p1.x*invScale + 20), qy1 = Math.min(fullH, p1.y*invScale + 20);
+    const cropW = Math.max(1, Math.round(qx1-qx0)), cropH = Math.max(1, Math.round(qy1-qy0));
+    const qrCanvas = document.createElement('canvas');
+    qrCanvas.width = cropW; qrCanvas.height = cropH;
+    qrCanvas.getContext('2d').drawImage(fullCanvas, qx0, qy0, cropW, cropH, 0, 0, cropW, cropH);
+    const qrImgData = qrCanvas.getContext('2d').getImageData(0,0,cropW,cropH);
+    const qrResult = window.jsQR ? jsQR(qrImgData.data, cropW, cropH) : null;
+    if(qrResult && qrResult.data){ studentId = qrResult.data.trim(); }
+  }catch(e){ /* ignore crop failure */ }
+
+  if(!studentId){
+    try{
+      const qrImgData2 = fullCtx.getImageData(0,0,fullW,fullH);
+      const qrResult2 = window.jsQR ? jsQR(qrImgData2.data, fullW, fullH) : null;
+      if(qrResult2 && qrResult2.data){ studentId = qrResult2.data.trim(); }
+    }catch(e){ /* ignore */ }
+  }
+
+  const stu = studentId ? students.find(s=>s.id===studentId) : null;
+  if(!stu) flagged.push('QR से छात्र नहीं मिला');
+
+  let score = 0;
+  answers.forEach((a,i)=>{ if(a!=null && a===omrTest.answerKey[i]) score += omrTest.marksPerQ; });
+
+  return {
+    studentId: stu ? stu.id : '', studentName: stu ? stu.name : '',
+    answers, score, total: omrTest.numQuestions*omrTest.marksPerQ, flagged
+  };
+}
+
+async function processOmrScan(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const testId = document.getElementById('omrScanTestSelect').value;
+  const omrTest = omrTests.find(t=>t.id===testId);
+  if(!omrTest){ showToast('❌ पहले OMR टेस्ट चुनें', 'error'); evt.target.value=''; return; }
+  omrScanResults = [];
+  const statusEl = document.getElementById('omrScanStatus');
+  statusEl.innerText = '⏳ प्रोसेस हो रहा है...';
+  document.getElementById('omrResultsWrap').style.display='none';
+
+  try{
+    if(file.type === 'application/pdf'){
+      if(!window.pdfjsLib){ showToast('❌ PDF लाइब्रेरी लोड नहीं हुई, इंटरनेट चेक करें', 'error'); statusEl.innerText=''; return; }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+      for(let i=1;i<=pdf.numPages;i++){
+        statusEl.innerText = `⏳ पेज ${i}/${pdf.numPages} प्रोसेस हो रहा है...`;
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({scale:2.2});
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        await page.render({canvasContext:canvas.getContext('2d'), viewport}).promise;
+        const result = await runOmrPipeline(canvas, omrTest);
+        result.page = i;
+        omrScanResults.push(result);
+      }
+    } else {
+      const img = await loadImageFromFile(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      canvas.getContext('2d').drawImage(img,0,0);
+      const result = await runOmrPipeline(canvas, omrTest);
+      result.page = 1;
+      omrScanResults.push(result);
+    }
+    statusEl.innerText = `✅ ${omrScanResults.length} शीट प्रोसेस हो गईं। नीचे रिजल्ट चेक करें, फिर सेव करें।`;
+    renderOmrResults(omrTest);
+  }catch(err){
+    console.error(err);
+    statusEl.innerText = '❌ प्रोसेस करने में गड़बड़ी हुई: '+(err.message||err);
+  }
+}
+
+function renderOmrResults(omrTest){
+  const wrap = document.getElementById('omrResultsWrap');
+  const list = document.getElementById('omrResultsList');
+  wrap.style.display='block';
+  const batchStudents = students.filter(s=>s.batch===omrTest.batch);
+  list.innerHTML = omrScanResults.map((r,i)=>{
+    const isFlagged = r.flagged.length>0 || !r.studentId;
+    const opts = batchStudents.map(s=>`<option value="${s.id}" ${s.id===r.studentId?'selected':''}>${s.name} (${s.id})</option>`).join('');
+    return `
+      <div class="omr-result-card ${isFlagged?'flag':''}">
+        <div class="rtop"><span>पेज ${r.page}</span><span>${r.score} / ${r.total}</span></div>
+        <label style="margin-bottom:4px; font-size:11px;">छात्र (QR से मिला: ${r.studentId || 'नहीं मिला ⚠️'})</label>
+        <select onchange="updateOmrResultStudent(${i}, this.value)">
+          <option value="">-- चुनें --</option>
+          ${opts}
+        </select>
+        ${r.flagged.length ? `<div class="hint" style="margin:4px 0 0; color:#D64545;">⚠️ ${r.flagged.join(', ')}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+function updateOmrResultStudent(i, sid){
+  const s = students.find(x=>x.id===sid);
+  omrScanResults[i].studentId = s ? s.id : '';
+  omrScanResults[i].studentName = s ? s.name : '';
+}
+function saveOmrResults(){
+  const testId = document.getElementById('omrScanTestSelect').value;
+  const omrTest = omrTests.find(t=>t.id===testId);
+  if(!omrTest) return;
+  const today = new Date().toLocaleDateString('en-GB');
+  let saved=0, skipped=0;
+  omrScanResults.forEach(r=>{
+    if(!r.studentId){ skipped++; return; }
+    const dup = records.some(rec=>rec.studentId===r.studentId && rec.testId===omrTest.id);
+    if(dup){ skipped++; return; }
+    records.push({date:today, studentId:r.studentId, name:r.studentName, testId:omrTest.id, testLabel:omrTest.name, testType:'omr', attendance:'Present', marksObtained:r.score, totalMarks:r.total, fee:''});
+    saved++;
+  });
+  saveJSON(LS.records, records);
+  showToast(`✅ ${saved} रिजल्ट सेव हुए${skipped?', '+skipped+' छोड़े गए':''}`, 'success');
+  omrScanResults = [];
+  document.getElementById('omrResultsWrap').style.display='none';
+  document.getElementById('omrScanFile').value='';
+  document.getElementById('omrScanStatus').innerText='';
+}
+
 /* ==================== DOCUMENT GENERATOR (ID/Admit/Marksheet/Certificate) ==================== */
 function renderDocumentsUI(){
   const sel = document.getElementById('docStudentSelect');
@@ -2909,20 +3522,28 @@ function renderDocumentsUI(){
   const msg = document.getElementById('docLogoMsg');
   msg.innerText = centerLogo ? '✅ लोगो सेट है (नया अपलोड करें तो बदल जाएगा)' : 'अभी placeholder लोगो इस्तेमाल हो रहा है';
   const sigMsg = document.getElementById('docSignatureMsg');
-  sigMsg.innerText = centerSignature ? '✅ आपका सिग्नेचर सेट है (नया अपलोड करें तो बदल जाएगा)' : 'अभी डिफ़ॉल्ट scribble सिग्नेचर इस्तेमाल हो रहा है';
+  sigMsg.innerText = centerSignature ? '✅ हस्ताक्षर सेट है (नया अपलोड करें तो बदल जाएगा)' : 'अभी हस्ताक्षर के लिए placeholder line इस्तेमाल होगी';
   switchDocType(currentDocType);
 }
 
 function switchDocType(type){
   currentDocType = type;
   document.querySelectorAll('.doc-type-btn').forEach(b=>b.classList.toggle('active', b.dataset.doc===type));
-  ['idcard','admit','marksheet','certificate'].forEach(t=>{
+  ['idcard','admit','marksheet','certificate','notice'].forEach(t=>{
     const el = document.getElementById('docFields-'+t);
     if(el) el.style.display = (t===type) ? 'block' : 'none';
   });
+  document.getElementById('docStudentRow').style.display = (type==='notice') ? 'none' : 'block';
   if(type==='marksheet' && document.getElementById('marksSubjectRows').children.length===0){
     setMarksSource(marksSource);
   }
+  if(type==='notice'){ onNoticeTypeChange(); }
+}
+
+function onNoticeTypeChange(){
+  const isLeave = document.getElementById('noticeType').value==='leave';
+  document.getElementById('noticeLeaveOnlyFields').style.display = isLeave ? 'block' : 'none';
+  document.getElementById('noticeGeneralOnlyFields').style.display = isLeave ? 'none' : 'block';
 }
 
 function uploadCenterLogo(evt){
@@ -2959,19 +3580,19 @@ function uploadCenterSignature(evt){
   const reader = new FileReader();
   reader.onload = function(e){
     img.onload = function(){
-      const maxW = 300;
+      const maxW = 320;
       const scale = Math.min(1, maxW/img.width);
       const canvas = document.createElement('canvas');
       canvas.width = img.width*scale; canvas.height = img.height*scale;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      centerSignature = canvas.toDataURL('image/png', 0.9);
+      centerSignature = canvas.toDataURL('image/png', 0.95);
       try{
         localStorage.setItem(LS_SIGNATURE, centerSignature);
-        document.getElementById('docSignatureMsg').innerText = '✅ सिग्नेचर सेव हो गया — Certificate पर दिखेगा';
-        showToast('✅ सिग्नेचर सेव हो गया', 'success');
+        document.getElementById('docSignatureMsg').innerText = '✅ हस्ताक्षर सेव हो गया — सभी दस्तावेज़ों पर दिखेगा';
+        showToast('✅ हस्ताक्षर सेव हो गया', 'success');
       }catch(err){
-        showToast('❌ सिग्नेचर सेव नहीं हो पाया (साइज़ बड़ा है)', 'error');
+        showToast('❌ हस्ताक्षर सेव नहीं हो पाया (साइज़ बड़ा है)', 'error');
       }
     };
     img.src = e.target.result;
@@ -3041,29 +3662,6 @@ function ashokaChakraSVG(color){
   </svg>`;
 }
 
-/* Original "80 Years of Independence" watermark — tricolor arc + Ashoka Chakra + "80",
-   drawn from scratch (not a stock asset) so it's free to use anywhere in the app. */
-function eightyYearsWatermarkSVG(color){
-  color = color || '#131B3A';
-  let spokes = '';
-  for(let i=0;i<24;i++){
-    const angle = (i*15)*Math.PI/180;
-    const x2 = 100 + 21*Math.cos(angle), y2 = 150 + 21*Math.sin(angle);
-    const x1 = 100 + 5*Math.cos(angle), y1 = 150 + 5*Math.sin(angle);
-    spokes += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="1.4"/>`;
-  }
-  return `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18 55 A82 82 0 0 1 182 55" fill="none" stroke="#FF9933" stroke-width="7" stroke-linecap="round"/>
-    <path d="M26 68 A74 74 0 0 1 174 68" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
-    <path d="M34 81 A66 66 0 0 1 166 81" fill="none" stroke="#138808" stroke-width="7" stroke-linecap="round"/>
-    <text x="100" y="95" font-family="'Playfair Display',serif" font-weight="800" font-size="72" fill="${color}" text-anchor="middle">80</text>
-    <text x="100" y="112" font-family="'Poppins',sans-serif" font-weight="700" font-size="11" letter-spacing="2" fill="${color}" text-anchor="middle">YEARS OF INDEPENDENCE</text>
-    <circle cx="100" cy="150" r="21" fill="none" stroke="${color}" stroke-width="1.6"/>
-    <circle cx="100" cy="150" r="4" fill="none" stroke="${color}" stroke-width="1.6"/>
-    ${spokes}
-  </svg>`;
-}
-
 function docHeaderHTML(){
   const logoHTML = centerLogo
     ? `<img src="${centerLogo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #F2A93B;">`
@@ -3088,9 +3686,9 @@ function buildIdCardHTML(stu){
   setTimeout(()=>{ const el=document.getElementById(qrId); if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text:stu.id, width:74, height:74, colorDark:'#131B3A', colorLight:'#ffffff'}); } }, 30);
   return `
     ${docHeaderHTML()}
-    <div class="doc-watermark">${eightyYearsWatermarkSVG()}</div>
+    <div class="doc-watermark">${ashokaChakraSVG()}</div>
     <div class="doc-body" style="text-align:center;">
-      <div style="width:84px;height:84px;border-radius:50%;background:#F1EEE5;margin:6px auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#6B7280;border:3px solid #F2A93B;">👤</div>
+      <div style="width:84px;height:84px;border-radius:50%;background:#F1EEE5;margin:6px auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#6B7280;border:3px solid #F2A93B;overflow:hidden;">${stu.photo ? `<img src="${stu.photo}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}</div>
       <div style="font-family:'Playfair Display',serif; font-weight:700; font-size:19px;">${stu.name}</div>
       <div class="mono" style="font-size:13px; color:#6B7280; margin-bottom:10px;">${stu.id}</div>
       <table style="width:100%; font-size:12.5px; margin-bottom:12px;">
@@ -3102,7 +3700,7 @@ function buildIdCardHTML(stu){
       <div style="font-size:10px; color:#9CA3AF;">यह कार्ड AMTC की संपत्ति है। खो जाने पर सूचित करें।</div>
       <div style="margin-top:16px; border-top:1px dashed #C9D9EE; padding-top:10px; display:flex; align-items:center; justify-content:space-between;">
         <div class="doc-seal"><span>AMTC<br>OFFICIAL</span></div>
-        <div style="font-size:11px; color:#131B3A; font-weight:600; text-align:right;">Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+        <div style="font-size:11px; color:#131B3A; font-weight:600; text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
       </div>
     </div>
   `;
@@ -3116,7 +3714,7 @@ function buildAdmitCardHTML(stu){
   const subject = document.getElementById('admitSubject').value.trim() || '—';
   return `
     ${docHeaderHTML()}
-    <div class="doc-watermark">${eightyYearsWatermarkSVG()}</div>
+    <div class="doc-watermark">${ashokaChakraSVG()}</div>
     <div class="doc-body">
       <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:16px; margin-bottom:10px; text-decoration:underline;">प्रवेश पत्र / ADMIT CARD</div>
       <table style="width:100%; font-size:13px;">
@@ -3133,7 +3731,7 @@ function buildAdmitCardHTML(stu){
       <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; font-size:11px; color:#131B3A; font-weight:600;">
         <div>छात्र हस्ताक्षर<br><span style="font-weight:400; color:#9CA3AF;">................</span></div>
         <div class="doc-seal" style="margin:0 10px;"><span>AMTC<br>OFFICIAL</span></div>
-        <div style="text-align:right;">Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+        <div style="text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
       </div>
     </div>
   `;
@@ -3154,7 +3752,7 @@ function buildMarksheetHTML(stu){
   const rowsHTML = rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.subject || '—'}</td><td style="text-align:center;">${r.max}</td><td style="text-align:center;">${r.obt}</td></tr>`).join('');
   return `
     ${docHeaderHTML()}
-    <div class="doc-watermark">${eightyYearsWatermarkSVG()}</div>
+    <div class="doc-watermark">${ashokaChakraSVG()}</div>
     <div class="doc-body">
       <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:16px; margin-bottom:4px; text-decoration:underline;">अंक तालिका / MARKSHEET</div>
       <div style="text-align:center; font-size:12px; color:#6B7280; margin-bottom:10px;">${exam}</div>
@@ -3176,10 +3774,14 @@ function buildMarksheetHTML(stu){
       <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; font-size:11px; color:#131B3A; font-weight:600;">
         <div>तारीख<br><span style="font-weight:400; color:#9CA3AF;">${new Date().toLocaleDateString('en-GB')}</span></div>
         <div class="doc-seal" style="margin:0 10px;"><span>AMTC<br>OFFICIAL</span></div>
-        <div style="text-align:right;">Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+        <div style="text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
       </div>
     </div>
   `;
+}
+
+function directorSignatureImgHTML(maxHeight){
+  return centerSignature ? `<img src="${centerSignature}" style="height:${maxHeight||30}px; object-fit:contain; display:block; margin-left:auto;">` : '';
 }
 
 function signatureScribbleSVG(){
@@ -3210,7 +3812,7 @@ function buildCertificateHTML(stu){
   return `
     <div class="cert-strip"></div>
     <div class="cert-watermark">
-      ${eightyYearsWatermarkSVG('#000080')}
+      ${ashokaChakraSVG('#000080')}
       <div class="cert-wm-motto">सत्यमेव जयते</div>
     </div>
     <div class="cert-body">
@@ -3232,7 +3834,7 @@ function buildCertificateHTML(stu){
 
       <div class="cert-sig-row">
         <div class="cert-sig">
-          ${centerSignature ? `<img src="${centerSignature}" style="height:38px; max-width:150px; object-fit:contain;">` : signatureScribbleSVG()}
+          ${centerSignature ? `<img src="${centerSignature}" style="height:34px; object-fit:contain; margin:0 auto; display:block;">` : signatureScribbleSVG()}
           <div class="cert-sig-name">Vikash Kumar</div>
           <div class="cert-sig-title">Director, Ayush Mathematics Teaching Digital Centre</div>
         </div>
@@ -3250,7 +3852,58 @@ function buildCertificateHTML(stu){
   `;
 }
 
+function buildNoticeHTML(){
+  const type = document.getElementById('noticeType').value;
+  const extra = document.getElementById('noticeExtraMsg').value.trim();
+  const issuedBy = document.getElementById('noticeIssuedBy').value.trim() || 'Vikash Kumar, Director — AMTC';
+  const today = new Date().toLocaleDateString('en-GB');
+  let title, bodyHTML;
+
+  if(type==='leave'){
+    const whoType = document.getElementById('noticeLeaveWho').value;
+    const whoName = document.getElementById('noticeWhoName').value.trim() || '—';
+    const reason = document.getElementById('noticeReason').value.trim() || '—';
+    const fromDate = document.getElementById('noticeFromDate').value.trim() || '—';
+    const toDate = document.getElementById('noticeToDate').value.trim() || fromDate;
+    const whoLabel = {center:'पूरे केंद्र (AMTC) में', teacher:'शिक्षक/डायरेक्टर की ओर से', student:'छात्र की ओर से', batch:'बैच की ओर से'}[whoType] || '';
+    title = 'अवकाश सूचना / LEAVE NOTICE';
+    bodyHTML = `
+      <p style="margin:0 0 12px;">सूचित किया जाता है कि <b>${whoLabel} ${whoName!=='—' ? '('+whoName+')' : ''}</b> दिनांक <b>${fromDate}</b> से <b>${toDate}</b> तक अवकाश रहेगा।</p>
+      <p style="margin:0 0 12px;"><b>कारण:</b> ${reason}</p>
+    `;
+  } else {
+    const noticeTitle = document.getElementById('noticeTitle').value.trim() || 'सूचना';
+    const noticeDate = document.getElementById('noticeDate').value.trim() || today;
+    title = 'सूचना / NOTICE';
+    bodyHTML = `
+      <p style="margin:0 0 6px; font-weight:700;">${noticeTitle}</p>
+      <p style="margin:0 0 12px; color:#6B7280; font-size:11.5px;">दिनांक: ${noticeDate}</p>
+    `;
+  }
+
+  return `
+    ${docHeaderHTML()}
+    <div class="doc-watermark">${ashokaChakraSVG()}</div>
+    <div class="doc-body">
+      <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:16px; margin-bottom:14px; text-decoration:underline;">${title}</div>
+      <div style="font-size:13px; color:#20263B; line-height:1.7;">
+        ${bodyHTML}
+        ${extra ? `<p style="margin:0 0 12px;">${extra}</p>` : ''}
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:24px; font-size:11px; color:#131B3A; font-weight:600;">
+        <div>जारी तारीख<br><span style="font-weight:400; color:#9CA3AF;">${today}</span></div>
+        <div class="doc-seal" style="margin:0 10px;"><span>AMTC<br>OFFICIAL</span></div>
+        <div style="text-align:right;">${directorSignatureImgHTML(28)}${issuedBy}</div>
+      </div>
+    </div>
+  `;
+}
+
 function generateDocument(){
+  if(currentDocType==='notice'){
+    openDocPreview(buildNoticeHTML(), 'doc-page');
+    return;
+  }
   const sel = document.getElementById('docStudentSelect');
   const stu = students.find(s=>s.id===sel.value);
   if(!stu){ showToast('❌ पहले छात्र चुनें', 'error'); return; }
