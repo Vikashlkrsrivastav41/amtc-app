@@ -439,6 +439,7 @@
   .omr-q-cell .opts{display:flex; gap:3px; justify-content:center; flex-wrap:wrap;}
   .omr-q-cell .opt-btn{width:22px; height:22px; border-radius:50%; border:1px solid var(--line); background:var(--card-bg); font-size:10px; font-weight:700; color:var(--navy2); cursor:pointer; padding:0;}
   .omr-q-cell .opt-btn.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .omr-key-auto-box{background:var(--chip-bg); border-radius:12px; padding:10px 12px; margin:8px 0 4px;}
 
   .omr-result-card{background:var(--chip-bg); border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:12.5px;}
   .omr-result-card.flag{border:1.5px solid #E0A030;}
@@ -1093,14 +1094,25 @@
           <label>टेस्ट का नाम</label>
           <input type="text" id="omrTestName" placeholder="जैसे: Monthly Test — September">
           <div class="field-row">
-            <div><label>कितने प्रश्न?</label><input type="number" id="omrNumQ" value="20" min="1" max="200" oninput="rebuildOmrAnswerGrid()"></div>
-            <div><label>कितने विकल्प? (A/B/C...)</label><input type="number" id="omrNumOpt" value="4" min="2" max="6" oninput="rebuildOmrAnswerGrid()"></div>
+            <div><label>कितने प्रश्न?</label><input type="number" id="omrNumQ" value="20" min="1" max="100" inputmode="numeric" oninput="rebuildOmrAnswerGrid(false)" onblur="rebuildOmrAnswerGrid(true)"></div>
+            <div><label>कितने विकल्प? (A/B/C...)</label><input type="number" id="omrNumOpt" value="4" min="2" max="6" inputmode="numeric" oninput="rebuildOmrAnswerGrid(false)" onblur="rebuildOmrAnswerGrid(true)"></div>
           </div>
           <div class="field-row">
             <div><label>प्रति प्रश्न अंक</label><input type="number" id="omrMarksPerQ" value="1" min="1"></div>
             <div><label>बैच</label><select id="omrBatch"></select></div>
           </div>
           <label>सही उत्तर चुनें (Answer Key)</label>
+          <div class="omr-key-auto-box">
+            <p class="hint" style="margin:0 0 8px;">हर सवाल में क्लिक करने के बजाय — एक खाली शीट प्रिंट करो, सही उत्तर पेन से भरो, फोटो खींचो/स्कैन करो और यहाँ अपलोड करो — Answer Key अपने आप भर जाएगी।</p>
+            <div class="btn-row">
+              <button type="button" class="btn-outline" onclick="printMasterAnswerSheet()">🖨️ खाली मास्टर शीट प्रिंट करें</button>
+              <label class="btn-outline" style="display:inline-flex; align-items:center; justify-content:center; cursor:pointer;">
+                📷 भरी हुई शीट अपलोड करें
+                <input type="file" accept="image/*,application/pdf" style="display:none;" onchange="uploadMasterAnswerSheet(event)">
+              </label>
+            </div>
+            <p class="hint" id="omrKeyAutoStatus" style="margin:8px 0 0;"></p>
+          </div>
           <div id="omrAnswerGrid" class="omr-answer-grid"></div>
           <button class="btn-primary" style="margin-top:10px;" onclick="saveOmrTest()">💾 OMR टेस्ट सेव करें</button>
         </div>
@@ -1191,7 +1203,6 @@
       <div id="docFields-idcard" class="doc-fields" style="display:none;">
         <div class="field-row">
           <div><label>Valid Till</label><input type="text" id="idValidTill" placeholder="मार्च 2027"></div>
-          <div><label>ब्लड ग्रुप (वैकल्पिक)</label><input type="text" id="idBloodGroup" placeholder="जैसे: B+"></div>
         </div>
       </div>
 
@@ -3165,17 +3176,26 @@ let omrScanResults = [];
 
 function renderOmrUI(){
   document.getElementById('omrBatch').innerHTML = batchOptionsHTML(false);
-  if(omrAnswerKeyDraft.length===0){ rebuildOmrAnswerGrid(); }
+  if(omrAnswerKeyDraft.length===0){ rebuildOmrAnswerGrid(true); }
   renderOmrTestSelects();
 }
 
-function rebuildOmrAnswerGrid(){
-  let numQ = parseInt(document.getElementById('omrNumQ').value) || 20;
-  let numOpt = parseInt(document.getElementById('omrNumOpt').value) || 4;
+function rebuildOmrAnswerGrid(clampAndSave){
+  const numQInput = document.getElementById('omrNumQ');
+  const numOptInput = document.getElementById('omrNumOpt');
+  let numQ = parseInt(numQInput.value) || 20;
+  let numOpt = parseInt(numOptInput.value) || 4;
   numQ = Math.max(1, Math.min(100, numQ));
   numOpt = Math.max(2, Math.min(6, numOpt));
-  document.getElementById('omrNumQ').value = numQ;
-  document.getElementById('omrNumOpt').value = numOpt;
+
+  // Only write the clamped value back into the input on blur (clampAndSave=true) —
+  // never while the user is still actively typing, or every keystroke resets the
+  // field and interrupts typing on mobile.
+  if(clampAndSave){
+    numQInput.value = numQ;
+    numOptInput.value = numOpt;
+  }
+
   const old = omrAnswerKeyDraft;
   omrAnswerKeyDraft = Array.from({length:numQ}, (_,i)=> (old[i]!=null && old[i]<numOpt) ? old[i] : null);
   const grid = document.getElementById('omrAnswerGrid');
@@ -3187,10 +3207,11 @@ function rebuildOmrAnswerGrid(){
     }
     return `<div class="omr-q-cell"><div class="qn">Q${qi+1}</div><div class="opts">${opts}</div></div>`;
   }).join('');
+  grid.scrollTop = 0; // avoid stale scroll position confusing the new list
 }
 function setOmrAnswer(qi, oi){
   omrAnswerKeyDraft[qi] = oi;
-  rebuildOmrAnswerGrid();
+  rebuildOmrAnswerGrid(true);
 }
 
 function saveOmrTest(){
@@ -3211,7 +3232,7 @@ function saveOmrTest(){
   document.getElementById('omrNumQ').value=20;
   document.getElementById('omrNumOpt').value=4;
   omrAnswerKeyDraft=[];
-  rebuildOmrAnswerGrid();
+  rebuildOmrAnswerGrid(true);
   renderOmrTestSelects();
   showToast('✅ OMR टेस्ट सेव हो गया', 'success');
 }
@@ -3313,6 +3334,160 @@ function loadImageFromFile(file){
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+/* ---- shared bubble-darkness detector: corner-align + sample each bubble.
+   Used both for grading student sheets AND for reading a master answer-key sheet. ---- */
+function detectOmrAnswers(fullCanvas, numQuestions, numOptions){
+  const fullW = fullCanvas.width, fullH = fullCanvas.height;
+  const workW = 900;
+  const scale = workW/fullW;
+  const workH = Math.max(1, Math.round(fullH*scale));
+  const work = document.createElement('canvas');
+  work.width = workW; work.height = workH;
+  work.getContext('2d').drawImage(fullCanvas, 0,0, workW, workH);
+  const workData = work.getContext('2d').getImageData(0,0,workW,workH).data;
+
+  function luminanceAt(x,y){
+    x = Math.max(0, Math.min(workW-1, Math.round(x)));
+    y = Math.max(0, Math.min(workH-1, Math.round(y)));
+    const idx = (y*workW+x)*4;
+    return 0.299*workData[idx] + 0.587*workData[idx+1] + 0.114*workData[idx+2];
+  }
+  function findCorner(xFrom,xTo,yFrom,yTo){
+    let sumX=0,sumY=0,count=0;
+    for(let y=yFrom;y<yTo;y+=2){
+      for(let x=xFrom;x<xTo;x+=2){
+        if(luminanceAt(x,y) < 90){ sumX+=x; sumY+=y; count++; }
+      }
+    }
+    if(count<10) return null;
+    return {x:sumX/count, y:sumY/count};
+  }
+
+  const marginX = Math.round(workW*0.22), marginY = Math.round(workH*0.22);
+  const c00 = findCorner(0, marginX, 0, marginY);
+  const c10 = findCorner(workW-marginX, workW, 0, marginY);
+  const c01 = findCorner(0, marginX, workH-marginY, workH);
+  const c11 = findCorner(workW-marginX, workW, workH-marginY, workH);
+
+  const flagged = [];
+  if(!c00 || !c10 || !c01 || !c11){ flagged.push('कॉर्नर मार्क सही से नहीं मिले — पूरी शीट साफ़ और सीधी स्कैन करें'); }
+  const P00 = c00 || {x:0,y:0};
+  const P10 = c10 || {x:workW,y:0};
+  const P01 = c01 || {x:0,y:workH};
+  const P11 = c11 || {x:workW,y:workH};
+
+  function mapNorm(u,v){
+    const topX = P00.x + u*(P10.x-P00.x), topY = P00.y + u*(P10.y-P00.y);
+    const botX = P01.x + u*(P11.x-P01.x), botY = P01.y + u*(P11.y-P01.y);
+    return { x: topX + v*(botX-topX), y: topY + v*(botY-topY) };
+  }
+
+  const layout = omrLayout(numQuestions, numOptions);
+  const answers = [];
+  const SAMPLE_R = Math.max(2, Math.round(workW*0.012));
+  layout.questions.forEach(qq=>{
+    const darks = qq.cells.map(c=>{
+      const p = mapNorm(c.u, c.v);
+      let total=0, n=0;
+      for(let dy=-SAMPLE_R; dy<=SAMPLE_R; dy+=2){
+        for(let dx=-SAMPLE_R; dx<=SAMPLE_R; dx+=2){
+          if(dx*dx+dy*dy <= SAMPLE_R*SAMPLE_R){ total += luminanceAt(p.x+dx, p.y+dy); n++; }
+        }
+      }
+      return n ? total/n : 255;
+    });
+    const sorted = [...darks].sort((a,b)=>a-b);
+    const minVal = sorted[0];
+    const gap = (sorted[1]!=null ? sorted[1]-sorted[0] : 999);
+    const minIdx = darks.indexOf(minVal);
+    if(minVal < 165 && gap > 18){ answers.push(minIdx); }
+    else { answers.push(null); flagged.push('Q'+qq.num); }
+  });
+
+  return { answers, flagged };
+}
+
+function printMasterAnswerSheet(){
+  let numQ = parseInt(document.getElementById('omrNumQ').value) || 20;
+  let numOpt = parseInt(document.getElementById('omrNumOpt').value) || 4;
+  numQ = Math.max(1, Math.min(100, numQ));
+  numOpt = Math.max(2, Math.min(6, numOpt));
+  const name = document.getElementById('omrTestName').value.trim() || 'Master Answer Key';
+  const layout = omrLayout(numQ, numOpt);
+  const bubblesHTML = layout.questions.map(qq=>`
+    <div style="position:absolute; left:${(qq.numU*100).toFixed(2)}%; top:${(qq.cells[0].v*100).toFixed(2)}%; transform:translateY(-50%); font-size:10px; font-weight:700;">${qq.num}.</div>
+    ${qq.cells.map(c=>`<div class="omr-bubble" style="position:absolute; left:${(c.u*100).toFixed(2)}%; top:${(c.v*100).toFixed(2)}%; transform:translate(-50%,-50%);">${c.label}</div>`).join('')}
+  `).join('');
+  const html = `
+    <div class="omr-sheet">
+      <div class="omr-sheet-head">
+        <div>
+          <div class="omr-sheet-title">${name}</div>
+          <div class="omr-sheet-sub">AMTC RAJIPUR · MASTER ANSWER KEY — सही गोले काले करें</div>
+        </div>
+      </div>
+      <div class="omr-canvas">
+        <div class="omr-corner" style="left:0%; top:0%;"></div>
+        <div class="omr-corner" style="left:100%; top:0%;"></div>
+        <div class="omr-corner" style="left:0%; top:100%;"></div>
+        <div class="omr-corner" style="left:100%; top:100%;"></div>
+        ${bubblesHTML}
+      </div>
+    </div>
+  `;
+  document.getElementById('docPreviewInner').innerHTML = html;
+  document.getElementById('docOverlay').classList.add('show');
+}
+
+async function uploadMasterAnswerSheet(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  let numQ = parseInt(document.getElementById('omrNumQ').value) || 20;
+  let numOpt = parseInt(document.getElementById('omrNumOpt').value) || 4;
+  numQ = Math.max(1, Math.min(100, numQ));
+  numOpt = Math.max(2, Math.min(6, numOpt));
+  const statusEl = document.getElementById('omrKeyAutoStatus');
+  statusEl.innerText = '⏳ पढ़ा जा रहा है...';
+
+  try{
+    let canvas;
+    if(file.type === 'application/pdf'){
+      if(!window.pdfjsLib){ showToast('❌ PDF लाइब्रेरी लोड नहीं हुई, इंटरनेट चेक करें', 'error'); statusEl.innerText=''; return; }
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+      const page = await pdf.getPage(1); // master key is always a single page
+      const viewport = page.getViewport({scale:2.2});
+      canvas = document.createElement('canvas');
+      canvas.width = viewport.width; canvas.height = viewport.height;
+      await page.render({canvasContext:canvas.getContext('2d'), viewport}).promise;
+    } else {
+      const img = await loadImageFromFile(file);
+      canvas = document.createElement('canvas');
+      canvas.width = img.width; canvas.height = img.height;
+      canvas.getContext('2d').drawImage(img,0,0);
+    }
+
+    const {answers, flagged} = detectOmrAnswers(canvas, numQ, numOpt);
+    omrAnswerKeyDraft = answers;
+    rebuildOmrAnswerGrid(true);
+
+    const okCount = answers.filter(a=>a!=null).length;
+    if(flagged.length===0){
+      statusEl.style.color='green';
+      statusEl.innerText = `✅ सभी ${numQ} उत्तर सही से पढ़ लिए गए — नीचे एक बार जांच लें।`;
+    } else {
+      statusEl.style.color='#D64545';
+      statusEl.innerText = `⚠️ ${okCount}/${numQ} उत्तर पढ़े गए। बाकी: ${flagged.join(', ')} — इन्हें नीचे मैन्युअल सेट कर दें।`;
+    }
+  }catch(err){
+    console.error(err);
+    statusEl.style.color='#D64545';
+    statusEl.innerText = '❌ पढ़ने में गड़बड़ी हुई: '+(err.message||err);
+  }
+  evt.target.value='';
 }
 
 async function runOmrPipeline(fullCanvas, omrTest){
@@ -3679,28 +3854,39 @@ function docHeaderHTML(){
   `;
 }
 
+function idCardHeaderHTML(){
+  const logoHTML = centerLogo
+    ? `<img src="${centerLogo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #F2A93B;">`
+    : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(155deg,#F2A93B,#D98F1D);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:19px;color:#131B3A;border:2px solid rgba(19,27,58,0.15);flex-shrink:0;">AM</div>`;
+  return `
+    <div class="doc-brandrow" style="padding-top:14px;">
+      ${logoHTML}
+      <div>
+        <div class="doc-brand-title">Ayush Mathematics Teaching Digital Centre</div>
+      </div>
+    </div>
+  `;
+}
+
 function buildIdCardHTML(stu){
   const valid = (document.getElementById('idValidTill').value || '—').trim() || '—';
-  const blood = (document.getElementById('idBloodGroup').value || '—').trim() || '—';
   const qrId = 'idqr_'+Date.now();
   setTimeout(()=>{ const el=document.getElementById(qrId); if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text:stu.id, width:74, height:74, colorDark:'#131B3A', colorLight:'#ffffff'}); } }, 30);
   return `
-    ${docHeaderHTML()}
-    <div class="doc-watermark">${ashokaChakraSVG()}</div>
+    ${idCardHeaderHTML()}
     <div class="doc-body" style="text-align:center;">
       <div style="width:84px;height:84px;border-radius:50%;background:#F1EEE5;margin:6px auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#6B7280;border:3px solid #F2A93B;overflow:hidden;">${stu.photo ? `<img src="${stu.photo}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}</div>
       <div style="font-family:'Playfair Display',serif; font-weight:700; font-size:19px;">${stu.name}</div>
       <div class="mono" style="font-size:13px; color:#6B7280; margin-bottom:10px;">${stu.id}</div>
       <table style="width:100%; font-size:12.5px; margin-bottom:12px;">
         <tr><td style="text-align:left; color:#6B7280;">बैच</td><td style="text-align:right; font-weight:600;">${batchName(stu.batch)}</td></tr>
-        <tr><td style="text-align:left; color:#6B7280;">ब्लड ग्रुप</td><td style="text-align:right; font-weight:600;">${blood}</td></tr>
         <tr><td style="text-align:left; color:#6B7280;">Valid Till</td><td style="text-align:right; font-weight:600;">${valid}</td></tr>
       </table>
       <div id="${qrId}" style="display:flex; justify-content:center; margin-bottom:8px;"></div>
       <div style="font-size:10px; color:#9CA3AF;">यह कार्ड AMTC की संपत्ति है। खो जाने पर सूचित करें।</div>
       <div style="margin-top:16px; border-top:1px dashed #C9D9EE; padding-top:10px; display:flex; align-items:center; justify-content:space-between;">
         <div class="doc-seal"><span>AMTC<br>OFFICIAL</span></div>
-        <div style="font-size:11px; color:#131B3A; font-weight:600; text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
+        <div style="font-size:11px; color:#131B3A; font-weight:600; text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Teacher</span></div>
       </div>
     </div>
   `;
