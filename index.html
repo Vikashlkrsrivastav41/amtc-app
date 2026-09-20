@@ -1417,6 +1417,24 @@ function pushStateToCloud(){
     setCloudStatus('offline');
   });
 }
+
+/* Data-loss guard: a change (like adding a student) is only queued to push to
+   cloud after a short 500ms delay (queueCloudSync). If the page is refreshed or
+   closed in that window, the push never happens — then on reload the app pulls
+   the OLD cloud data and overwrites the new change with it, making it vanish.
+   Flush any pending push immediately whenever the page is about to leave/hide. */
+function flushPendingCloudSync(){
+  if(cloudSyncTimer){ clearTimeout(cloudSyncTimer); cloudSyncTimer = null; pushStateToCloud(); }
+  if(typeof bannerSyncTimer !== 'undefined' && bannerSyncTimer){ clearTimeout(bannerSyncTimer); bannerSyncTimer = null; pushBannerToCloud(); }
+  if(typeof coursesSyncTimer !== 'undefined' && coursesSyncTimer){ clearTimeout(coursesSyncTimer); coursesSyncTimer = null; pushCoursesToCloud(); }
+  if(typeof galleryPhotosSyncTimer !== 'undefined' && galleryPhotosSyncTimer){ clearTimeout(galleryPhotosSyncTimer); galleryPhotosSyncTimer = null; pushGalleryPhotosToCloud(); }
+}
+window.addEventListener('beforeunload', flushPendingCloudSync);
+window.addEventListener('pagehide', flushPendingCloudSync);
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'hidden') flushPendingCloudSync();
+});
+
 function startCloudSync(){
   if(!cloudReady) return;
   setCloudStatus('connecting');
