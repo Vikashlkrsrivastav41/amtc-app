@@ -886,6 +886,15 @@
       </div>
     </details>
 
+    <details class="accordion" open>
+      <summary>☁️ क्लाउड सिंक<span class="chev">›</span></summary>
+      <div class="accordion-body">
+        <p class="hint" style="margin-top:0;">अगर Firebase permissions में हाल ही में कोई दिक्कत हुई हो और आपको यकीन नहीं कि सब कुछ cloud तक पहुँचा या नहीं, तो नीचे दबाकर इस डिवाइस पर मौजूद सारा data (students, photos, tests, records) फिर से cloud पर भेज दें।</p>
+        <button class="btn-primary" onclick="forceSyncNow()">🔄 अभी सिंक करें</button>
+        <p class="hint" id="forceSyncMsg" style="margin-top:8px;"></p>
+      </div>
+    </details>
+
     <details class="accordion">
       <summary>🔐 टीचर सुरक्षा कोड<span class="chev">›</span></summary>
       <div class="accordion-body">
@@ -1407,8 +1416,11 @@ function queueCloudSync(){
 }
 function pushStateToCloud(){
   if(!cloudReady) return;
+  // Photos are synced separately (see below) so this shared document never
+  // approaches Firestore's 1MB-per-document limit as more students join.
+  const studentsLean = students.map(({photo, ...rest})=>rest);
   db.collection('amtc').doc('state').set({
-    students, tests, batches, records, teacherSecret, teachers,
+    students: studentsLean, tests, batches, records, teacherSecret, teachers,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, {merge:true}).then(()=>{
     setCloudStatus('synced');
@@ -1416,6 +1428,89 @@ function pushStateToCloud(){
     console.error('Cloud sync failed', err);
     setCloudStatus('offline');
   });
+}
+
+/* ---- student photos: one tiny document PER student in their own collection,
+   never crammed into the shared state doc — this is what was silently
+   breaking every save once enough photos were added. ---- */
+const studentPhotoSyncTimers = {};
+function queueStudentPhotoSync(studentId){
+  if(!cloudReady) return;
+  clearTimeout(studentPhotoSyncTimers[studentId]);
+  studentPhotoSyncTimers[studentId] = setTimeout(()=>pushStudentPhoto(studentId), 500);
+}
+function pushStudentPhoto(studentId){
+  if(!cloudReady) return;
+  const s = students.find(x=>x.id===studentId);
+  if(!s) return;
+  if(s.photo){
+    db.collection('amtc_student_photos').doc(studentId).set({photo:s.photo}).catch(err=>console.error('Photo sync failed', err));
+  } else {
+    db.collection('amtc_student_photos').doc(studentId).delete().catch(()=>{});
+  }
+}
+function startStudentPhotosCloudSync(){
+  if(!cloudReady) return;
+  db.collection('amtc_student_photos').onSnapshot(snap=>{
+    let changed = false;
+    snap.docChanges().forEach(change=>{
+      const sid = change.doc.id;
+      const s = students.find(x=>x.id===sid);
+      if(!s) return;
+      const newPhoto = change.type==='removed' ? '' : (change.doc.data().photo || '');
+      if(s.photo !== newPhoto){ s.photo = newPhoto; changed = true; }
+    });
+    if(changed){
+      localStorage.setItem(LS.students, JSON.stringify(students));
+      if(document.querySelector('#sec-manage.active')) renderStudentList();
+    }
+  }, err=>console.error('Photo listen failed', err));
+}
+
+/* Manual "force sync" — pushes everything currently on this device up to the
+   cloud right now, regardless of debounce timers. Useful after fixing a
+   Firestore permissions problem, to confirm existing local data actually
+   makes it to the cloud instead of waiting and hoping. */
+function forceSyncNow(){
+  const msg = document.getElementById('forceSyncMsg');
+  if(!cloudReady){
+    msg.style.color='#D64545';
+    msg.innerText = '❌ Cloud से कनेक्शन नहीं बन पाया — इंटरनेट/Firebase सेटअप चेक करें।';
+    return;
+  }
+  msg.style.color='var(--slate)';
+  msg.innerText = '⏳ भेजा जा रहा है...';
+
+  const jobs = [];
+  jobs.push(
+    db.collection('amtc').doc('state').set({
+      students: students.map(({photo, ...rest})=>rest),
+      tests, batches, records, teacherSecret, teachers,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true})
+  );
+  students.forEach(s=>{
+    if(s.photo){
+      jobs.push(db.collection('amtc_student_photos').doc(s.id).set({photo:s.photo}));
+    }
+  });
+  if(typeof bannerImages !== 'undefined') jobs.push(pushBannerToCloud());
+  if(typeof courses !== 'undefined') jobs.push(pushCoursesToCloud());
+  if(typeof gallery !== 'undefined') jobs.push(pushGalleryPhotosToCloud());
+
+  Promise.all(jobs.map(j=> (j && j.catch) ? j.catch(e=>({error:e})) : j))
+    .then(results=>{
+      const failed = results.filter(r=> r && r.error);
+      if(failed.length===0){
+        msg.style.color='green';
+        msg.innerText = `✅ सब कुछ सफलतापूर्वक cloud पर भेज दिया गया (${students.length} students सहित)।`;
+        setCloudStatus('synced');
+      } else {
+        msg.style.color='#D64545';
+        msg.innerText = `⚠️ कुछ हिस्सा भेजने में दिक्कत हुई (${failed.length} error) — Firebase Rules एक बार फिर से चेक कर लें।`;
+        console.error('forceSyncNow failures', failed);
+      }
+    });
 }
 
 /* Data-loss guard: a change (like adding a student) is only queued to push to
@@ -1428,6 +1523,9 @@ function flushPendingCloudSync(){
   if(typeof bannerSyncTimer !== 'undefined' && bannerSyncTimer){ clearTimeout(bannerSyncTimer); bannerSyncTimer = null; pushBannerToCloud(); }
   if(typeof coursesSyncTimer !== 'undefined' && coursesSyncTimer){ clearTimeout(coursesSyncTimer); coursesSyncTimer = null; pushCoursesToCloud(); }
   if(typeof galleryPhotosSyncTimer !== 'undefined' && galleryPhotosSyncTimer){ clearTimeout(galleryPhotosSyncTimer); galleryPhotosSyncTimer = null; pushGalleryPhotosToCloud(); }
+  Object.keys(studentPhotoSyncTimers).forEach(sid=>{
+    if(studentPhotoSyncTimers[sid]){ clearTimeout(studentPhotoSyncTimers[sid]); studentPhotoSyncTimers[sid]=null; pushStudentPhoto(sid); }
+  });
 }
 window.addEventListener('beforeunload', flushPendingCloudSync);
 window.addEventListener('pagehide', flushPendingCloudSync);
@@ -1447,7 +1545,13 @@ function startCloudSync(){
     }
     const data = snap.data();
     applyingRemoteUpdate = true;
-    if(data.students) students = data.students;
+    if(data.students){
+      // merge in whatever photos we already know locally — the cloud copy of
+      // `students` never carries photos (kept lean on purpose, see above)
+      const photoMap = {};
+      students.forEach(s=>{ if(s.photo) photoMap[s.id] = s.photo; });
+      students = data.students.map(s=> ({...s, photo: photoMap[s.id] || ''}));
+    }
     if(data.tests) tests = data.tests;
     if(data.batches) batches = data.batches;
     if(data.records) records = data.records;
@@ -1480,7 +1584,7 @@ function queueBannerCloudSync(){
 }
 function pushBannerToCloud(){
   if(!cloudReady) return;
-  db.collection('amtc').doc('banner').set({
+  return db.collection('amtc').doc('banner').set({
     images: bannerImages, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(err=>console.error('Banner cloud sync failed', err));
 }
@@ -1510,7 +1614,7 @@ function queueCoursesCloudSync(){
 }
 function pushCoursesToCloud(){
   if(!cloudReady) return;
-  db.collection('amtc').doc('courses').set({
+  return db.collection('amtc').doc('courses').set({
     items: courses, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(err=>console.error('Courses cloud sync failed', err));
 }
@@ -1541,7 +1645,7 @@ function queueGalleryPhotosCloudSync(){
 function pushGalleryPhotosToCloud(){
   if(!cloudReady) return;
   const photos = gallery.filter(g=>g.type==='image');
-  db.collection('amtc').doc('gallery_photos').set({
+  return db.collection('amtc').doc('gallery_photos').set({
     photos, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(err=>console.error('Gallery photo sync failed', err));
 }
@@ -2390,6 +2494,7 @@ function addStudent(){
   if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
   students.push({id, name, batch, photo:pendingNewStudentPhoto, father, phone, dob, admission, address});
   saveJSON(LS.students, students);
+  if(pendingNewStudentPhoto) queueStudentPhotoSync(id);
   ['newStudentId','newStudentName','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
   document.getElementById('newStudentPhotoInput').value='';
   document.getElementById('newStudentPhotoPreview').innerHTML='👤';
@@ -2450,6 +2555,7 @@ function saveStudentDetail(){
   s.address = document.getElementById('editStudentAddress').value.trim();
   s.photo = pendingEditStudentPhoto;
   saveJSON(LS.students, students);
+  queueStudentPhotoSync(id);
   renderStudentList();
   renderBatchList();
   closeStudentDetail();
@@ -2462,6 +2568,7 @@ function removeStudent(id){
   if(!confirm(msg)) return;
   students = students.filter(s=>s.id!==id);
   saveJSON(LS.students, students);
+  if(cloudReady) db.collection('amtc_student_photos').doc(id).delete().catch(()=>{});
   renderStudentList();
   renderBatchList();
   showToast('छात्र हटा दिया गया', 'success');
@@ -4153,6 +4260,7 @@ window.onload = function(){
   startBannerCloudSync();
   startCoursesCloudSync();
   startGalleryPhotosCloudSync();
+  startStudentPhotosCloudSync();
 };
 </script>
 </body>
