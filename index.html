@@ -11,6 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
@@ -365,7 +366,8 @@
     body.print-slip #resultLookupCard, body.print-slip .id-toggle-row, body.print-slip #resultReader{display:none !important;}
   }
   #studentQrPrintArea{padding:20px;}
-  .qr-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .qr-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+  .qr-cell svg{max-width:100%; height:auto;}
   .qr-cell{text-align:center; font-size:11px; font-family:'JetBrains Mono',monospace; break-inside:avoid;}
   .qr-cell div.qrbox{display:flex; justify-content:center; margin-bottom:4px;}
 
@@ -403,6 +405,78 @@
   .doc-seal::before{content:""; position:absolute; inset:5px; border:1px dashed rgba(19,27,58,0.55); border-radius:50%;}
   .doc-seal span{font-family:'Playfair Display',serif; font-weight:800; font-size:10px; color:#131B3A; text-align:center; line-height:1.1;}
 
+  /* ---------- teal government-style ID card (front + back) ---------- */
+  .teal-id{position:relative; width:100%; max-width:420px; margin:0 auto 16px; border-radius:16px; overflow:hidden;
+    background:linear-gradient(145deg,#E9F2EE 0%,#D7E8E0 45%,#C9DED4 100%); box-shadow:0 10px 30px rgba(20,60,55,0.28);
+    font-family:'Inter',sans-serif; color:#233238; border:1px solid rgba(255,255,255,0.6);}
+  .teal-id-head{background:linear-gradient(100deg,#86C2C6 0%,#75AD93 100%); padding:14px 18px 16px; display:flex; align-items:center; justify-content:space-between;}
+  .teal-id-chip{width:30px; height:21px; border-radius:4px; background:linear-gradient(135deg,#F3D27A,#D9A441); border:1px solid #B9812A; position:relative;}
+  .teal-id-chip::before{content:""; position:absolute; left:4px; right:4px; top:50%; height:1px; background:rgba(140,74,0,0.5);}
+  .teal-id-chip::after{content:""; position:absolute; left:50%; top:50%; width:7px; height:7px; border-radius:50%; border:1px solid rgba(140,74,0,0.6); transform:translate(-50%,-50%);}
+  .teal-id-title{font-weight:800; font-size:26px; letter-spacing:.04em; color:#1D6670; text-shadow:0 1px 0 rgba(255,255,255,0.3);}
+  .teal-id-avatar{width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,0.55); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .teal-id-avatar svg{width:26px; height:26px; color:#7C8E8A;}
+  .teal-id-body{padding:16px 18px 14px; position:relative;}
+  .teal-id-row{display:flex; gap:14px; margin-bottom:12px;}
+  .teal-id-photo{width:92px; height:112px; flex-shrink:0; background:#fff; border:3px solid #fff; border-radius:3px; box-shadow:0 2px 8px rgba(20,60,55,0.25); overflow:hidden; display:flex; align-items:center; justify-content:center;}
+  .teal-id-photo img{width:100%; height:100%; object-fit:cover;}
+  .teal-id-photo svg{width:70%; height:70%; color:#9FC3CC;}
+  .teal-id-fields{flex:1; display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; align-content:start;}
+  .teal-id-field label{display:block; font-size:9.5px; font-weight:800; letter-spacing:.04em; color:#1D6670; text-transform:uppercase; margin-bottom:1px;}
+  .teal-id-field div{font-size:13px; font-weight:600; color:#233238;}
+  .teal-id-stats{display:flex; gap:10px; border-top:1px solid rgba(29,102,112,0.18); padding-top:9px; margin-bottom:10px;}
+  .teal-id-stats .teal-id-field{flex:1;}
+  .teal-id-sig{min-height:26px; border-bottom:1.3px solid #7C8E8A; width:60%; margin-bottom:4px;}
+  .teal-id-sig-label{font-size:8.5px; color:#6E8480; letter-spacing:.03em;}
+  .teal-id-mrz{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:#2A5F63; background:rgba(255,255,255,0.4); border-radius:5px; padding:7px 8px; margin-top:10px; line-height:1.8; word-break:break-all;}
+  .teal-id-back-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px;}
+  .teal-id-back-mrz{font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:1px; color:#2A5F63; text-align:right;}
+  .teal-id-sigbox{background:#fff; border-radius:6px; padding:10px 12px; margin-bottom:12px;}
+  .teal-id-sigbox-label{font-size:9px; font-weight:800; letter-spacing:.04em; color:#6E8480; margin-bottom:4px;}
+  .teal-id-info-label{font-size:10px; font-weight:800; letter-spacing:.03em; color:#1D6670; margin-bottom:4px;}
+  .teal-id-info-text{font-size:9.5px; color:#44544F; line-height:1.6;}
+  .teal-id-chevrons{position:absolute; right:6px; top:70px; display:flex; flex-direction:column; gap:7px;}
+  .teal-id-chevrons span{color:#8FAFA8; font-size:10px; line-height:1;}
+
+
+  /* ---------- ID CARD: exact replica of reference design (CR80 85.6x54mm), all sizes in cqw ---------- */
+  .idc-wrap{width:100%; max-width:520px; margin:0 auto 16px;}
+  .idc{position:relative; width:100%; aspect-ratio:856/540; container-type:inline-size; overflow:hidden; border-radius:4cqw;
+    background:linear-gradient(135deg,#a6d2de 0%,#b4d8d2 48%,#bfdcc2 100%); box-shadow:0 8px 24px rgba(20,60,70,0.35);
+    font-family:'Inter',Arial,sans-serif; color:#3d4b47;}
+  .idc::before{content:""; position:absolute; inset:0; background:repeating-radial-gradient(circle at 20% 120%, rgba(255,255,255,0.10) 0 0.4cqw, rgba(255,255,255,0) 0.4cqw 0.9cqw); pointer-events:none;}
+  .idc *{box-sizing:border-box;}
+  .idc-abs{position:absolute;}
+  .idc-head{position:absolute; left:0; right:0; top:0; height:13.5cqw; background:linear-gradient(90deg,rgba(130,190,200,0.55),rgba(150,200,190,0.55));}
+  .idc-chip{position:absolute; width:6.8cqw; height:4.2cqw; border-radius:0.7cqw; background:linear-gradient(135deg,#e6cb83,#c9a24f); border:0.25cqw solid #fff3;}
+  .idc-chip::after{content:""; position:absolute; left:50%; top:50%; width:1.9cqw; height:1.9cqw; border-radius:50%; border:0.3cqw solid #fff9; transform:translate(-50%,-50%);}
+  .idc-chip::before{content:""; position:absolute; left:0.6cqw; right:0.6cqw; top:50%; height:0.2cqw; background:rgba(120,80,0,0.35);}
+  .idc-title{position:absolute; left:0; right:0; top:1.2cqw; text-align:center; font-weight:800; font-size:9.2cqw; line-height:1; letter-spacing:0.5cqw; color:#1b5f73;}
+  .idc-av{position:absolute; width:9.6cqw; height:9.6cqw; border-radius:50%; background:rgba(255,255,255,0.88); display:flex; align-items:flex-end; justify-content:center; overflow:hidden; box-shadow:0 0 0 0.6cqw rgba(255,255,255,0.35);}
+  .idc-av svg{width:78%; height:78%; color:#8b7b7b;}
+  .idc-photo{position:absolute; left:4.3cqw; top:14.4cqw; width:24.6cqw; height:33.3cqw; background:#b9d6ea; border:1.1cqw solid #fff; box-shadow:0 0.3cqw 1cqw rgba(0,0,0,0.18); overflow:hidden; display:flex; align-items:flex-end; justify-content:center;}
+  .idc-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .idc-photo svg{width:96%; height:96%; color:#4f8cc5;}
+  .idc-sig{position:absolute; left:6cqw; top:44cqw; width:24cqw; height:7cqw; display:flex; align-items:flex-end;}
+  .idc-sig img{max-height:100%; max-width:100%; object-fit:contain;}
+  .idc-sigline{position:absolute; left:6.5cqw; width:22cqw; top:49.6cqw; border-top:0.25cqw solid rgba(35,50,56,0.55);}
+  .idc-siglbl{position:absolute; left:6.5cqw; top:50cqw; font-size:1.55cqw; color:#4c5d58;}
+  .idc-f{position:absolute; line-height:1.15; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+  .idc-f b{display:block; font-weight:700; font-size:2.35cqw; color:#1d3e4d;}
+  .idc-f span{display:block; font-weight:400; font-size:2.9cqw; color:#4a5a55; text-transform:uppercase; margin-top:0.2cqw; overflow:hidden; text-overflow:ellipsis;}
+  .idc-mrz{position:absolute; left:3.2cqw; right:2cqw; font-family:'JetBrains Mono',monospace; font-size:3.15cqw; letter-spacing:0.28cqw; color:#3f5656; white-space:nowrap; overflow:hidden; line-height:1;}
+  .idc-bar{position:absolute; background:rgba(255,255,255,0.78); border-radius:0.6cqw; padding:0.9cqw 1.1cqw;}
+  .idc-bar svg{display:block; width:100%; height:100%;}
+  .idc-bsmall{position:absolute; font-family:'JetBrains Mono',monospace; font-size:2cqw; letter-spacing:0.25cqw; color:#4a6060; white-space:nowrap;}
+  .idc-sigbox{position:absolute; left:4.3cqw; top:31.7cqw; width:70cqw; height:10cqw; background:#fff;}
+  .idc-sigbox small{position:absolute; left:0.8cqw; top:0.6cqw; font-size:1.9cqw; font-weight:500; color:#333;}
+  .idc-sigbox img{position:absolute; right:3cqw; top:1.2cqw; height:8cqw; max-width:45cqw; object-fit:contain;}
+  .idc-signame{position:absolute; left:0.8cqw; bottom:0.7cqw; font-size:1.9cqw; color:#333;}
+  .idc-infolbl{position:absolute; left:5cqw; top:45cqw; font-size:2.1cqw; font-weight:600; color:#2c3e48;}
+  .idc-infotxt{position:absolute; left:5cqw; right:9cqw; top:48.2cqw; font-size:1.55cqw; line-height:1.5; color:#5a6a65;}
+  .idc-chev{position:absolute; right:3.1cqw; top:27cqw; display:flex; flex-direction:column; gap:1.4cqw; font-size:1.9cqw; line-height:1; color:#7e9d97;}
+  @media print{ .idc{box-shadow:none !important; width:85.6mm !important; max-width:none !important;} .idc-wrap{max-width:none !important; margin:0 0 4mm 0 !important;} .idc-wrap + .idc-wrap{page-break-before:always;} .idc{-webkit-print-color-adjust:exact; print-color-adjust:exact;} }
+
   /* elegant CS50-style certificate variant */
   .cert-page{position:relative; background:#fff; border-radius:6px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,0.32); max-width:520px; margin:0 auto 16px; font-family:'Inter','Noto Sans Devanagari',sans-serif; color:#20263B; border:1px solid #E5E1D6;}
   .cert-strip{height:6px; background:linear-gradient(90deg,#FF9933 0% 33%,#fff 33% 66%,#138808 66% 100%);}
@@ -429,7 +503,7 @@
     body.print-doc-mode #toastWrap, body.print-doc-mode #gateOverlay, body.print-doc-mode .lightbox, body.print-doc-mode #moreOverlay{display:none !important;}
     .doc-overlay{position:static !important; background:#fff !important; padding:0 !important; overflow:visible !important;}
     .doc-print-hide{display:none !important;}
-    .doc-page, .cert-page{box-shadow:none !important;}
+    .doc-page, .cert-page, .teal-id, .idc{box-shadow:none !important;}
   }
 
   /* ==================== OMR MODULE ==================== */
@@ -648,10 +722,10 @@
     <div class="card result-lookup-hero" id="resultLookupCard">
       <div class="result-seal">🎓</div>
       <h2 style="justify-content:center;">अपना परिणाम देखें</h2>
-      <p class="hint" style="margin-bottom:14px;">अपना ID Card Number डालें या अपना QR कोड स्कैन करें — आपको सिर्फ अपना ही रिकॉर्ड दिखेगा।</p>
+      <p class="hint" style="margin-bottom:14px;">अपना ID Card Number डालें या अपने ID Card का बारकोड स्कैन करें — आपको सिर्फ अपना ही रिकॉर्ड दिखेगा।</p>
       <div class="id-toggle-row">
         <button id="idTabBtn" class="active" onclick="setResultMode('id')">🔢 ID से देखें</button>
-        <button id="qrTabBtn" onclick="setResultMode('qr')">📷 QR स्कैन करें</button>
+        <button id="qrTabBtn" onclick="setResultMode('qr')">📷 बारकोड स्कैन करें</button>
       </div>
       <button class="link-toggle" onclick="testVoice()">🔊 आवाज़ जांचें</button>
       <div id="resultIdBox">
@@ -686,7 +760,7 @@
 
     <div class="card">
       <div id="reader"></div>
-      <div id="result-box" class="result-box">🎥 QR कोड को कैमरे के सामने लाएं...</div>
+      <div id="result-box" class="result-box">🎥 ID Card का बारकोड कैमरे के सामने लाएं...</div>
     </div>
   </section>
 
@@ -809,8 +883,12 @@
           </div>
         </div>
         <div class="field-row">
-          <div><label>Student ID</label><input type="text" id="newStudentId" placeholder="AMTC-116"></div>
-          <div><label>नाम</label><input type="text" id="newStudentName" placeholder="Name"></div>
+          <div><label>Student ID (Card No)</label><input type="text" id="newStudentId" placeholder="AMTC-116"></div>
+          <div><label>नाम (First Name)</label><input type="text" id="newStudentName" placeholder="First Name"></div>
+        </div>
+        <div class="field-row">
+          <div><label>सरनेम (Surname)</label><input type="text" id="newStudentSurname" placeholder="Surname"></div>
+          <div><label>लिंग (Sex)</label><select id="newStudentSex"><option value="">— चुनें —</option><option value="M">M</option><option value="F">F</option><option value="Other">Other</option></select></div>
         </div>
         <label>बैच</label>
         <select id="newStudentBatch"></select>
@@ -824,10 +902,15 @@
         </div>
         <label>पता</label>
         <input type="text" id="newStudentAddress" placeholder="गाँव/शहर, ज़िला">
+        <label>छात्र का हस्ताक्षर (Signature) — सफ़ेद काग़ज़ पर साइन करके फोटो खींचकर अपलोड करें</label>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div id="newStudentSigPreview" style="width:110px;height:44px;border:1px dashed #9CA3AF;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;overflow:hidden;flex-shrink:0;">साइन</div>
+          <input type="file" accept="image/*" id="newStudentSigInput" onchange="previewStudentSig(event,'new')">
+        </div>
         <button class="btn-secondary" onclick="addStudent()">+ छात्र जोड़ें</button>
         <div id="studentList" style="margin-top:12px;"></div>
         <div class="btn-row">
-          <button class="btn-outline" onclick="printAllStudentQR()">🖨️ सभी के QR प्रिंट करें</button>
+          <button class="btn-outline" onclick="printAllStudentQR()">🖨️ सभी के बारकोड प्रिंट करें</button>
         </div>
       </div>
     </details>
@@ -846,8 +929,12 @@
           </div>
         </div>
         <input type="hidden" id="editStudentId">
-        <label>नाम</label>
+        <label>नाम (First Name)</label>
         <input type="text" id="editStudentName">
+        <div class="field-row">
+          <div><label>सरनेम (Surname)</label><input type="text" id="editStudentSurname"></div>
+          <div><label>लिंग (Sex)</label><select id="editStudentSex"><option value="">— चुनें —</option><option value="M">M</option><option value="F">F</option><option value="Other">Other</option></select></div>
+        </div>
         <label>बैच</label>
         <select id="editStudentBatch"></select>
         <div class="field-row">
@@ -860,6 +947,11 @@
         </div>
         <label>पता</label>
         <input type="text" id="editStudentAddress">
+        <label>छात्र का हस्ताक्षर (Signature)</label>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div id="editStudentSigPreview" style="width:110px;height:44px;border:1px dashed #9CA3AF;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;overflow:hidden;flex-shrink:0;">साइन</div>
+          <div style="flex:1;"><input type="file" accept="image/*" id="editStudentSigInput" onchange="previewStudentSig(event,'edit')"><button type="button" class="btn-outline btn-sm" style="width:auto;margin-top:6px;" onclick="clearStudentSig('edit')">✕ हटाएं</button></div>
+        </div>
       </div>
     </div>
 
@@ -986,7 +1078,7 @@
 
     <div class="card" id="cmpGateCard">
       <h2><span class="glow-text">📣 शिकायत / सहायता</span></h2>
-      <p class="hint" style="margin-top:0;">यह हिस्सा सिर्फ verified Student/Parent के लिए है। आगे बढ़ने से पहले अपना Student ID डालें या अपना QR कोड स्कैन करें।</p>
+      <p class="hint" style="margin-top:0;">यह हिस्सा सिर्फ verified Student/Parent के लिए है। आगे बढ़ने से पहले अपना Student ID डालें या अपने ID Card का बारकोड स्कैन करें।</p>
 
       <label>आप कौन हैं?</label>
       <div class="role-toggle">
@@ -996,7 +1088,7 @@
 
       <div class="id-toggle-row">
         <button id="cmpIdTabBtn" class="active" onclick="setCmpVerifyMode('id')">🔢 ID से वेरिफाई करें</button>
-        <button id="cmpQrTabBtn" onclick="setCmpVerifyMode('qr')">📷 QR स्कैन करें</button>
+        <button id="cmpQrTabBtn" onclick="setCmpVerifyMode('qr')">📷 बारकोड स्कैन करें</button>
       </div>
       <div id="cmpIdBox">
         <label id="cmpIdLabel">Student ID</label>
@@ -1208,11 +1300,25 @@
         <input type="text" id="certRemark" placeholder="जैसे: उत्कृष्ट प्रदर्शन">
       </div>
 
-      <!-- ID CARD fields -->
+      <!-- ID CARD fields (as per AMTC ID Card Application Form) -->
       <div id="docFields-idcard" class="doc-fields" style="display:none;">
+        <p class="hint" style="margin:0 0 6px;">नाम, मोबाइल, बैच, पता और फोटो — छात्र के रिकॉर्ड से अपने आप आएंगे। नीचे बाकी विवरण भरें (छात्र चुनने पर जो मौजूद है वो अपने आप भर जाएगा)।</p>
         <div class="field-row">
-          <div><label>Valid Till</label><input type="text" id="idValidTill" placeholder="मार्च 2027"></div>
+          <div><label>Surname (सरनेम)</label><input type="text" id="idSurname" placeholder="KUMAR" style="text-transform:uppercase;"></div>
+          <div><label>Date of Birth (जन्मतिथि)</label><input type="text" id="idDob" placeholder="17/04/2015"></div>
         </div>
+        <label>Sex (लिंग)</label>
+        <select id="idSex">
+          <option value="">— चुनें —</option>
+          <option value="M">M (पुरुष)</option>
+          <option value="F">F (महिला)</option>
+          <option value="Other">Other (अन्य)</option>
+        </select>
+        <div class="field-row">
+          <div><label>Date of Issue (जारी तिथि)</label><input type="text" id="idIssueDate" placeholder="01/01/2026"></div>
+          <div><label>Date of Expiry (समाप्ति तिथि)</label><input type="text" id="idValidTill" placeholder="01/01/2027"></div>
+        </div>
+        <p class="hint" style="margin:0;">Card No / ID = Student ID होगा और वही बारकोड में बनेगा। खाली फ़ील्ड पर कार्ड में "—" दिखेगा।</p>
       </div>
 
       <!-- ADMIT CARD fields -->
@@ -1294,7 +1400,7 @@
 
 
 <div id="studentQrPrintArea">
-  <h2 style="font-family:'Playfair Display',serif;">Ayush Mathematics Teaching Digital Centre — Student QR Codes</h2>
+  <h2 style="font-family:'Playfair Display',serif;">Ayush Mathematics Teaching Digital Centre — Student Barcodes</h2>
   <div class="qr-grid" id="printQrGrid"></div>
 </div>
 
@@ -1418,7 +1524,7 @@ function pushStateToCloud(){
   if(!cloudReady) return;
   // Photos are synced separately (see below) so this shared document never
   // approaches Firestore's 1MB-per-document limit as more students join.
-  const studentsLean = students.map(({photo, ...rest})=>rest);
+  const studentsLean = students.map(({photo, signature, ...rest})=>rest);
   db.collection('amtc').doc('state').set({
     students: studentsLean, tests, batches, records, teacherSecret, teachers,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1443,8 +1549,8 @@ function pushStudentPhoto(studentId){
   if(!cloudReady) return;
   const s = students.find(x=>x.id===studentId);
   if(!s) return;
-  if(s.photo){
-    db.collection('amtc_student_photos').doc(studentId).set({photo:s.photo}).catch(err=>console.error('Photo sync failed', err));
+  if(s.photo || s.signature){
+    db.collection('amtc_student_photos').doc(studentId).set({photo:s.photo||'', signature:s.signature||''}).catch(err=>console.error('Photo sync failed', err));
   } else {
     db.collection('amtc_student_photos').doc(studentId).delete().catch(()=>{});
   }
@@ -1458,7 +1564,9 @@ function startStudentPhotosCloudSync(){
       const s = students.find(x=>x.id===sid);
       if(!s) return;
       const newPhoto = change.type==='removed' ? '' : (change.doc.data().photo || '');
+      const newSig = change.type==='removed' ? '' : (change.doc.data().signature || '');
       if(s.photo !== newPhoto){ s.photo = newPhoto; changed = true; }
+      if((s.signature||'') !== newSig){ s.signature = newSig; changed = true; }
     });
     if(changed){
       localStorage.setItem(LS.students, JSON.stringify(students));
@@ -1484,14 +1592,14 @@ function forceSyncNow(){
   const jobs = [];
   jobs.push(
     db.collection('amtc').doc('state').set({
-      students: students.map(({photo, ...rest})=>rest),
+      students: students.map(({photo, signature, ...rest})=>rest),
       tests, batches, records, teacherSecret, teachers,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, {merge:true})
   );
   students.forEach(s=>{
-    if(s.photo){
-      jobs.push(db.collection('amtc_student_photos').doc(s.id).set({photo:s.photo}));
+    if(s.photo || s.signature){
+      jobs.push(db.collection('amtc_student_photos').doc(s.id).set({photo:s.photo||'', signature:s.signature||''}));
     }
   });
   if(typeof bannerImages !== 'undefined') jobs.push(pushBannerToCloud());
@@ -1549,8 +1657,9 @@ function startCloudSync(){
       // merge in whatever photos we already know locally — the cloud copy of
       // `students` never carries photos (kept lean on purpose, see above)
       const photoMap = {};
-      students.forEach(s=>{ if(s.photo) photoMap[s.id] = s.photo; });
-      students = data.students.map(s=> ({...s, photo: photoMap[s.id] || ''}));
+      const sigMap = {};
+      students.forEach(s=>{ if(s.photo) photoMap[s.id] = s.photo; if(s.signature) sigMap[s.id] = s.signature; });
+      students = data.students.map(s=> ({...s, photo: photoMap[s.id] || '', signature: sigMap[s.id] || ''}));
     }
     if(data.tests) tests = data.tests;
     if(data.batches) batches = data.batches;
@@ -1753,6 +1862,31 @@ localStorage.setItem(LS.secret, teacherSecret);
 let teachers = loadJSON(LS.teachers, []);
 
 let teacherUnlocked = false; // resets every reload on purpose (security)
+
+/* ==================== BARCODE SCANNER CONFIG ==================== */
+function barcodeScanConfig(wide){
+  const cfg = {fps:15, facingMode:"environment", rememberLastUsedCamera:true,
+    qrbox: wide ? {width:300, height:110} : {width:230, height:230},
+    experimentalFeatures:{useBarCodeDetectorIfSupported:true}};
+  if(window.Html5QrcodeSupportedFormats){
+    cfg.formatsToSupport = [Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE];
+  }
+  return cfg;
+}
+function renderBarcodeInto(el, text, opts){
+  if(!el || !window.JsBarcode) return;
+  try{
+    JsBarcode(el, text, Object.assign({format:'CODE128', width:2, height:60, displayValue:true, fontSize:13, margin:6, lineColor:'#000'}, opts||{}));
+    if(opts && opts.fit){
+      const w = parseFloat(el.getAttribute('width')), h = parseFloat(el.getAttribute('height'));
+      if(w && h && !el.getAttribute('viewBox')) el.setAttribute('viewBox','0 0 '+w+' '+h);
+      el.setAttribute('preserveAspectRatio','none');
+      el.removeAttribute('width'); el.removeAttribute('height');
+      el.style.width='100%'; el.style.height='100%';
+    }
+  }catch(e){ console.error('Barcode render failed', e); }
+}
+
 let scanScanner = null, gateScanner = null, resultScanner = null, cmpScanner = null;
 let isProcessingScan = false, isProcessingGateScan = false, isProcessingResultScan = false, isProcessingCmpScan = false;
 const PROTECTED_TABS = ['sec-scan','sec-teacher','sec-records','sec-manage','sec-documents','sec-omr'];
@@ -1978,7 +2112,7 @@ function testVoice(){
 
 function startScanScanner(){
   if(scanScanner) return;
-  scanScanner = new Html5QrcodeScanner("reader", {fps:20, qrbox:{width:230,height:230}, facingMode:"environment"}, false);
+  scanScanner = new Html5QrcodeScanner("reader", barcodeScanConfig(true), false);
   scanScanner.render(onScanSuccess);
   speak('नमस्ते। कृपया अपना आई.डी. कार्ड स्कैन करें।');
 }
@@ -2002,8 +2136,8 @@ function onScanSuccess(decodedText){
 
   if(isValidTeacherCode(sid)){
     resBox.className='result-box error';
-    resBox.innerHTML = '⚠️ यह टीचर QR है — Teacher टैब में स्कैन करें।';
-    speak('यह टीचर का क्यू.आर. कोड है। कृपया छात्र का क्यू.आर. कोड दिखाएं।');
+    resBox.innerHTML = '⚠️ यह टीचर कोड है — Teacher टैब में स्कैन करें। छात्र का बारकोड दिखाएं।';
+    speak('यह टीचर का कोड है। कृपया छात्र का बारकोड दिखाएं।');
   } else if(students.some(s=>s.id===sid)){
     const name = studentName(sid);
     const stu = students.find(s=>s.id===sid);
@@ -2028,13 +2162,13 @@ function onScanSuccess(decodedText){
     }
   } else {
     resBox.className='result-box error';
-    resBox.innerHTML = `❌ अमान्य QR कोड: ${decodedText}`;
-    speak('क्षमा करें, क्यू.आर. कोड सही से नहीं पढ़ा गया। कृपया अपना कार्ड किसी अध्यापक को दिखाएं।');
+    resBox.innerHTML = `❌ अमान्य बारकोड: ${decodedText}`;
+    speak('क्षमा करें, बारकोड सही से नहीं पढ़ा गया। कृपया अपना कार्ड किसी अध्यापक को दिखाएं।');
   }
 
   setTimeout(()=>{
     resBox.className='result-box';
-    resBox.innerHTML = '🎥 QR कोड को कैमरे के सामने लाएं...';
+    resBox.innerHTML = '🎥 ID Card का बारकोड कैमरे के सामने लाएं...';
     isProcessingScan = false;
   }, 2200);
 }
@@ -2042,7 +2176,7 @@ function onScanSuccess(decodedText){
 /* ==================== TEACHER UNLOCK (gate overlay) ==================== */
 function startGateScanner(){
   if(gateScanner) return;
-  gateScanner = new Html5QrcodeScanner("gateReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
+  gateScanner = new Html5QrcodeScanner("gateReader", barcodeScanConfig(false), false);
   gateScanner.render(onGateScanSuccess);
   speak('कृपया टीचर क्यू.आर. कोड स्कैन करें, अथवा सुरक्षा कोड दर्ज करें।');
 }
@@ -2291,7 +2425,7 @@ function setResultMode(mode){
 }
 function startResultScanner(){
   if(resultScanner) return;
-  resultScanner = new Html5QrcodeScanner("resultReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
+  resultScanner = new Html5QrcodeScanner("resultReader", barcodeScanConfig(true), false);
   resultScanner.render(onResultScanSuccess);
   speak('नमस्ते। कृपया अपना आई.डी. कार्ड स्कैन करें।');
 }
@@ -2303,7 +2437,7 @@ function onResultScanSuccess(decodedText){
   isProcessingResultScan = true;
   const sid = decodedText.trim().toUpperCase();
   if(isValidTeacherCode(sid)){
-    document.getElementById('resultMsg').innerText = '⚠️ यह टीचर QR है, छात्र QR स्कैन करें।';
+    document.getElementById('resultMsg').innerText = '⚠️ यह टीचर कोड है, छात्र का बारकोड स्कैन करें।';
   } else {
     document.getElementById('resultIdInput').value = sid;
     lookupResult();
@@ -2438,6 +2572,56 @@ function removeBatch(id){
 }
 
 /* ==================== MANAGE: STUDENTS ==================== */
+let pendingNewStudentSig = '';
+let pendingEditStudentSig = '';
+/* Signature photo -> small PNG with transparent background (white paper removed, ink made dark blue) */
+function processSignatureFile(file, cb){
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 360;
+      const scale = Math.min(1, maxW/img.width);
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(img.width*scale)); c.height = Math.max(1, Math.round(img.height*scale));
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img,0,0,c.width,c.height);
+      const d = ctx.getImageData(0,0,c.width,c.height);
+      const px = d.data;
+      let minL=255, maxL=0;
+      for(let i=0;i<px.length;i+=4){ const l=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2]; if(l<minL)minL=l; if(l>maxL)maxL=l; }
+      const hi = maxL - (maxL-minL)*0.30, lo = minL + (maxL-minL)*0.25;
+      let x0=c.width,x1=0,y0=c.height,y1=0;
+      for(let i=0,p=0;i<px.length;i+=4,p++){
+        const l=0.299*px[i]+0.587*px[i+1]+0.114*px[i+2];
+        let a = l>=hi ? 0 : (l<=lo ? 255 : Math.round(255*(hi-l)/(hi-lo)));
+        px[i]=20; px[i+1]=40; px[i+2]=110; px[i+3]=a;
+        if(a>40){ const xx=p%c.width, yy=(p/c.width)|0; if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; }
+      }
+      ctx.putImageData(d,0,0);
+      if(x1<=x0 || y1<=y0){ cb(c.toDataURL('image/png')); return; }
+      const pad=4; x0=Math.max(0,x0-pad); y0=Math.max(0,y0-pad); x1=Math.min(c.width-1,x1+pad); y1=Math.min(c.height-1,y1+pad);
+      const o=document.createElement('canvas'); o.width=x1-x0+1; o.height=y1-y0+1;
+      o.getContext('2d').drawImage(c,x0,y0,o.width,o.height,0,0,o.width,o.height);
+      cb(o.toDataURL('image/png'));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function previewStudentSig(evt, which){
+  const file = evt.target.files[0];
+  if(!file) return;
+  processSignatureFile(file, url=>{
+    if(which==='new') pendingNewStudentSig = url; else pendingEditStudentSig = url;
+    document.getElementById(which+'StudentSigPreview').innerHTML = `<img src="${url}" style="max-width:100%;max-height:100%;">`;
+  });
+}
+function clearStudentSig(which){
+  if(which==='new') pendingNewStudentSig=''; else pendingEditStudentSig='';
+  document.getElementById(which+'StudentSigPreview').innerHTML='साइन';
+  document.getElementById(which+'StudentSigInput').value='';
+}
 let pendingNewStudentPhoto = '';
 let pendingEditStudentPhoto = '';
 
@@ -2490,15 +2674,19 @@ function addStudent(){
   const dob = document.getElementById('newStudentDob').value.trim();
   const admission = document.getElementById('newStudentAdmission').value.trim();
   const address = document.getElementById('newStudentAddress').value.trim();
+  const surname = document.getElementById('newStudentSurname').value.trim().toUpperCase();
+  const sex = document.getElementById('newStudentSex').value;
   if(!id || !name){ showToast('ID और नाम दोनों भरें', 'error'); return; }
   if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
-  students.push({id, name, batch, photo:pendingNewStudentPhoto, father, phone, dob, admission, address});
+  students.push({id, name, surname, sex, batch, photo:pendingNewStudentPhoto, signature:pendingNewStudentSig, father, phone, dob, admission, address});
   saveJSON(LS.students, students);
-  if(pendingNewStudentPhoto) queueStudentPhotoSync(id);
-  ['newStudentId','newStudentName','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
+  if(pendingNewStudentPhoto || pendingNewStudentSig) queueStudentPhotoSync(id);
+  ['newStudentId','newStudentName','newStudentSurname','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
+  document.getElementById('newStudentSex').value='';
   document.getElementById('newStudentPhotoInput').value='';
   document.getElementById('newStudentPhotoPreview').innerHTML='👤';
   pendingNewStudentPhoto='';
+  clearStudentSig('new');
   renderStudentList();
   renderBatchList();
   showToast('✅ छात्र जोड़ा गया', 'success');
@@ -2508,8 +2696,13 @@ function editStudent(id){
   const s = students.find(x=>x.id===id);
   if(!s) return;
   pendingEditStudentPhoto = s.photo || '';
+  pendingEditStudentSig = s.signature || '';
+  document.getElementById('editStudentSigInput').value='';
+  document.getElementById('editStudentSigPreview').innerHTML = s.signature ? `<img src="${s.signature}" style="max-width:100%;max-height:100%;">` : 'साइन';
   document.getElementById('editStudentId').value = s.id;
   document.getElementById('editStudentName').value = s.name || '';
+  document.getElementById('editStudentSurname').value = s.surname || '';
+  document.getElementById('editStudentSex').value = s.sex || '';
   document.getElementById('editStudentBatch').value = s.batch || '';
   document.getElementById('editStudentFather').value = s.father || '';
   document.getElementById('editStudentPhone').value = s.phone || '';
@@ -2547,6 +2740,8 @@ function saveStudentDetail(){
   const s = students.find(x=>x.id===id);
   if(!s) return;
   s.name = document.getElementById('editStudentName').value.trim() || s.name;
+  s.surname = document.getElementById('editStudentSurname').value.trim().toUpperCase();
+  s.sex = document.getElementById('editStudentSex').value;
   s.batch = document.getElementById('editStudentBatch').value || s.batch;
   s.father = document.getElementById('editStudentFather').value.trim();
   s.phone = document.getElementById('editStudentPhone').value.trim();
@@ -2554,6 +2749,7 @@ function saveStudentDetail(){
   s.admission = document.getElementById('editStudentAdmission').value.trim();
   s.address = document.getElementById('editStudentAddress').value.trim();
   s.photo = pendingEditStudentPhoto;
+  s.signature = pendingEditStudentSig;
   saveJSON(LS.students, students);
   queueStudentPhotoSync(id);
   renderStudentList();
@@ -2702,14 +2898,16 @@ function printAllStudentQR(){
   students.forEach(s=>{
     const cell = document.createElement('div');
     cell.className='qr-cell';
-    const qrDiv = document.createElement('div');
-    qrDiv.className='qrbox';
-    cell.appendChild(qrDiv);
+    const box = document.createElement('div');
+    box.className='qrbox';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    box.appendChild(svg);
+    cell.appendChild(box);
     const label = document.createElement('div');
-    label.innerHTML = `<b>${s.name}</b><br>${s.id}`;
+    label.innerHTML = `<b>${s.name}</b>`;
     cell.appendChild(label);
     grid.appendChild(cell);
-    new QRCode(qrDiv, {text:s.id, width:110, height:110});
+    renderBarcodeInto(svg, s.id, {width:2, height:55, fontSize:14});
   });
   setTimeout(()=>window.print(), 300);
 }
@@ -2796,7 +2994,7 @@ function setCmpVerifyMode(mode){
 }
 function startCmpScanner(){
   if(cmpScanner) return;
-  cmpScanner = new Html5QrcodeScanner("cmpReader", {fps:20, qrbox:{width:220,height:220}, facingMode:"environment"}, false);
+  cmpScanner = new Html5QrcodeScanner("cmpReader", barcodeScanConfig(true), false);
   cmpScanner.render(onCmpScanSuccess);
 }
 function stopCmpScanner(){
@@ -2807,7 +3005,7 @@ function onCmpScanSuccess(decodedText){
   isProcessingCmpScan = true;
   const sid = decodedText.trim().toUpperCase();
   if(isValidTeacherCode(sid)){
-    document.getElementById('cmpVerifyMsg').textContent = '⚠️ यह टीचर QR है, अपना स्टूडेंट QR स्कैन करें।';
+    document.getElementById('cmpVerifyMsg').textContent = '⚠️ यह टीचर कोड है, अपना बारकोड स्कैन करें।';
   } else {
     document.getElementById('cmpVerifyId').value = sid;
     verifyComplaintStudent();
@@ -3827,6 +4025,7 @@ function renderDocumentsUI(){
 }
 
 function switchDocType(type){
+  setTimeout(()=>{ if(type==='idcard') prefillIdCardFields(); },0);
   currentDocType = type;
   document.querySelectorAll('.doc-type-btn').forEach(b=>b.classList.toggle('active', b.dataset.doc===type));
   ['idcard','admit','marksheet','certificate','notice'].forEach(t=>{
@@ -3926,7 +4125,20 @@ function loadRecordsForMarksheet(){
   studentRecords.forEach(r=>{ addSubjectRow(r.testLabel, r.totalMarks, r.marksObtained); });
 }
 
+function prefillIdCardFields(){
+  const stu = students.find(x=>x.id===document.getElementById('docStudentSelect').value);
+  if(!stu) return;
+  document.getElementById('idSurname').value = stu.surname || '';
+  document.getElementById('idDob').value = stu.dob || '';
+  document.getElementById('idSex').value = stu.sex || '';
+  const fmt = d => String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  const now = new Date(), nextYr = new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
+  const iss = document.getElementById('idIssueDate'), exp = document.getElementById('idValidTill');
+  if(!iss.value) iss.value = fmt(now);
+  if(!exp.value) exp.value = fmt(nextYr);
+}
 function onDocStudentChange(){
+  if(currentDocType==='idcard') prefillIdCardFields();
   if(currentDocType==='marksheet' && marksSource==='auto') loadRecordsForMarksheet();
 }
 
@@ -3979,42 +4191,82 @@ function docHeaderHTML(){
   `;
 }
 
-function idCardHeaderHTML(){
-  const logoHTML = centerLogo
-    ? `<img src="${centerLogo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #F2A93B;">`
-    : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(155deg,#F2A93B,#D98F1D);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:19px;color:#131B3A;border:2px solid rgba(19,27,58,0.15);flex-shrink:0;">AM</div>`;
-  return `
-    <div class="doc-brandrow" style="padding-top:14px;">
-      ${logoHTML}
-      <div>
-        <div class="doc-brand-title">Ayush Mathematics Teaching Digital Centre</div>
-      </div>
-    </div>
-  `;
+function personSilhouetteSVG(){
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="38" r="20" fill="currentColor"/><path d="M15 95c0-22 15-38 35-38s35 16 35 38z" fill="currentColor"/></svg>`;
+}
+
+function escHTML(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function idcFmt(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+function idcMrz(stu, surname){
+  const clean = x => String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const L = 36;
+  const l1 = ('ID'+'AMTC'+clean(surname)+'<<'+clean(stu.name)).padEnd(L,'<').slice(0,L);
+  const dob = String(stu.dob||'').replace(/\D/g,'').slice(0,8);
+  const l2 = (clean(stu.id)+'IND'+dob+clean(stu.sex).slice(0,1)).padEnd(L,'<').slice(0,L);
+  return [l1,l2];
 }
 
 function buildIdCardHTML(stu){
-  const valid = (document.getElementById('idValidTill').value || '—').trim() || '—';
-  const qrId = 'idqr_'+Date.now();
-  setTimeout(()=>{ const el=document.getElementById(qrId); if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text:stu.id, width:74, height:74, colorDark:'#131B3A', colorLight:'#ffffff'}); } }, 30);
-  return `
-    ${idCardHeaderHTML()}
-    <div class="doc-body" style="text-align:center;">
-      <div style="width:84px;height:84px;border-radius:50%;background:#F1EEE5;margin:6px auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#6B7280;border:3px solid #F2A93B;overflow:hidden;">${stu.photo ? `<img src="${stu.photo}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}</div>
-      <div style="font-family:'Playfair Display',serif; font-weight:700; font-size:19px;">${stu.name}</div>
-      <div class="mono" style="font-size:13px; color:#6B7280; margin-bottom:10px;">${stu.id}</div>
-      <table style="width:100%; font-size:12.5px; margin-bottom:12px;">
-        <tr><td style="text-align:left; color:#6B7280;">बैच</td><td style="text-align:right; font-weight:600;">${batchName(stu.batch)}</td></tr>
-        <tr><td style="text-align:left; color:#6B7280;">Valid Till</td><td style="text-align:right; font-weight:600;">${valid}</td></tr>
-      </table>
-      <div id="${qrId}" style="display:flex; justify-content:center; margin-bottom:8px;"></div>
-      <div style="font-size:10px; color:#9CA3AF;">यह कार्ड AMTC की संपत्ति है। खो जाने पर सूचित करें।</div>
-      <div style="margin-top:16px; border-top:1px dashed #C9D9EE; padding-top:10px; display:flex; align-items:center; justify-content:space-between;">
-        <div class="doc-seal"><span>AMTC<br>OFFICIAL</span></div>
-        <div style="font-size:11px; color:#131B3A; font-weight:600; text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Teacher</span></div>
-      </div>
+  const g = id => (document.getElementById(id).value || '').trim();
+  const v = x => escHTML(x) || '—';
+  const surname = g('idSurname') || stu.surname || '', dob = g('idDob') || stu.dob || '', issue = g('idIssueDate') || idcFmt(new Date()), expiry = g('idValidTill') || (()=>{const n=new Date(); return idcFmt(new Date(n.getFullYear()+1,n.getMonth(),n.getDate()));})(), sex = g('idSex') || stu.sex || '';
+  const digits = String(stu.phone||'').replace(/\D/g,'');
+  const maskedPhone = digits ? (digits.slice(0,4) + 'X'.repeat(Math.max(0, digits.length-4))) : '';
+  const nm = String(stu.name||'');
+  const nameSize = nm.length>20 ? 1.9 : nm.length>15 ? 2.25 : 2.9;
+  const [m1,m2] = idcMrz(stu, surname);
+  const t = Date.now();
+  const bigId='idcBig'+t, smallId='idcSmall'+t;
+  setTimeout(()=>{
+    renderBarcodeInto(document.getElementById(bigId), stu.id, {width:2, height:100, displayValue:false, margin:0, fit:true, lineColor:'#1f2a30'});
+    renderBarcodeInto(document.getElementById(smallId), stu.id, {width:2, height:100, displayValue:false, margin:0, fit:true, lineColor:'#1f2a30'});
+  }, 40);
+  const sigImg = centerSignature ? `<img src="${centerSignature}">` : '';
+  const address = v(stu.address);
+
+  const front = `
+  <div class="idc-wrap"><div class="idc">
+    <div class="idc-head"></div>
+    <div class="idc-chip" style="left:8cqw; top:4.6cqw;"></div>
+    <div class="idc-title">ID CARD</div>
+    <div class="idc-photo">${stu.photo ? `<img src="${stu.photo}">` : personSilhouetteSVG()}</div>
+    <div class="idc-sig">${stu.signature ? `<img src="${stu.signature}">` : ''}</div>
+    <div class="idc-sigline"></div><div class="idc-siglbl">Student's Signature</div>
+    <div class="idc-av" style="left:83.2cqw; top:18cqw;">${personSilhouetteSVG()}</div>
+
+    <div class="idc-f" style="left:33.3cqw; top:17.2cqw; width:48cqw;"><b>Surname</b><span>${v(surname)}</span></div>
+    <div class="idc-f" style="left:33.3cqw; top:25.2cqw; width:23.5cqw;"><b>Name</b><span style="font-size:${nameSize}cqw;">${v(stu.name)}</span></div>
+    <div class="idc-f" style="left:57.5cqw; top:25.2cqw; width:36cqw;"><b>Date of Issue</b><span>${v(issue)}</span></div>
+    <div class="idc-f" style="left:33.3cqw; top:33.2cqw; width:22cqw;"><b>Date of birth</b><span>${v(dob)}</span></div>
+    <div class="idc-f" style="left:57.5cqw; top:33.2cqw; width:36cqw;"><b>Date of Expiry</b><span>${v(expiry)}</span></div>
+
+    <div class="idc-f" style="left:33.3cqw; top:43.6cqw; width:9cqw;"><b>Sex:</b><span>${v(sex)}</span></div>
+    <div class="idc-f" style="left:42.8cqw; top:43.6cqw; width:19cqw;"><b>Mobile:</b><span>${v(maskedPhone)}</span></div>
+    <div class="idc-f" style="left:63.2cqw; top:43.6cqw; width:14cqw;"><b>Batch/Class:</b><span>${v(batchName(stu.batch))}</span></div>
+    <div class="idc-f" style="left:78.5cqw; top:43.6cqw; width:19cqw;"><b>Card No / ID:</b><span>${v(stu.id)}</span></div>
+
+    <div class="idc-mrz" style="top:54.2cqw;">${escHTML(m1)}</div>
+    <div class="idc-mrz" style="top:58.2cqw;">${escHTML(m2)}</div>
+  </div></div>`;
+
+  const back = `
+  <div class="idc-wrap"><div class="idc">
+    <div class="idc-bar" style="left:5.2cqw; top:3.3cqw; width:58cqw; height:13cqw;"><svg id="${bigId}"></svg></div>
+    <div class="idc-bar" style="left:66cqw; top:3.3cqw; width:30.5cqw; height:6cqw; padding:0.6cqw 0.8cqw;"><svg id="${smallId}"></svg></div>
+    <div class="idc-bsmall" style="left:66.5cqw; top:10.6cqw;">${escHTML((m1||'').slice(0,18))}</div>
+    <div class="idc-av" style="left:7.2cqw; top:19cqw;">${personSilhouetteSVG()}</div>
+    <div class="idc-chip" style="left:79cqw; top:27.5cqw; width:12cqw; height:7cqw;"></div>
+    <div class="idc-sigbox">
+      <small>AUTHORIZED SIGNATURE</small>
+      ${sigImg}
+      <div class="idc-signame">Vikash Kumar · Teacher, AMTC</div>
     </div>
-  `;
+    <div class="idc-infolbl">IMPORTANT INFORMATION</div>
+    <div class="idc-infotxt">यह कार्ड Ayush Mathematics Teaching Centre की संपत्ति है और केवल पहचान के लिए मान्य है। अटेंडेंस व परिणाम के लिए इस कार्ड का बारकोड स्कैन किया जाता है। खो जाने पर तुरंत केंद्र को सूचित करें।<br><b>Address:</b> ${address}</div>
+    <div class="idc-chev">${'<span>^</span>'.repeat(9)}</div>
+  </div></div>`;
+  return front + back;
 }
 
 function buildAdmitCardHTML(stu){
@@ -4219,7 +4471,7 @@ function generateDocument(){
   const stu = students.find(s=>s.id===sel.value);
   if(!stu){ showToast('❌ पहले छात्र चुनें', 'error'); return; }
   let html='', wrapClass='doc-page';
-  if(currentDocType==='idcard') html = buildIdCardHTML(stu);
+  if(currentDocType==='idcard'){ html = buildIdCardHTML(stu); wrapClass='none'; }
   else if(currentDocType==='admit') html = buildAdmitCardHTML(stu);
   else if(currentDocType==='marksheet') html = buildMarksheetHTML(stu);
   else if(currentDocType==='certificate'){ html = buildCertificateHTML(stu); wrapClass='cert-page'; }
@@ -4227,7 +4479,7 @@ function generateDocument(){
 }
 
 function openDocPreview(html, wrapClass){
-  document.getElementById('docPreviewInner').innerHTML = `<div class="${wrapClass || 'doc-page'}">${html}</div>`;
+  document.getElementById('docPreviewInner').innerHTML = (wrapClass === 'none') ? html : `<div class="${wrapClass || 'doc-page'}">${html}</div>`;
   document.getElementById('docOverlay').classList.add('show');
 }
 function closeDocPreview(){
