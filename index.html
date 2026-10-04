@@ -94,32 +94,6 @@
   .tab-section.active{display:block;}
   @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
 
-  /* ---------- responsive: tablet & laptop ---------- */
-  /* Below 700px: unchanged mobile layout. Above that, the app is shown as a
-     centered "app frame" so it doesn't stretch into a broken full-width mess. */
-  @media (min-width:701px){
-    html{
-      background:linear-gradient(160deg, var(--navy) 0%, #060914 100%);
-      min-height:100vh;
-    }
-    body{
-      max-width:640px; margin:0 auto;
-      box-shadow:0 24px 70px rgba(0,0,0,0.45);
-      border-radius:20px; overflow:hidden;
-    }
-    main{max-width:none; padding:20px 26px 26px; font-size:15px;}
-    .card, details.accordion{padding:18px 20px;}
-    nav.bottom-nav{position:sticky; max-width:640px; margin:0 auto;}
-    .gallery-grid{grid-template-columns:repeat(4,1fr);}
-    .topbar-row{max-width:none;}
-  }
-  @media (min-width:1000px){
-    body{max-width:760px;}
-    nav.bottom-nav{max-width:760px;}
-    main{padding:26px 40px 32px;}
-    .gallery-grid{grid-template-columns:repeat(5,1fr);}
-  }
-
   .card{
     background:var(--paper); border-radius:var(--radius);
     box-shadow:var(--shadow); padding:16px; margin-bottom:14px;
@@ -477,6 +451,24 @@
   .idc-chev{position:absolute; right:3.1cqw; top:27cqw; display:flex; flex-direction:column; gap:1.4cqw; font-size:1.9cqw; line-height:1; color:#7e9d97;}
   @media print{ .idc{box-shadow:none !important; width:85.6mm !important; max-width:none !important;} .idc-wrap{max-width:none !important; margin:0 0 4mm 0 !important;} .idc-wrap + .idc-wrap{page-break-before:always;} .idc{-webkit-print-color-adjust:exact; print-color-adjust:exact;} }
 
+
+  /* ---------- A4 sheet: 4 students per page (front+back stacked), real card size ---------- */
+  .idc-scaler{width:210mm; margin:0 auto;}
+  .idc-sheet{position:relative; width:210mm; height:297mm; background:#fff; margin:0 0 12px; padding:16mm 0 0 0; display:grid; grid-template-columns:85.6mm 85.6mm; grid-auto-rows:114mm; column-gap:10mm; row-gap:4mm; justify-content:center; align-content:start; box-sizing:border-box; box-shadow:0 6px 24px rgba(0,0,0,0.35);}
+  .idc-cell{width:85.6mm; display:flex; flex-direction:column; gap:3mm;}
+  .idc-sheet .idc-wrap{width:85.6mm; max-width:none; margin:0;}
+  .idc-sheet .idc{width:85.6mm !important; box-shadow:0 0 0 0.2mm #8a8a8a !important;}
+  @media print{
+    html, body.print-doc-mode{background:#fff !important;}
+    body.print-idsheet{max-width:none !important; width:auto !important; margin:0 !important; padding:0 !important; min-height:0 !important; height:auto !important; overflow:visible !important;}
+    .idc-scaler{zoom:1 !important; width:210mm !important; margin:0 !important;}
+    .idc-sheet{margin:0 !important; box-shadow:none !important; break-after:page; page-break-after:always;}
+    .idc-sheet:last-child{break-after:auto; page-break-after:auto;}
+    .idc-sheet .idc-wrap{margin:0 !important; page-break-before:auto !important;}
+    .idc-sheet .idc-wrap + .idc-wrap{page-break-before:auto !important;}
+    .idc-sheet .idc{box-shadow:0 0 0 0.2mm #8a8a8a !important;}
+  }
+
   /* elegant CS50-style certificate variant */
   .cert-page{position:relative; background:#fff; border-radius:6px; overflow:hidden; box-shadow:0 10px 34px rgba(0,0,0,0.32); max-width:520px; margin:0 auto 16px; font-family:'Inter','Noto Sans Devanagari',sans-serif; color:#20263B; border:1px solid #E5E1D6;}
   .cert-strip{height:6px; background:linear-gradient(90deg,#FF9933 0% 33%,#fff 33% 66%,#138808 66% 100%);}
@@ -500,6 +492,7 @@
 
   @media print{
     body.print-doc-mode nav.bottom-nav, body.print-doc-mode .topbar, body.print-doc-mode main, body.print-doc-mode footer.app-footer,
+    body.print-doc-mode #studentQrPrintArea{display:none !important;}
     body.print-doc-mode #toastWrap, body.print-doc-mode #gateOverlay, body.print-doc-mode .lightbox, body.print-doc-mode #moreOverlay{display:none !important;}
     .doc-overlay{position:static !important; background:#fff !important; padding:0 !important; overflow:visible !important;}
     .doc-print-hide{display:none !important;}
@@ -677,6 +670,45 @@
   .more-item svg{width:21px; height:21px; color:var(--navy2); flex-shrink:0;}
   .more-item:active{background:var(--chip-bg);}
   .more-item .badge-dot{margin-left:auto; background:var(--saffron); color:var(--navy); font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px;}
+
+  /* ---------- responsive: tablet & laptop / desktop ---------- */
+  /* Phone (<701px): unchanged. Tablet (701-1023px): wider centered column, bottom nav.
+     Laptop/desktop (>=1024px): left sidebar navigation + full-width content, normal page scrolling. */
+  @media (min-width:701px){
+    html{background:var(--cream); min-height:100%; overflow-y:auto;}
+    body{max-width:820px; margin:0 auto; box-shadow:0 0 0 1px var(--rule); border-radius:0; overflow:visible; min-height:100vh;}
+    main{max-width:none; padding:22px 28px 28px; font-size:15px;}
+    .card, details.accordion{padding:18px 20px;}
+    nav.bottom-nav{position:fixed; left:50%; right:auto; transform:translateX(-50%); width:100%; max-width:820px; bottom:0;}
+    .gallery-grid{grid-template-columns:repeat(4,1fr);}
+    .topbar-row{max-width:none;}
+  }
+  @media (min-width:1024px){
+    html{overflow-y:scroll;}
+    body{max-width:none; margin:0; padding-left:232px; padding-bottom:0; box-shadow:none;}
+    .topbar{border-radius:0 0 22px 22px;}
+    nav.bottom-nav{
+      position:fixed; left:0; top:0; bottom:0; right:auto; transform:none; width:232px; max-width:none;
+      flex-direction:column; justify-content:flex-start; align-items:stretch; gap:4px;
+      padding:22px 12px; overflow-y:auto; box-shadow:4px 0 22px rgba(0,0,0,0.18);
+    }
+    nav.bottom-nav button{flex:none; flex-direction:row; justify-content:flex-start; align-items:center; gap:13px; font-size:14px; padding:12px 14px; border-radius:12px; text-align:left; cursor:pointer;}
+    nav.bottom-nav button:hover{background:rgba(255,255,255,0.07); color:#fff;}
+    nav.bottom-nav button.active{background:rgba(255,255,255,0.12); color:var(--saffron);}
+    nav.bottom-nav button svg{width:22px; height:22px; flex-shrink:0;}
+    main{max-width:1240px; margin:0 auto; padding:28px 40px 48px;}
+    .gallery-grid{grid-template-columns:repeat(5,1fr);}
+    .toast-wrap{bottom:28px; left:calc(50% + 116px);}
+  }
+  /* wide screens: cards sit side by side so the page uses the whole screen */
+  @media (min-width:1280px){
+    .tab-section.active{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:22px; align-items:start;}
+    .tab-section.active > *{grid-column:1/-1;}
+    .tab-section.active > .card, .tab-section.active > details.accordion{grid-column:auto;}
+    .tab-section.active > .card.full, .tab-section.active > details.accordion.full{grid-column:1/-1;}
+    #sec-records.active > .card:first-of-type, #sec-documents.active > .card, #sec-omr.active > .card{grid-column:1/-1;}
+  }
+
 </style>
 </head>
 <script>
@@ -1319,6 +1351,12 @@
           <div><label>Date of Expiry (समाप्ति तिथि)</label><input type="text" id="idValidTill" placeholder="01/01/2027"></div>
         </div>
         <p class="hint" style="margin:0;">Card No / ID = Student ID होगा और वही बारकोड में बनेगा। खाली फ़ील्ड पर कार्ड में "—" दिखेगा।</p>
+        <div style="margin-top:14px; padding:12px; border:1.5px dashed var(--line); border-radius:12px;">
+          <label style="margin-top:0;">🖨️ सभी छात्रों के ID Card एक साथ (असली साइज़, A4 पर 4-4)</label>
+          <select id="idBulkBatch"></select>
+          <button type="button" class="btn-primary" style="margin-top:8px;" onclick="generateAllIdCards()">🖨️ सभी के ID Card बनाएं</button>
+          <p class="hint" style="margin:6px 0 0;">हर छात्र का नाम, फोटो, सिग्नेचर, DOB, मोबाइल और बारकोड उसके रिकॉर्ड से अपने आप आएगा। Issue/Expiry ऊपर वाली तारीख़ें सब पर लगेंगी। फिर "प्रिंट" दबाएं → Paper size A4, Scale 100%, Margins None।</p>
+        </div>
       </div>
 
       <!-- ADMIT CARD fields -->
@@ -4025,7 +4063,7 @@ function renderDocumentsUI(){
 }
 
 function switchDocType(type){
-  setTimeout(()=>{ if(type==='idcard') prefillIdCardFields(); },0);
+  setTimeout(()=>{ if(type==='idcard'){ prefillIdCardFields(); fillIdBulkBatch(); } },0);
   currentDocType = type;
   document.querySelectorAll('.doc-type-btn').forEach(b=>b.classList.toggle('active', b.dataset.doc===type));
   ['idcard','admit','marksheet','certificate','notice'].forEach(t=>{
@@ -4207,21 +4245,28 @@ function idcMrz(stu, surname){
   return [l1,l2];
 }
 
-function buildIdCardHTML(stu){
-  const g = id => (document.getElementById(id).value || '').trim();
+let idcSeq = 0, idcQueue = [], idcFlushTimer = null;
+function idcQueueBarcode(svgId, value){
+  idcQueue.push([svgId, value]);
+  clearTimeout(idcFlushTimer);
+  idcFlushTimer = setTimeout(()=>{
+    const q = idcQueue; idcQueue = [];
+    q.forEach(([id,val])=>renderBarcodeInto(document.getElementById(id), val, {width:2, height:100, displayValue:false, margin:0, fit:true, lineColor:'#1f2a30'}));
+  }, 60);
+}
+function buildIdCardHTML(stu, bulk){
+  const gc = id => (document.getElementById(id).value || '').trim();
+  const g = id => bulk ? '' : gc(id);
   const v = x => escHTML(x) || '—';
-  const surname = g('idSurname') || stu.surname || '', dob = g('idDob') || stu.dob || '', issue = g('idIssueDate') || idcFmt(new Date()), expiry = g('idValidTill') || (()=>{const n=new Date(); return idcFmt(new Date(n.getFullYear()+1,n.getMonth(),n.getDate()));})(), sex = g('idSex') || stu.sex || '';
+  const surname = g('idSurname') || stu.surname || '', dob = g('idDob') || stu.dob || '', issue = gc('idIssueDate') || idcFmt(new Date()), expiry = gc('idValidTill') || (()=>{const n=new Date(); return idcFmt(new Date(n.getFullYear()+1,n.getMonth(),n.getDate()));})(), sex = g('idSex') || stu.sex || '';
   const digits = String(stu.phone||'').replace(/\D/g,'');
   const maskedPhone = digits ? (digits.slice(0,4) + 'X'.repeat(Math.max(0, digits.length-4))) : '';
   const nm = String(stu.name||'');
   const nameSize = nm.length>20 ? 1.9 : nm.length>15 ? 2.25 : 2.9;
   const [m1,m2] = idcMrz(stu, surname);
-  const t = Date.now();
+  const t = (++idcSeq);
   const bigId='idcBig'+t, smallId='idcSmall'+t;
-  setTimeout(()=>{
-    renderBarcodeInto(document.getElementById(bigId), stu.id, {width:2, height:100, displayValue:false, margin:0, fit:true, lineColor:'#1f2a30'});
-    renderBarcodeInto(document.getElementById(smallId), stu.id, {width:2, height:100, displayValue:false, margin:0, fit:true, lineColor:'#1f2a30'});
-  }, 40);
+  idcQueueBarcode(bigId, stu.id); idcQueueBarcode(smallId, stu.id);
   const sigImg = centerSignature ? `<img src="${centerSignature}">` : '';
   const address = v(stu.address);
 
@@ -4462,6 +4507,39 @@ function buildNoticeHTML(){
   `;
 }
 
+
+/* ---------- BULK: all students' ID cards, real size (85.6x54mm), 4 students (front+back) per A4 page ---------- */
+function fillIdBulkBatch(){
+  const sel = document.getElementById('idBulkBatch');
+  if(!sel) return;
+  const prev = sel.value || 'ALL';
+  sel.innerHTML = batchOptionsHTML(true);
+  sel.value = [...sel.options].some(o=>o.value===prev) ? prev : 'ALL';
+}
+function generateAllIdCards(){
+  const bsel = document.getElementById('idBulkBatch').value;
+  let list = students.filter(s => !bsel || bsel==='ALL' || s.batch===bsel);
+  if(!list.length){ showToast('❌ इस बैच में कोई छात्र नहीं है', 'error'); return; }
+  list = list.slice().sort((a,b)=> String(a.id).localeCompare(String(b.id), undefined, {numeric:true}));
+  let pages = '';
+  for(let i=0; i<list.length; i+=4){
+    const cells = list.slice(i,i+4).map(st=>`<div class="idc-cell">${buildIdCardHTML(st, true)}</div>`).join('');
+    pages += `<div class="idc-sheet">${cells}</div>`;
+  }
+  document.getElementById('docPreviewInner').innerHTML = `<div class="idc-scaler" id="idcScaler">${pages}</div>`;
+  let ps = document.getElementById('idcPageStyle');
+  if(!ps){ ps = document.createElement('style'); ps.id='idcPageStyle'; document.head.appendChild(ps); }
+  ps.textContent = '@page{size:A4; margin:0;}';
+  document.getElementById('docOverlay').classList.add('show');
+  const fit = ()=>{
+    const sc = document.getElementById('idcScaler'); if(!sc) return;
+    const mm = 96/25.4, pageW = 210*mm;
+    sc.style.zoom = Math.min(1, (window.innerWidth - 24) / pageW);
+  };
+  fit();
+  showToast('✅ '+list.length+' ID Card तैयार — '+Math.ceil(list.length/4)+' A4 पेज', 'success');
+}
+
 function generateDocument(){
   if(currentDocType==='notice'){
     openDocPreview(buildNoticeHTML(), 'doc-page');
@@ -4483,13 +4561,15 @@ function openDocPreview(html, wrapClass){
   document.getElementById('docOverlay').classList.add('show');
 }
 function closeDocPreview(){
+  const ps = document.getElementById('idcPageStyle'); if(ps) ps.remove();
   document.getElementById('docOverlay').classList.remove('show');
 }
 function printDocument(){
   document.body.classList.add('print-doc-mode');
+  if(document.getElementById('idcScaler')) document.body.classList.add('print-idsheet');
   window.print();
 }
-window.addEventListener('afterprint', ()=>{ document.body.classList.remove('print-doc-mode'); });
+window.addEventListener('afterprint', ()=>{ document.body.classList.remove('print-doc-mode'); document.body.classList.remove('print-idsheet'); });
 
 /* ==================== THEME (dark / light) ==================== */
 function applyTheme(theme){
