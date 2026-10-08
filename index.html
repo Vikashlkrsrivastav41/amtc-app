@@ -709,6 +709,31 @@
     #sec-records.active > .card:first-of-type, #sec-documents.active > .card, #sec-omr.active > .card{grid-column:1/-1;}
   }
 
+
+  /* ===== Classic Advanced theme (overrides) ===== */
+  :root{--navy:#14203C; --navy2:#1B2C52; --navy-soft:#24396B; --cream:#F6F2E8; --ink:#1E2433; --saffron:#B8923A; --saffron-dark:#9A7728; --rule:#D8DFEA; --radius:12px; --radius-sm:8px; --shadow:0 2px 14px rgba(20,32,60,.09); --input-bg:#FFFEFB; --input-border:#DDD6C4;}
+  html:not([data-theme="dark"])[data-accent="emerald"]{--navy:#0F2E2A; --navy2:#16423C; --navy-soft:#1F5A52;}
+  html:not([data-theme="dark"])[data-accent="maroon"]{--navy:#3A1420; --navy2:#511C2C; --navy-soft:#6B2639;}
+  html:not([data-theme="dark"])[data-accent="slate"]{--navy:#1F2933; --navy2:#2B3A47; --navy-soft:#3E5366;}
+  html[data-theme="dark"]{--saffron:#D2AE5C; --saffron-dark:#C09B45;}
+  .topbar{animation:none !important; background:var(--navy) !important; background-image:none !important; border-bottom:3px double var(--saffron);}
+  .brand-title{font-size:21px; letter-spacing:.01em;} .brand-eyebrow{letter-spacing:.24em; font-size:10px;}
+  .btn-primary{animation:none !important; background:var(--navy) !important; color:#fff !important; border:1px solid var(--saffron) !important; box-shadow:none !important; letter-spacing:.02em;}
+  .btn-primary:hover{background:var(--navy2) !important;}
+  .card, details.accordion{border:1px solid var(--rule); box-shadow:var(--shadow); animation:none !important;}
+  .card h3, .card h2, details.accordion > summary{font-family:'Playfair Display',serif; letter-spacing:.01em;}
+  details.accordion > summary{border-left:3px solid var(--saffron);}
+  input:focus, select:focus, textarea:focus{border-color:var(--saffron) !important; box-shadow:0 0 0 3px rgba(184,146,58,.18) !important; outline:none;}
+  .otp-overlay{position:fixed; inset:0; background:rgba(10,15,30,.62); z-index:900; display:flex; align-items:center; justify-content:center; padding:16px;}
+  .otp-box{background:var(--paper); color:var(--ink); border:1px solid var(--saffron); border-radius:14px; padding:20px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .otp-box h3{margin:0 0 6px; font-family:'Playfair Display',serif;}
+  .otp-code-in{font-size:26px; letter-spacing:.5em; text-align:center; font-family:'JetBrains Mono',monospace;}
+  .otp-timer{font-weight:700; color:var(--saffron-dark);}
+  #ownerCodes{position:fixed; left:12px; bottom:84px; z-index:850; display:flex; flex-direction:column; gap:8px; max-width:300px;}
+  .owner-code{background:var(--navy); color:#fff; border:1px solid var(--saffron); border-radius:12px; padding:10px 14px; box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  .owner-code b{display:block; font-size:26px; letter-spacing:.3em; font-family:'JetBrains Mono',monospace; color:var(--saffron);}
+  .hist-row{padding:8px 0; border-bottom:1px dashed var(--rule); font-size:13px;}
+  .hist-tag{display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:99px; background:var(--green-bg); color:var(--green); margin-left:6px;}
 </style>
 </head>
 <script>
@@ -722,7 +747,6 @@
 <div class="topbar">
   <div class="topbar-row">
     <div class="brand-group">
-      <div class="brand-emblem">A</div>
       <div>
         <p class="brand-eyebrow">Digital Attendance System</p>
         <h1 class="brand-title">Ayush Mathematics<br>Teaching Digital Centre</h1>
@@ -873,6 +897,26 @@
   <!-- ===================== MANAGE TAB ===================== -->
   <section id="sec-manage" class="tab-section">
 
+    <details class="accordion" id="settingsCard">
+      <summary>⚙️ सेटिंग्स — अपने हिसाब से बदलें<span class="chev"></span></summary>
+      <div class="accordion-body">
+        <label>केंद्र का नाम (लाइन 1)</label><input type="text" id="setName1">
+        <label>केंद्र का नाम (लाइन 2)</label><input type="text" id="setName2">
+        <label>टैगलाइन (वैकल्पिक)</label><input type="text" id="setTag" placeholder="जैसे: गणित सीखें, आसानी से">
+        <div class="field-row">
+          <div><label>रंग थीम</label><select id="setAccent"><option value="classic">Classic Navy + Gold</option><option value="emerald">Emerald</option><option value="maroon">Maroon</option><option value="slate">Slate</option></select></div>
+          <div><label>अक्षर का आकार</label><select id="setSize"><option value="normal">सामान्य</option><option value="large">बड़ा</option><option value="xl">बहुत बड़ा</option></select></div>
+        </div>
+        <div class="field-row">
+          <div><label>ID Card: हस्ताक्षरकर्ता</label><input type="text" id="setSigner"></div>
+          <div><label>पद</label><input type="text" id="setSignerRole"></div>
+        </div>
+        <label>ID Card वैधता (साल)</label><input type="number" min="1" max="10" id="setValidYears">
+        <label style="display:flex; gap:10px; align-items:flex-start; font-weight:500;"><input type="checkbox" id="setOwnerDevice" style="width:20px; height:20px; margin:2px 0 0; flex-shrink:0;"><span>🔐 इस डिवाइस को <b>Verification Owner</b> बनाएं — नाम/फोटो/DOB/सिग्नेचर बदलने पर 6 अंकों का कोड इसी डिवाइस पर दिखेगा।</span></label>
+        <button type="button" class="btn-primary" style="margin-top:10px;" onclick="saveSettings()">💾 सेटिंग्स सेव करें</button>
+      </div>
+    </details>
+
     <details class="accordion" open>
       <summary>📸 होम स्लाइडर फोटो (सबको दिखेगी)<span class="chev">›</span></summary>
       <div class="accordion-body">
@@ -984,6 +1028,8 @@
           <div id="editStudentSigPreview" style="width:110px;height:44px;border:1px dashed #9CA3AF;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;overflow:hidden;flex-shrink:0;">साइन</div>
           <div style="flex:1;"><input type="file" accept="image/*" id="editStudentSigInput" onchange="previewStudentSig(event,'edit')"><button type="button" class="btn-outline btn-sm" style="width:auto;margin-top:6px;" onclick="clearStudentSig('edit')">✕ हटाएं</button></div>
         </div>
+        <label>📜 बदलाव का इतिहास (History)</label>
+        <div id="editStudentHistory" style="max-height:200px; overflow-y:auto; margin-bottom:10px;"></div>
       </div>
     </div>
 
@@ -1296,9 +1342,11 @@
         <select id="docStudentSelect" onchange="onDocStudentChange()"></select>
       </div>
 
+      <div style="display:none">
       <label>सेंटर लोगो (वैकल्पिक — जब तक अपलोड न करें, placeholder लोगो इस्तेमाल होगा)</label>
       <input type="file" accept="image/*" id="docLogoInput" onchange="uploadCenterLogo(event)" style="margin-bottom:6px;">
       <p class="hint" id="docLogoMsg" style="margin-top:0;"></p>
+      </div>
 
       <label>आपका डिजिटल हस्ताक्षर (Signature)</label>
       <input type="file" accept="image/*" id="docSignatureInput" onchange="uploadCenterSignature(event)" style="margin-bottom:6px;">
@@ -1352,10 +1400,20 @@
         </div>
         <p class="hint" style="margin:0;">Card No / ID = Student ID होगा और वही बारकोड में बनेगा। खाली फ़ील्ड पर कार्ड में "—" दिखेगा।</p>
         <div style="margin-top:14px; padding:12px; border:1.5px dashed var(--line); border-radius:12px;">
-          <label style="margin-top:0;">🖨️ सभी छात्रों के ID Card एक साथ (असली साइज़, A4 पर 4-4)</label>
-          <select id="idBulkBatch"></select>
-          <button type="button" class="btn-primary" style="margin-top:8px;" onclick="generateAllIdCards()">🖨️ सभी के ID Card बनाएं</button>
-          <p class="hint" style="margin:6px 0 0;">हर छात्र का नाम, फोटो, सिग्नेचर, DOB, मोबाइल और बारकोड उसके रिकॉर्ड से अपने आप आएगा। Issue/Expiry ऊपर वाली तारीख़ें सब पर लगेंगी। फिर "प्रिंट" दबाएं → Paper size A4, Scale 100%, Margins None।</p>
+          <label style="margin-top:0;">🖨️ कई छात्रों के ID Card एक साथ (असली साइज़, A4 पर 4-4)</label>
+          <p class="hint" style="margin:0 0 8px;">जिन बच्चों के चाहिए सिर्फ़ उन्हें ✔ करें — जितने चाहें उतने चुनें, चुनाव बैच या सर्च बदलने पर भी बना रहता है।</p>
+          <div class="field-row">
+            <div><select id="idBulkBatch" onchange="renderIdPickList()"></select></div>
+            <div><input type="text" id="idPickSearch" placeholder="नाम / ID खोजें" oninput="renderIdPickList()"></div>
+          </div>
+          <div style="display:flex; gap:8px; margin:8px 0;">
+            <button type="button" class="btn-outline btn-sm" style="flex:1;" onclick="idPickAll(true)">✔ दिख रहे सभी चुनें</button>
+            <button type="button" class="btn-outline btn-sm" style="flex:1;" onclick="idPickAll(false)">✕ सब हटाएं</button>
+          </div>
+          <div id="idPickList" style="max-height:300px; overflow-y:auto; border:1px solid var(--line); border-radius:10px; background:var(--paper);"></div>
+          <div id="idPickCount" style="margin:8px 0 0; font-size:13px; font-weight:600;"></div>
+          <button type="button" class="btn-primary" style="margin-top:8px;" onclick="generateAllIdCards()">🖨️ चुने हुए छात्रों के ID Card बनाएं</button>
+          <p class="hint" style="margin:6px 0 0;">नाम, फोटो, सिग्नेचर, DOB, मोबाइल और बारकोड हर छात्र के रिकॉर्ड से अपने आप आएगा। Issue/Expiry ऊपर वाली तारीख़ें सब पर लगेंगी। फिर "प्रिंट" → Paper A4, Scale 100%, Margins None।</p>
         </div>
       </div>
 
@@ -1932,7 +1990,7 @@ let pendingTab = null;
 let resultMode = 'id';
 
 const LS_LOGO = 'amtc_center_logo';
-let centerLogo = localStorage.getItem(LS_LOGO) || '';
+let centerLogo = ''; try{ localStorage.removeItem(LS_LOGO); }catch(e){}
 const LS_SIGNATURE = 'amtc_center_signature';
 let centerSignature = localStorage.getItem(LS_SIGNATURE) || '';
 let currentDocType = 'marksheet';
@@ -1963,6 +2021,7 @@ function showToast(msg, type){
 /* ==================== NAV ==================== */
 const MORE_TABS = ['sec-gallery','sec-manage','sec-complaint','sec-course','sec-documents','sec-omr'];
 function switchTab(id){
+  if(id==='sec-documents') setTimeout(()=>{ if(typeof currentDocType!=='undefined' && currentDocType==='idcard') fillIdBulkBatch(); },0);
   if(PROTECTED_TABS.includes(id) && !teacherUnlocked){
     openGate(id);
     return;
@@ -2716,7 +2775,7 @@ function addStudent(){
   const sex = document.getElementById('newStudentSex').value;
   if(!id || !name){ showToast('ID और नाम दोनों भरें', 'error'); return; }
   if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
-  students.push({id, name, surname, sex, batch, photo:pendingNewStudentPhoto, signature:pendingNewStudentSig, father, phone, dob, admission, address});
+  students.push({id, name, surname, sex, batch, photo:pendingNewStudentPhoto, signature:pendingNewStudentSig, history:[{t:new Date().toISOString(), f:'created', from:'', to:'', v:'direct'}], father, phone, dob, admission, address});
   saveJSON(LS.students, students);
   if(pendingNewStudentPhoto || pendingNewStudentSig) queueStudentPhotoSync(id);
   ['newStudentId','newStudentName','newStudentSurname','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
@@ -2739,6 +2798,7 @@ function editStudent(id){
   document.getElementById('editStudentSigPreview').innerHTML = s.signature ? `<img src="${s.signature}" style="max-width:100%;max-height:100%;">` : 'साइन';
   document.getElementById('editStudentId').value = s.id;
   document.getElementById('editStudentName').value = s.name || '';
+  renderStudentHistory(s);
   document.getElementById('editStudentSurname').value = s.surname || '';
   document.getElementById('editStudentSex').value = s.sex || '';
   document.getElementById('editStudentBatch').value = s.batch || '';
@@ -2773,28 +2833,122 @@ function previewEditStudentPhoto(evt){
   };
   reader.readAsDataURL(file);
 }
+const FIELD_LABELS = {created:'छात्र जोड़ा गया', name:'नाम', surname:'सरनेम', sex:'लिंग', batch:'बैच', father:'पिता का नाम', phone:'मोबाइल', dob:'जन्मतिथि', admission:'प्रवेश तिथि', address:'पता', photo:'फोटो', signature:'हस्ताक्षर'};
+const SENSITIVE_FIELDS = ['name','surname','dob','photo','signature'];
+function logStudentChange(s, changes, how){
+  s.history = s.history || [];
+  const t = new Date().toISOString();
+  changes.forEach(c=>s.history.push({t, f:c.f, from:c.from, to:c.to, v:how}));
+  if(s.history.length>60) s.history = s.history.slice(-60);
+}
+function renderStudentHistory(s){
+  const el = document.getElementById('editStudentHistory'); if(!el) return;
+  const h = (s.history||[]).slice().reverse();
+  const shown = h.length ? h : [];
+  el.innerHTML = shown.length ? shown.map(x=>{
+    const when = new Date(x.t).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const lbl = FIELD_LABELS[x.f]||x.f;
+    const body = x.f==='created' ? '' : (x.f==='photo'||x.f==='signature') ? ' बदला गया' : `: <s style="opacity:.6">${escHTML(x.from)||'—'}</s> → <b>${escHTML(x.to)||'—'}</b>`;
+    const tag = x.v==='verified' ? '<span class="hist-tag">✔ Verified</span>' : x.v==='same-device' ? '<span class="hist-tag">✔ Verified (same device)</span>' : '';
+    return `<div class="hist-row"><b>${lbl}</b>${body}${tag}<div style="opacity:.6; font-size:11.5px;">${when}</div></div>`;
+  }).join('') : '<div class="hint" style="margin:0;">अभी कोई बदलाव दर्ज नहीं है।</div>';
+}
 function saveStudentDetail(){
   const id = document.getElementById('editStudentId').value;
   const s = students.find(x=>x.id===id);
   if(!s) return;
-  s.name = document.getElementById('editStudentName').value.trim() || s.name;
-  s.surname = document.getElementById('editStudentSurname').value.trim().toUpperCase();
-  s.sex = document.getElementById('editStudentSex').value;
-  s.batch = document.getElementById('editStudentBatch').value || s.batch;
-  s.father = document.getElementById('editStudentFather').value.trim();
-  s.phone = document.getElementById('editStudentPhone').value.trim();
-  s.dob = document.getElementById('editStudentDob').value.trim();
-  s.admission = document.getElementById('editStudentAdmission').value.trim();
-  s.address = document.getElementById('editStudentAddress').value.trim();
-  s.photo = pendingEditStudentPhoto;
-  s.signature = pendingEditStudentSig;
-  saveJSON(LS.students, students);
-  queueStudentPhotoSync(id);
-  renderStudentList();
-  renderBatchList();
-  closeStudentDetail();
-  showToast('✅ छात्र की जानकारी अपडेट हो गई', 'success');
+  const v = i => document.getElementById(i).value.trim();
+  const next = {name:v('editStudentName')||s.name, surname:v('editStudentSurname').toUpperCase(), sex:document.getElementById('editStudentSex').value,
+    batch:document.getElementById('editStudentBatch').value||s.batch, father:v('editStudentFather'), phone:v('editStudentPhone'),
+    dob:v('editStudentDob'), admission:v('editStudentAdmission'), address:v('editStudentAddress')};
+  const changes = [];
+  Object.keys(next).forEach(k=>{ if((s[k]||'')!==(next[k]||'')) changes.push({f:k, from:s[k]||'', to:next[k]||''}); });
+  if((s.photo||'')!==(pendingEditStudentPhoto||'')) changes.push({f:'photo', from:'', to:''});
+  if((s.signature||'')!==(pendingEditStudentSig||'')) changes.push({f:'signature', from:'', to:''});
+  if(!changes.length){ closeStudentDetail(); return; }
+  const photo = pendingEditStudentPhoto, sig = pendingEditStudentSig;
+  const apply = how => {
+    logStudentChange(s, changes, how);
+    Object.assign(s, next); s.photo = photo; s.signature = sig;
+    saveJSON(LS.students, students);
+    queueStudentPhotoSync(id);
+    renderStudentList(); renderBatchList(); closeStudentDetail();
+    showToast('✅ बदलाव सेव और इतिहास में दर्ज हुए', 'success');
+  };
+  const sens = changes.filter(c=>SENSITIVE_FIELDS.includes(c.f));
+  if(!sens.length) apply('direct');
+  else requestVerification(`${s.name} (${s.id}): ` + sens.map(c=>FIELD_LABELS[c.f]).join(', '), apply);
 }
+
+/* ---------- Bank-style verification (6-digit code, 5-minute expiry, 3 attempts) ---------- */
+const OTP_TTL = 5*60*1000;
+function isOwnerDevice(){ return localStorage.getItem('amtc_owner_device')==='1'; }
+function requestVerification(summary, onOk){
+  const old = document.getElementById('otpOverlay'); if(old) old.remove();
+  const rid = 'v'+Date.now();
+  let code = '', exp = 0, tries = 0, lastSend = 0, remote = false, localShown = isOwnerDevice();
+  const ov = document.createElement('div'); ov.id='otpOverlay'; ov.className='otp-overlay';
+  ov.innerHTML = `<div class="otp-box"><h3>🔐 Verification</h3>
+    <p class="hint" style="margin:0 0 8px;">${escHTML(summary)}</p>
+    <p id="otpInfo" style="font-size:13px; margin:0 0 10px;"></p>
+    <input type="text" id="otpIn" class="otp-code-in" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="one-time-code">
+    <p style="font-size:13px; margin:8px 0;">⏱ वैध: <span class="otp-timer" id="otpTimer">5:00</span> &nbsp; <span id="otpErr" style="color:var(--red);"></span></p>
+    <button type="button" class="btn-primary" id="otpOk">✔ Verify करें</button>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button type="button" class="btn-outline btn-sm" id="otpResend" style="flex:1;">🔄 नया कोड</button>
+      <button type="button" class="btn-outline btn-sm" id="otpShow" style="flex:1;">👁 इसी डिवाइस पर दिखाएं</button>
+      <button type="button" class="btn-outline btn-sm" id="otpCancel" style="flex:1;">✕ रद्द</button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  const q = x => ov.querySelector(x);
+  const info = () => {
+    q('#otpInfo').innerHTML = localShown ? `आपका कोड: <b style="font-size:20px; letter-spacing:.25em;">${code}</b>`
+      : remote ? '📲 6 अंकों का कोड <b>Owner के डिवाइस</b> पर भेजा गया है। उनसे कोड लेकर नीचे डालें।'
+      : 'कोड भेजा नहीं जा सका (ऑफ़लाइन) — "इसी डिवाइस पर दिखाएं" दबाएं।';
+    q('#otpShow').style.display = localShown ? 'none' : '';
+  };
+  const send = () => {
+    code = String(100000 + Math.floor(Math.random()*900000)); exp = Date.now()+OTP_TTL; tries = 0; lastSend = Date.now();
+    remote = false;
+    if(!isOwnerDevice()){
+      try{ if(db && cloudReady){ db.collection('amtc_verify').doc(rid).set({code, exp, summary, status:'pending', ts:Date.now()}); remote = true; } }catch(e){}
+    }
+    q('#otpErr').textContent=''; info();
+  };
+  const finish = () => { clearInterval(tm); try{ if(db && cloudReady) db.collection('amtc_verify').doc(rid).delete(); }catch(e){} ov.remove(); };
+  const tm = setInterval(()=>{
+    const left = Math.max(0, exp-Date.now());
+    q('#otpTimer').textContent = Math.floor(left/60000)+':'+String(Math.floor(left%60000/1000)).padStart(2,'0');
+    q('#otpResend').disabled = (Date.now()-lastSend) < 30000;
+  }, 500);
+  q('#otpOk').onclick = ()=>{
+    const val = q('#otpIn').value.trim();
+    if(Date.now()>exp){ q('#otpErr').textContent='कोड expire हो गया — नया कोड लें'; return; }
+    if(val===code){ const how = localShown ? 'same-device' : 'verified'; finish(); onOk(how); return; }
+    tries++; q('#otpIn').value='';
+    if(tries>=3){ finish(); showToast('❌ 3 गलत प्रयास — बदलाव रद्द', 'error'); return; }
+    q('#otpErr').textContent = `गलत कोड (${3-tries} प्रयास बचे)`;
+  };
+  q('#otpResend').onclick = send;
+  q('#otpShow').onclick = ()=>{ localShown = true; info(); };
+  q('#otpCancel').onclick = ()=>{ finish(); showToast('बदलाव रद्द किए गए', 'success'); };
+  send(); q('#otpIn').focus();
+}
+/* Owner device: shows live codes requested from other devices */
+let ownerUnsub = null, ownerLive = [];
+function renderOwnerCodes(){
+  let box = document.getElementById('ownerCodes');
+  if(!box){ box = document.createElement('div'); box.id='ownerCodes'; document.body.appendChild(box); }
+  const now = Date.now();
+  box.innerHTML = ownerLive.filter(x=>x.exp>now).map(x=>`<div class="owner-code"><div style="font-size:12px; opacity:.85;">🔐 ${escHTML(x.summary)}</div><b>${escHTML(x.code)}</b><div style="font-size:11px; opacity:.7;">${Math.ceil((x.exp-now)/60000)} मिनट वैध</div></div>`).join('');
+}
+setInterval(()=>{
+  if(isOwnerDevice() && !ownerUnsub && db && cloudReady){
+    try{ ownerUnsub = db.collection('amtc_verify').onSnapshot(snap=>{ ownerLive=[]; snap.forEach(d=>{ const x=d.data(); if(x.status==='pending') ownerLive.push(x); }); renderOwnerCodes(); }); }catch(e){}
+  }
+  if(!isOwnerDevice() && ownerUnsub){ ownerUnsub(); ownerUnsub=null; ownerLive=[]; renderOwnerCodes(); }
+  if(ownerLive.length) renderOwnerCodes();
+}, 3000);
 
 function removeStudent(id){
   const hasRecords = records.some(r=>r.studentId===id);
@@ -4170,7 +4324,7 @@ function prefillIdCardFields(){
   document.getElementById('idDob').value = stu.dob || '';
   document.getElementById('idSex').value = stu.sex || '';
   const fmt = d => String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
-  const now = new Date(), nextYr = new Date(now.getFullYear()+1, now.getMonth(), now.getDate());
+  const now = new Date(), nextYr = new Date(now.getFullYear()+(+appSettings.validYears||1), now.getMonth(), now.getDate());
   const iss = document.getElementById('idIssueDate'), exp = document.getElementById('idValidTill');
   if(!iss.value) iss.value = fmt(now);
   if(!exp.value) exp.value = fmt(nextYr);
@@ -4213,9 +4367,7 @@ function ashokaChakraSVG(color){
 }
 
 function docHeaderHTML(){
-  const logoHTML = centerLogo
-    ? `<img src="${centerLogo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #F2A93B;">`
-    : `<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(155deg,#F2A93B,#D98F1D);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:19px;color:#131B3A;border:2px solid rgba(19,27,58,0.15);flex-shrink:0;">AM</div>`;
+  const logoHTML = '';
   return `
     <div class="doc-tricolor"></div>
     <div class="doc-amrit-badge">🇮🇳 आज़ादी का अमृत महोत्सव &nbsp;•&nbsp; 80वाँ स्वतंत्रता दिवस</div>
@@ -4258,7 +4410,7 @@ function buildIdCardHTML(stu, bulk){
   const gc = id => (document.getElementById(id).value || '').trim();
   const g = id => bulk ? '' : gc(id);
   const v = x => escHTML(x) || '—';
-  const surname = g('idSurname') || stu.surname || '', dob = g('idDob') || stu.dob || '', issue = gc('idIssueDate') || idcFmt(new Date()), expiry = gc('idValidTill') || (()=>{const n=new Date(); return idcFmt(new Date(n.getFullYear()+1,n.getMonth(),n.getDate()));})(), sex = g('idSex') || stu.sex || '';
+  const surname = g('idSurname') || stu.surname || '', dob = g('idDob') || stu.dob || '', issue = gc('idIssueDate') || idcFmt(new Date()), expiry = gc('idValidTill') || (()=>{const n=new Date(); return idcFmt(new Date(n.getFullYear()+(+appSettings.validYears||1),n.getMonth(),n.getDate()));})(), sex = g('idSex') || stu.sex || '';
   const digits = String(stu.phone||'').replace(/\D/g,'');
   const maskedPhone = digits ? (digits.slice(0,4) + 'X'.repeat(Math.max(0, digits.length-4))) : '';
   const nm = String(stu.name||'');
@@ -4305,7 +4457,7 @@ function buildIdCardHTML(stu, bulk){
     <div class="idc-sigbox">
       <small>AUTHORIZED SIGNATURE</small>
       ${sigImg}
-      <div class="idc-signame">Vikash Kumar · Teacher, AMTC</div>
+      <div class="idc-signame">${escHTML(appSettings.signer)} · ${escHTML(appSettings.signerRole)}</div>
     </div>
     <div class="idc-infolbl">IMPORTANT INFORMATION</div>
     <div class="idc-infotxt">यह कार्ड Ayush Mathematics Teaching Centre की संपत्ति है और केवल पहचान के लिए मान्य है। अटेंडेंस व परिणाम के लिए इस कार्ड का बारकोड स्कैन किया जाता है। खो जाने पर तुरंत केंद्र को सूचित करें।<br><b>Address:</b> ${address}</div>
@@ -4413,9 +4565,7 @@ function buildCertificateHTML(stu){
   const qrId = 'certqr_'+Date.now();
   setTimeout(()=>{ const el=document.getElementById(qrId); if(el && window.QRCode){ el.innerHTML=''; new QRCode(el, {text:verifyCode, width:64, height:64, colorDark:'#131B3A', colorLight:'#ffffff'}); } }, 30);
 
-  const logoHTML = centerLogo
-    ? `<img src="${centerLogo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">`
-    : `<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(155deg,#F2A93B,#D98F1D);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:16px;color:#131B3A;">AM</div>`;
+  const logoHTML = '';
 
   return `
     <div class="cert-strip"></div>
@@ -4509,18 +4659,60 @@ function buildNoticeHTML(){
 
 
 /* ---------- BULK: all students' ID cards, real size (85.6x54mm), 4 students (front+back) per A4 page ---------- */
+let idPicked = [];   // selected student ids, in the order they were ticked
 function fillIdBulkBatch(){
   const sel = document.getElementById('idBulkBatch');
   if(!sel) return;
   const prev = sel.value || 'ALL';
   sel.innerHTML = batchOptionsHTML(true);
   sel.value = [...sel.options].some(o=>o.value===prev) ? prev : 'ALL';
+  idPicked = idPicked.filter(id => students.some(s=>s.id===id));
+  renderIdPickList();
+}
+function idPickVisible(){
+  const bsel = (document.getElementById('idBulkBatch')||{}).value;
+  const q = ((document.getElementById('idPickSearch')||{}).value||'').trim().toLowerCase();
+  return students
+    .filter(s => !bsel || bsel==='ALL' || s.batch===bsel)
+    .filter(s => !q || (String(s.name)+' '+String(s.surname||'')+' '+String(s.id)).toLowerCase().includes(q))
+    .slice().sort((a,b)=> String(a.id).localeCompare(String(b.id), undefined, {numeric:true}));
+}
+function renderIdPickList(){
+  const box = document.getElementById('idPickList');
+  if(!box) return;
+  const vis = idPickVisible();
+  box.innerHTML = vis.length ? vis.map(st=>{
+    const on = idPicked.includes(st.id);
+    const safeId = String(st.id).replace(/'/g,"\\'");
+    return `<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-bottom:1px solid var(--line); cursor:pointer; margin:0; ${on?'background:rgba(244,162,38,0.14);':''}">
+      <input type="checkbox" ${on?'checked':''} style="width:20px; height:20px; flex-shrink:0; margin:0;" onchange="idPickToggle('${safeId}', this.checked)">
+      ${st.photo ? `<img src="${st.photo}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; flex-shrink:0;">` : `<span style="width:32px; height:32px; border-radius:50%; background:var(--line); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">👤</span>`}
+      <span style="flex:1; min-width:0; font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHTML(st.name)} ${escHTML(st.surname||'')}</span>
+      <span class="mono" style="font-size:12px; opacity:.7;">${escHTML(st.id)}</span>
+    </label>`;
+  }).join('') : '<div style="padding:16px; text-align:center; font-size:13px; opacity:.7;">कोई छात्र नहीं मिला</div>';
+  updateIdPickCount();
+}
+function updateIdPickCount(){
+  const el = document.getElementById('idPickCount');
+  if(!el) return;
+  const n = idPicked.length;
+  el.textContent = n ? `✔ चुने हुए: ${n} छात्र → ${Math.ceil(n/4)} A4 पेज` : 'अभी कोई छात्र नहीं चुना';
+}
+function idPickToggle(id, on){
+  idPicked = idPicked.filter(x=>x!==id);
+  if(on) idPicked.push(id);
+  renderIdPickList();
+}
+function idPickAll(on){
+  const vis = idPickVisible().map(s=>s.id);
+  if(on){ vis.forEach(id=>{ if(!idPicked.includes(id)) idPicked.push(id); }); }
+  else { idPicked = idPicked.filter(id => !vis.includes(id)); if(!document.getElementById('idPickSearch').value && document.getElementById('idBulkBatch').value==='ALL') idPicked = []; }
+  renderIdPickList();
 }
 function generateAllIdCards(){
-  const bsel = document.getElementById('idBulkBatch').value;
-  let list = students.filter(s => !bsel || bsel==='ALL' || s.batch===bsel);
-  if(!list.length){ showToast('❌ इस बैच में कोई छात्र नहीं है', 'error'); return; }
-  list = list.slice().sort((a,b)=> String(a.id).localeCompare(String(b.id), undefined, {numeric:true}));
+  const list = idPicked.map(id => students.find(s=>s.id===id)).filter(Boolean);
+  if(!list.length){ showToast('❌ पहले कम से कम एक छात्र चुनें', 'error'); return; }
   let pages = '';
   for(let i=0; i<list.length; i+=4){
     const cells = list.slice(i,i+4).map(st=>`<div class="idc-cell">${buildIdCardHTML(st, true)}</div>`).join('');
@@ -4594,6 +4786,34 @@ window.onload = function(){
   startGalleryPhotosCloudSync();
   startStudentPhotosCloudSync();
 };
+
+/* ---------- Settings / customisation ---------- */
+const SETTINGS_DEF = {name1:'Ayush Mathematics', name2:'Teaching Digital Centre', tag:'', accent:'classic', size:'normal', signer:'Vikash Kumar', signerRole:'Teacher, AMTC', validYears:1};
+let appSettings = Object.assign({}, SETTINGS_DEF);
+try{ Object.assign(appSettings, JSON.parse(localStorage.getItem('amtc_settings')||'{}')); }catch(e){}
+function applySettings(){
+  const A = appSettings;
+  document.documentElement.setAttribute('data-accent', A.accent||'classic');
+  const t = document.querySelector('.brand-title'); if(t) t.innerHTML = escHTML(A.name1)+'<br>'+escHTML(A.name2);
+  const sub = document.querySelector('.brand-sub'); if(sub) sub.textContent = A.tag||'';
+  document.title = (A.name1+' '+A.name2).trim()+' — Attendance';
+  const z = {normal:1, large:1.1, xl:1.2}[A.size]||1;
+  document.querySelectorAll('main').forEach(m=>{ m.style.zoom = z; });
+  const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.value=v; };
+  set('setName1',A.name1); set('setName2',A.name2); set('setTag',A.tag); set('setAccent',A.accent); set('setSize',A.size);
+  set('setSigner',A.signer); set('setSignerRole',A.signerRole); set('setValidYears',A.validYears);
+  const oc = document.getElementById('setOwnerDevice'); if(oc) oc.checked = isOwnerDevice();
+}
+function saveSettings(){
+  const g = id => document.getElementById(id).value.trim();
+  appSettings = {name1:g('setName1')||SETTINGS_DEF.name1, name2:g('setName2'), tag:g('setTag'), accent:g('setAccent'), size:g('setSize'),
+    signer:g('setSigner')||SETTINGS_DEF.signer, signerRole:g('setSignerRole'), validYears:Math.min(10, Math.max(1, +g('setValidYears')||1))};
+  localStorage.setItem('amtc_settings', JSON.stringify(appSettings));
+  localStorage.setItem('amtc_owner_device', document.getElementById('setOwnerDevice').checked ? '1' : '0');
+  applySettings();
+  showToast('✅ सेटिंग्स सेव हो गईं', 'success');
+}
+applySettings();
 </script>
 </body>
 </html>
