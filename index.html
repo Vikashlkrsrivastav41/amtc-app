@@ -734,6 +734,46 @@
   .owner-code b{display:block; font-size:26px; letter-spacing:.3em; font-family:'JetBrains Mono',monospace; color:var(--saffron);}
   .hist-row{padding:8px 0; border-bottom:1px dashed var(--rule); font-size:13px;}
   .hist-tag{display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:99px; background:var(--green-bg); color:var(--green); margin-left:6px;}
+
+  .idc.adc{aspect-ratio:100/78; border-radius:3.2% / 4.1%;}
+  @media print{ .idc.adc{width:148mm !important;} .idc-wrap:has(.adc){page-break-before:auto !important;} }
+
+  /* ===== Admit Card (form style) ===== */
+  .adf{container-type:inline-size; width:100%; background:#fff; border:0.3cqw solid #1B2C52; border-radius:1.3cqw; overflow:hidden; font-family:'Inter','Noto Sans Devanagari',Arial,sans-serif; color:#1E2A44; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  .adf-head{background:#EEF6FD; border-bottom:0.3cqw solid #1B2C52; text-align:center; padding:.8cqw 1cqw .7cqw;}
+  .adf-t1{font-weight:800; font-size:2.6cqw; letter-spacing:.06em; color:#14203C; line-height:1.2; text-transform:uppercase;}
+  .adf-t2{font-weight:700; font-size:2cqw; letter-spacing:.04em; color:#2D6DB5; line-height:1.25; text-transform:uppercase;}
+  .adf-t3{font-size:1.45cqw; color:#4a5568; line-height:1.3;}
+  .adf-body{display:flex; gap:2cqw; padding:1.1cqw 2cqw .4cqw;}
+  .adf-info{flex:1; min-width:0;}
+  .adf-row{display:flex; align-items:flex-end; gap:1cqw; height:2.55cqw;}
+  .adf-l{width:18cqw; font-weight:700; font-size:1.55cqw; flex:none; white-space:nowrap;}
+  .adf-v{flex:1; min-width:0; border-bottom:.15cqw dotted #5b6b8a; font-weight:600; font-size:1.7cqw; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-transform:uppercase; padding-bottom:.1cqw; min-height:1.9cqw;}
+  .adf-l2{width:13cqw; font-weight:700; font-size:1.55cqw; flex:none; margin-left:1cqw; white-space:nowrap;}
+  .adf-v2{flex:none; width:19cqw;}
+  .adf-photo{width:11cqw; height:13.4cqw; flex:none; border:.2cqw dashed #5b6b8a; border-radius:.8cqw; background:#F3F7FC; display:flex; align-items:center; justify-content:center; text-align:center; font-size:1.2cqw; color:#6b7a99; overflow:hidden; line-height:1.4;}
+  .adf-photo.has{border:.25cqw solid #1B2C52;}
+  .adf-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .adf-tbl{width:calc(100% - 4cqw); margin:.6cqw 2cqw 0; border-collapse:collapse; table-layout:fixed;}
+  .adf-tbl th{background:#EDF1F7; border:.12cqw solid #C5CFDF; font-size:1.3cqw; font-weight:700; padding:.35cqw .4cqw; white-space:nowrap; text-align:center;}
+  .adf-tbl td{border:.12cqw solid #C5CFDF; font-size:1.6cqw; padding:.2cqw .8cqw; height:1.9cqw; text-align:center; font-weight:600; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+  .adf-sigs{display:flex; align-items:flex-end; justify-content:space-between; gap:2cqw; padding:.5cqw 2cqw 1cqw;}
+  .adf-sig{width:34cqw; text-align:center;}
+  .adf-sigimg{height:4.2cqw; display:flex; align-items:flex-end; justify-content:center;}
+  .adf-sigimg img{max-height:100%; max-width:100%; object-fit:contain;}
+  .adf-sigline{border-top:.15cqw dashed #5b6b8a; font-size:1.4cqw; font-weight:700; padding-top:.3cqw;}
+  .adf-bc{width:24cqw; height:5cqw; flex:none;}
+  .adf-bc svg{width:100%; height:100%; display:block;}
+  .adf-sheet{position:relative; width:210mm; height:297mm; background:#fff; margin:0 0 12px; padding:6mm 10mm; box-sizing:border-box; display:flex; flex-direction:column; gap:4mm; box-shadow:0 6px 24px rgba(0,0,0,.35); overflow:hidden;}
+  .adf-sheet .adf{width:190mm; flex:none;}
+  .adm-row{display:grid; grid-template-columns:1fr 1.6fr; gap:6px; margin-bottom:6px; padding:8px; border:1px solid var(--rule); border-radius:10px;}
+  .adm-row input, .adm-row select{margin:0;}
+  @media print{
+    .idc-wrap:has(.adf){max-width:none !important; margin:0 !important;}
+    .idc-wrap > .adf{width:186mm !important;}
+    .adf-sheet{margin:0 !important; box-shadow:none !important; break-after:page; page-break-after:always;}
+    .adf-sheet:last-child{break-after:auto; page-break-after:auto;}
+  }
 </style>
 </head>
 <script>
@@ -794,6 +834,18 @@
       <p id="resultMsg" class="hint" style="margin-top:10px; margin-bottom:0;"></p>
     </div>
 
+    <div class="card" id="regCard" style="display:none;">
+      <h2>📝 परीक्षा रजिस्ट्रेशन</h2>
+      <p class="hint">अपनी ID डालें या ID Card का बारकोड स्कैन करें। जो जानकारी पहले से है वह अपने आप आ जाएगी, सिर्फ़ जो बाकी है वही भरनी होगी। सबमिट करते ही रजिस्ट्रेशन नंबर अपने आप बन जाएगा।</p>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="regIdInput" placeholder="जैसे: AMTC-104" style="text-transform:uppercase; flex:1; margin:0;" onkeydown="if(event.key==='Enter') regLookup()">
+        <button class="btn-primary" style="width:auto; margin:0;" onclick="regLookup()">आगे</button>
+      </div>
+      <button type="button" class="link-toggle" onclick="regToggleScan()">📷 बारकोड स्कैन करें</button>
+      <div id="regReaderWrap" style="display:none; text-align:left;"><div id="regReader"></div></div>
+      <div id="regBody"></div>
+    </div>
+
     <div id="resultOutput"></div>
   </section>
 
@@ -817,6 +869,18 @@
     <div class="card">
       <div id="reader"></div>
       <div id="result-box" class="result-box">🎥 ID Card का बारकोड कैमरे के सामने लाएं...</div>
+    </div>
+  
+    <div class="card" id="admitCheckCard">
+      <h2>🛂 Admit Card जाँच</h2>
+      <p class="hint">Admit Card के नीचे के बारकोड को स्कैन करें (या रजिस्ट्रेशन नंबर लिखें)। ऐप बताएगा कि कार्ड सही है या गलत।</p>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="acInput" placeholder="REG-26-1-104-XX" style="text-transform:uppercase; flex:1; margin:0;" onkeydown="if(event.key==='Enter') checkAdmitCard(this.value)">
+        <button class="btn-primary" style="width:auto; margin:0;" onclick="checkAdmitCard(document.getElementById('acInput').value)">जाँचें</button>
+      </div>
+      <button type="button" class="link-toggle" onclick="startAcScanner()">📷 Admit Card स्कैन करें</button>
+      <div id="acReaderWrap" style="display:none; text-align:left;"><div id="acReader"></div><button type="button" class="btn-outline btn-sm" style="width:auto; margin-top:6px;" onclick="stopAcScanner()">✕ कैमरा बंद करें</button></div>
+      <div id="acResult" style="margin-top:12px;"></div>
     </div>
   </section>
 
@@ -968,6 +1032,9 @@
         </div>
         <label>बैच</label>
         <select id="newStudentBatch"></select>
+        <label>कक्षा (Class)</label>
+        <input list="classList" id="newStudentClass" placeholder="जैसे: 10">
+        <datalist id="classList"><option value="1"><option value="2"><option value="3"><option value="4"><option value="5"><option value="6"><option value="7"><option value="8"><option value="9"><option value="10"><option value="11"><option value="12"></datalist>
         <div class="field-row">
           <div><label>पिता/अभिभावक का नाम</label><input type="text" id="newStudentFather" placeholder="Father's Name"></div>
           <div><label>फ़ोन नंबर</label><input type="text" id="newStudentPhone" placeholder="98xxxxxxxx"></div>
@@ -988,6 +1055,46 @@
         <div class="btn-row">
           <button class="btn-outline" onclick="printAllStudentQR()">🖨️ सभी के बारकोड प्रिंट करें</button>
         </div>
+      </div>
+    </details>
+
+    <details class="accordion" id="examSetupCard">
+      <summary>📝 परीक्षा रजिस्ट्रेशन सेटअप (Admit Card के लिए)<span class="chev"></span></summary>
+      <div class="accordion-body">
+        <p class="hint" style="margin-top:0;">ऊपर बनाई किसी परीक्षा/टेस्ट को चुनें। रजिस्ट्रेशन ज़रूरी करने पर सिर्फ़ रजिस्टर्ड छात्र ही उस परीक्षा में अटेंडेंस और Admit Card पाएंगे। विषय कोड और रजिस्ट्रेशन नंबर अपने आप बनेंगे।</p>
+        <label>परीक्षा / टेस्ट</label>
+        <select id="exSelTest" onchange="loadExamSetup()"></select>
+        <label style="display:flex; gap:10px; align-items:flex-start; font-weight:500;"><input type="checkbox" id="exOn" style="width:20px; height:20px; margin:2px 0 0; flex-shrink:0;"><span>रजिस्ट्रेशन ज़रूरी करें — सिर्फ़ रजिस्टर्ड छात्र ही यह परीक्षा देंगे</span></label>
+        <label style="display:flex; gap:10px; align-items:flex-start; font-weight:500;"><input type="checkbox" id="exOpen" style="width:20px; height:20px; margin:2px 0 0; flex-shrink:0;"><span>रजिस्ट्रेशन अभी खुला है (बंद करने पर नए छात्र रजिस्टर नहीं कर पाएंगे)</span></label>
+        <label>परीक्षा केंद्र का नाम</label>
+        <input type="text" id="exVenue" placeholder="जैसे: AMTC Coaching Center">
+        <label>विषय (विषय कोड अपने आप बनेगा)</label>
+        <div id="exSubjRows"></div>
+        <button type="button" class="btn-outline btn-sm" style="width:auto; margin:6px 0 10px;" onclick="addExSubj()">+ विषय जोड़ें</button>
+        <button type="button" class="btn-primary" onclick="saveExamSetup()">💾 परीक्षा सेटअप सेव करें</button>
+        <div style="margin-top:14px; font-weight:700;">📋 रजिस्टर्ड छात्र</div>
+        <div id="exRegSummary" class="hint" style="margin:4px 0 8px;"></div>
+        <div id="exRegList" style="max-height:260px; overflow-y:auto; border:1px solid var(--rule); border-radius:10px; background:var(--paper);"></div>
+      </div>
+    </details>
+
+    <details class="accordion" id="moveCard">
+      <summary>🔀 छात्रों का बैच बदलें (Batch 1 → Batch 2)<span class="chev"></span></summary>
+      <div class="accordion-body">
+        <p class="hint" style="margin:0 0 8px;">जिन बच्चों को दूसरे बैच में डालना है उन्हें ✔ करें, नया बैच चुनें और बटन दबाएं। एक बच्चे का बैच ऊपर "✏️ Edit" से भी बदल सकते हैं।</p>
+        <div class="field-row">
+          <div><label>कौन से बैच से</label><select id="mvFrom" onchange="renderMoveList()"></select></div>
+          <div><label>किस बैच में भेजना है</label><select id="mvTo"></select></div>
+        </div>
+        <input type="text" id="mvSearch" placeholder="नाम / ID खोजें" oninput="renderMoveList()" style="margin-top:8px;">
+        <div style="display:flex; gap:8px; margin:8px 0;">
+          <button type="button" class="btn-outline btn-sm" style="flex:1;" onclick="mvAll(true)">✔ दिख रहे सभी</button>
+          <button type="button" class="btn-outline btn-sm" style="flex:1;" onclick="mvAll(false)">✕ सब हटाएं</button>
+        </div>
+        <div id="mvList" style="max-height:300px; overflow-y:auto; border:1px solid var(--rule); border-radius:10px; background:var(--paper);"></div>
+        <div id="mvCount" style="margin:8px 0 0; font-size:13px; font-weight:600;"></div>
+        <button type="button" class="btn-primary" style="margin-top:8px;" onclick="moveSelectedStudents()">🔀 चुने हुए छात्रों का बैच बदलें</button>
+        <p class="hint" style="margin:6px 0 0;">पुराने attendance/result रिकॉर्ड जैसे थे वैसे ही रहेंगे; आगे के टेस्ट नए बैच में गिने जाएंगे। हर बदलाव छात्र की History में दर्ज होता है।</p>
       </div>
     </details>
 
@@ -1013,6 +1120,8 @@
         </div>
         <label>बैच</label>
         <select id="editStudentBatch"></select>
+        <label>कक्षा (Class)</label>
+        <input list="classList" id="editStudentClass" placeholder="जैसे: 10">
         <div class="field-row">
           <div><label>पिता/अभिभावक का नाम</label><input type="text" id="editStudentFather"></div>
           <div><label>फ़ोन नंबर</label><input type="text" id="editStudentPhone"></div>
@@ -1419,16 +1528,15 @@
 
       <!-- ADMIT CARD fields -->
       <div id="docFields-admit" class="doc-fields" style="display:none;">
-        <label>परीक्षा का नाम</label>
-        <input type="text" id="admitExamName" placeholder="जैसे: वार्षिक परीक्षा 2026">
-        <div class="field-row">
-          <div><label>परीक्षा तारीख</label><input type="text" id="admitDate" placeholder="dd/mm/yyyy"></div>
-          <div><label>समय</label><input type="text" id="admitTime" placeholder="जैसे: 10:00 AM"></div>
+        <p class="hint" style="margin:0 0 6px;">Admit Card सिर्फ़ उसी छात्र का बनता है जिसने परीक्षा के लिए रजिस्ट्रेशन किया है। नाम, पिता, कक्षा, DOB, फोटो, सिग्नेचर, रजिस्ट्रेशन नं और विषय सब अपने आप आते हैं — कुछ भरना नहीं है।</p>
+        <label>परीक्षा चुनें</label>
+        <select id="admitTestSel" onchange="renderAdmitInfo()"></select>
+        <p class="hint" id="admitInfo" style="margin:6px 0 10px;"></p>
+        <div style="padding:12px; border:1.5px dashed var(--rule); border-radius:12px;">
+          <label style="margin-top:0;">🖨️ इस परीक्षा के सभी रजिस्टर्ड छात्र (A4 पर 3-3)</label>
+          <button type="button" class="btn-primary" style="margin-top:8px;" onclick="generateAdmitBatch()">🖨️ सभी रजिस्टर्ड के Admit Card बनाएं</button>
+          <p class="hint" style="margin:6px 0 0;">फिर "प्रिंट" → Paper A4, Scale 100%, Margins None। ऊपर "छात्र चुनें" से किसी एक का भी बना सकते हैं।</p>
         </div>
-        <label>परीक्षा केंद्र / पता</label>
-        <input type="text" id="admitVenue" placeholder="जैसे: AMTC Coaching Center">
-        <label>विषय</label>
-        <input type="text" id="admitSubject" placeholder="जैसे: Mathematics">
       </div>
 
       <!-- NOTICE / LEAVE fields -->
@@ -1622,7 +1730,7 @@ function pushStateToCloud(){
   // approaches Firestore's 1MB-per-document limit as more students join.
   const studentsLean = students.map(({photo, signature, ...rest})=>rest);
   db.collection('amtc').doc('state').set({
-    students: studentsLean, tests, batches, records, teacherSecret, teachers,
+    students: studentsLean, tests, batches, records, registrations, teacherSecret, teachers,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, {merge:true}).then(()=>{
     setCloudStatus('synced');
@@ -1762,12 +1870,20 @@ function startCloudSync(){
     if(data.records) records = data.records;
     if(data.teacherSecret) teacherSecret = data.teacherSecret;
     if(data.teachers) teachers = data.teachers;
+    if(data.registrations){
+      const byId = {}; let localNewer = false;
+      data.registrations.forEach(r=>{ byId[r.id] = r; });
+      registrations.forEach(r=>{ const c = byId[r.id]; if(!c || (r.u||0) > (c.u||0)){ byId[r.id] = r; localNewer = true; } });
+      registrations = Object.values(byId);
+      if(localNewer) pendingCloudSync = true;
+    }
     localStorage.setItem(LS.students, JSON.stringify(students));
     localStorage.setItem(LS.tests, JSON.stringify(tests));
     localStorage.setItem(LS.batches, JSON.stringify(batches));
     localStorage.setItem(LS.records, JSON.stringify(records));
     localStorage.setItem(LS.secret, teacherSecret);
     localStorage.setItem(LS.teachers, JSON.stringify(teachers));
+    localStorage.setItem(LS.regs, JSON.stringify(registrations));
     applyingRemoteUpdate = false;
     cloudDocLoaded = true;
     setCloudStatus(snap.metadata.fromCache ? 'offline' : 'synced');
@@ -1891,7 +2007,7 @@ const LS = {
   students:'amtc_students', tests:'amtc_tests', records:'amtc_records', secret:'amtc_teacher_secret',
   gallery:'amtc_gallery', theme:'amtc_theme', batches:'amtc_batches', complaints:'amtc_complaints',
   banner:'amtc_banner', courses:'amtc_courses', teachers:'amtc_teachers', galleryPhotos:'amtc_gallery_photos',
-  omrTests:'amtc_omr_tests'
+  omrTests:'amtc_omr_tests', regs:'amtc_registrations'
 };
 
 const SEED_STUDENTS = [
@@ -1926,7 +2042,7 @@ function loadJSON(key, fallback){
 }
 function saveJSON(key, val){
   localStorage.setItem(key, JSON.stringify(val));
-  if(key===LS.students || key===LS.tests || key===LS.batches || key===LS.records || key===LS.teachers) queueCloudSync();
+  if(key===LS.students || key===LS.tests || key===LS.batches || key===LS.records || key===LS.teachers || key===LS.regs) queueCloudSync();
 }
 function setTeacherSecret(val){
   teacherSecret = val;
@@ -1949,6 +2065,7 @@ let currentBatch = batches[0] ? batches[0].id : null;
 let omrTests = loadJSON(LS.omrTests, []);
 let attendanceChart = null;
 let records = loadJSON(LS.records, []);
+let registrations = loadJSON(LS.regs, []);
 let gallery = loadJSON(LS.gallery, []);
 let complaints = loadJSON(LS.complaints, []);
 let bannerImages = loadJSON(LS.banner, []);
@@ -2244,6 +2361,10 @@ function onScanSuccess(decodedText){
       resBox.className='result-box error';
       resBox.innerHTML = `⚠️ ${name} (${sid}) की अटेंडेंस पहले से दर्ज है!`;
       speak(`${name} जी, आपकी उपस्थिति पहले से ही दर्ज की जा चुकी है। धन्यवाद।`);
+    } else if(examBlocked(test, sid)){
+      resBox.className='result-box error';
+      resBox.innerHTML = `❌ ${name} (${sid}) ने इस परीक्षा के लिए रजिस्ट्रेशन नहीं किया — परीक्षा में नहीं बैठ सकते`;
+      speak(`${name}, आपने रजिस्ट्रेशन नहीं किया है`);
     } else if(stu.batch !== test.batch){
       resBox.className='result-box error';
       resBox.innerHTML = `⚠️ ${name} (${sid}) — ${batchName(stu.batch)} का छात्र है, यह टेस्ट ${batchName(test.batch)} का है। कृपया सही बैच चुनें।`;
@@ -2336,7 +2457,7 @@ function markAbsentees(){
   const test = testById(testId);
   const date = new Date().toLocaleDateString('en-GB');
   let count = 0;
-  students.filter(s=>s.batch===test.batch).forEach(s=>{
+  students.filter(s=>s.batch===test.batch && !examBlocked(test, s.id)).forEach(s=>{
     const exists = records.some(r=>r.studentId===s.id && r.testId===testId);
     if(!exists){
       records.push({date, studentId:s.id, name:s.name, testId, testLabel:test.label, testType:test.type,
@@ -2357,7 +2478,7 @@ function refreshUpdateStudentOptions(){
   const relevant = testId ? records.filter(r=>r.testId===testId) : [];
   if(relevant.length===0){
     const test = testById(testId);
-    const pool = test ? students.filter(s=>s.batch===test.batch) : students;
+    const pool = test ? students.filter(s=>s.batch===test.batch && !examBlocked(test, s.id)) : students;
     pool.forEach(s=>{
       const opt = document.createElement('option');
       opt.value = s.id; opt.innerText = `${s.name} (${s.id})`;
@@ -2773,12 +2894,13 @@ function addStudent(){
   const address = document.getElementById('newStudentAddress').value.trim();
   const surname = document.getElementById('newStudentSurname').value.trim().toUpperCase();
   const sex = document.getElementById('newStudentSex').value;
+  const cls = document.getElementById('newStudentClass').value.trim();
   if(!id || !name){ showToast('ID और नाम दोनों भरें', 'error'); return; }
   if(students.some(s=>s.id===id)){ showToast('यह ID पहले से मौजूद है', 'error'); return; }
-  students.push({id, name, surname, sex, batch, photo:pendingNewStudentPhoto, signature:pendingNewStudentSig, history:[{t:new Date().toISOString(), f:'created', from:'', to:'', v:'direct'}], father, phone, dob, admission, address});
+  students.push({id, name, surname, sex, class:cls, batch, photo:pendingNewStudentPhoto, signature:pendingNewStudentSig, history:[{t:new Date().toISOString(), f:'created', from:'', to:'', v:'direct'}], father, phone, dob, admission, address});
   saveJSON(LS.students, students);
   if(pendingNewStudentPhoto || pendingNewStudentSig) queueStudentPhotoSync(id);
-  ['newStudentId','newStudentName','newStudentSurname','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
+  ['newStudentId','newStudentName','newStudentSurname','newStudentClass','newStudentFather','newStudentPhone','newStudentDob','newStudentAdmission','newStudentAddress'].forEach(fid=>{ document.getElementById(fid).value=''; });
   document.getElementById('newStudentSex').value='';
   document.getElementById('newStudentPhotoInput').value='';
   document.getElementById('newStudentPhotoPreview').innerHTML='👤';
@@ -2800,6 +2922,7 @@ function editStudent(id){
   document.getElementById('editStudentName').value = s.name || '';
   renderStudentHistory(s);
   document.getElementById('editStudentSurname').value = s.surname || '';
+  document.getElementById('editStudentClass').value = s.class || '';
   document.getElementById('editStudentSex').value = s.sex || '';
   document.getElementById('editStudentBatch').value = s.batch || '';
   document.getElementById('editStudentFather').value = s.father || '';
@@ -2833,7 +2956,7 @@ function previewEditStudentPhoto(evt){
   };
   reader.readAsDataURL(file);
 }
-const FIELD_LABELS = {created:'छात्र जोड़ा गया', name:'नाम', surname:'सरनेम', sex:'लिंग', batch:'बैच', father:'पिता का नाम', phone:'मोबाइल', dob:'जन्मतिथि', admission:'प्रवेश तिथि', address:'पता', photo:'फोटो', signature:'हस्ताक्षर'};
+const FIELD_LABELS = {class:'कक्षा', created:'छात्र जोड़ा गया', name:'नाम', surname:'सरनेम', sex:'लिंग', batch:'बैच', father:'पिता का नाम', phone:'मोबाइल', dob:'जन्मतिथि', admission:'प्रवेश तिथि', address:'पता', photo:'फोटो', signature:'हस्ताक्षर'};
 const SENSITIVE_FIELDS = ['name','surname','dob','photo','signature'];
 function logStudentChange(s, changes, how){
   s.history = s.history || [];
@@ -2849,7 +2972,7 @@ function renderStudentHistory(s){
     const when = new Date(x.t).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
     const lbl = FIELD_LABELS[x.f]||x.f;
     const body = x.f==='created' ? '' : (x.f==='photo'||x.f==='signature') ? ' बदला गया' : `: <s style="opacity:.6">${escHTML(x.from)||'—'}</s> → <b>${escHTML(x.to)||'—'}</b>`;
-    const tag = x.v==='verified' ? '<span class="hist-tag">✔ Verified</span>' : x.v==='same-device' ? '<span class="hist-tag">✔ Verified (same device)</span>' : '';
+    const tag = x.v==='verified' ? '<span class="hist-tag">✔ Verified</span>' : x.v==='same-device' ? '<span class="hist-tag">✔ Verified (same device)</span>' : x.v==='self' ? '<span class=\"hist-tag\">📝 छात्र ने रजिस्ट्रेशन में भरा</span>' : '';
     return `<div class="hist-row"><b>${lbl}</b>${body}${tag}<div style="opacity:.6; font-size:11.5px;">${when}</div></div>`;
   }).join('') : '<div class="hint" style="margin:0;">अभी कोई बदलाव दर्ज नहीं है।</div>';
 }
@@ -2858,11 +2981,12 @@ function saveStudentDetail(){
   const s = students.find(x=>x.id===id);
   if(!s) return;
   const v = i => document.getElementById(i).value.trim();
-  const next = {name:v('editStudentName')||s.name, surname:v('editStudentSurname').toUpperCase(), sex:document.getElementById('editStudentSex').value,
+  const next = {class:v('editStudentClass'), name:v('editStudentName')||s.name, surname:v('editStudentSurname').toUpperCase(), sex:document.getElementById('editStudentSex').value,
     batch:document.getElementById('editStudentBatch').value||s.batch, father:v('editStudentFather'), phone:v('editStudentPhone'),
     dob:v('editStudentDob'), admission:v('editStudentAdmission'), address:v('editStudentAddress')};
   const changes = [];
   Object.keys(next).forEach(k=>{ if((s[k]||'')!==(next[k]||'')) changes.push({f:k, from:s[k]||'', to:next[k]||''}); });
+  changes.forEach(c=>{ if(c.f==='batch'){ c.from = batchName(c.from); c.to = batchName(c.to); } });
   if((s.photo||'')!==(pendingEditStudentPhoto||'')) changes.push({f:'photo', from:'', to:''});
   if((s.signature||'')!==(pendingEditStudentSig||'')) changes.push({f:'signature', from:'', to:''});
   if(!changes.length){ closeStudentDetail(); return; }
@@ -2995,6 +3119,8 @@ function removeTest(id){
   if(!confirm(msg)) return;
   tests = tests.filter(t=>t.id!==id);
   records = records.filter(r=>r.testId!==id);
+  registrations.forEach(r=>{ if(r.testId===id){ r.cancelled = true; r.u = Date.now(); } });
+  saveJSON(LS.regs, registrations);
   saveJSON(LS.tests, tests);
   saveJSON(LS.records, records);
   renderTestList();
@@ -4217,7 +4343,7 @@ function renderDocumentsUI(){
 }
 
 function switchDocType(type){
-  setTimeout(()=>{ if(type==='idcard'){ prefillIdCardFields(); fillIdBulkBatch(); } },0);
+  setTimeout(()=>{ if(type==='idcard'){ prefillIdCardFields(); fillIdBulkBatch(); } if(type==='admit') fillAdmitUI(); },0);
   currentDocType = type;
   document.querySelectorAll('.doc-type-btn').forEach(b=>b.classList.toggle('active', b.dataset.doc===type));
   ['idcard','admit','marksheet','certificate','notice'].forEach(t=>{
@@ -4438,10 +4564,11 @@ function buildIdCardHTML(stu, bulk){
     <div class="idc-f" style="left:33.3cqw; top:33.2cqw; width:22cqw;"><b>Date of birth</b><span>${v(dob)}</span></div>
     <div class="idc-f" style="left:57.5cqw; top:33.2cqw; width:36cqw;"><b>Date of Expiry</b><span>${v(expiry)}</span></div>
 
-    <div class="idc-f" style="left:33.3cqw; top:43.6cqw; width:9cqw;"><b>Sex:</b><span>${v(sex)}</span></div>
-    <div class="idc-f" style="left:42.8cqw; top:43.6cqw; width:19cqw;"><b>Mobile:</b><span>${v(maskedPhone)}</span></div>
-    <div class="idc-f" style="left:63.2cqw; top:43.6cqw; width:14cqw;"><b>Batch/Class:</b><span>${v(batchName(stu.batch))}</span></div>
-    <div class="idc-f" style="left:78.5cqw; top:43.6cqw; width:19cqw;"><b>Card No / ID:</b><span>${v(stu.id)}</span></div>
+    <div class="idc-f" style="left:33.3cqw; top:43.6cqw; width:7cqw;"><b>Sex:</b><span style="font-size:2.6cqw;">${v(sex)}</span></div>
+    <div class="idc-f" style="left:39.8cqw; top:43.6cqw; width:18.5cqw;"><b>Mobile:</b><span style="font-size:2.4cqw;">${v(maskedPhone)}</span></div>
+    <div class="idc-f" style="left:60cqw; top:43.6cqw; width:8cqw;"><b>Class:</b><span style="font-size:2.6cqw;">${v(stu.class)}</span></div>
+    <div class="idc-f" style="left:69cqw; top:43.6cqw; width:11.5cqw;"><b>Batch:</b><span style="font-size:2.6cqw;">${v(batchName(stu.batch))}</span></div>
+    <div class="idc-f" style="left:81cqw; top:43.6cqw; width:17cqw;"><b>Card No / ID:</b><span style="font-size:2.6cqw;">${v(stu.id)}</span></div>
 
     <div class="idc-mrz" style="top:54.2cqw;">${escHTML(m1)}</div>
     <div class="idc-mrz" style="top:58.2cqw;">${escHTML(m2)}</div>
@@ -4466,35 +4593,109 @@ function buildIdCardHTML(stu, bulk){
   return front + back;
 }
 
-function buildAdmitCardHTML(stu){
-  const exam = document.getElementById('admitExamName').value.trim() || 'परीक्षा';
-  const date = document.getElementById('admitDate').value.trim() || '—';
-  const time = document.getElementById('admitTime').value.trim() || '—';
-  const venue = document.getElementById('admitVenue').value.trim() || 'AMTC Coaching Center';
-  const subject = document.getElementById('admitSubject').value.trim() || '—';
-  return `
-    ${docHeaderHTML()}
-    <div class="doc-watermark">${ashokaChakraSVG()}</div>
-    <div class="doc-body">
-      <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:16px; margin-bottom:10px; text-decoration:underline;">प्रवेश पत्र / ADMIT CARD</div>
-      <table style="width:100%; font-size:13px;">
-        <tr><td style="padding:5px 0; color:#6B7280;">छात्र का नाम</td><td style="text-align:right; font-weight:600;">${stu.name}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">रोल / ID नंबर</td><td style="text-align:right; font-weight:600;" class="mono">${stu.id}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">बैच</td><td style="text-align:right; font-weight:600;">${batchName(stu.batch)}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">परीक्षा</td><td style="text-align:right; font-weight:600;">${exam}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">विषय</td><td style="text-align:right; font-weight:600;">${subject}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">तारीख</td><td style="text-align:right; font-weight:600;">${date}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">समय</td><td style="text-align:right; font-weight:600;">${time}</td></tr>
-        <tr><td style="padding:5px 0; color:#6B7280;">केंद्र</td><td style="text-align:right; font-weight:600;">${venue}</td></tr>
-      </table>
-      <div style="margin-top:12px; background:#FBEAEA; color:#D64545; font-size:11px; padding:8px 10px; border-radius:8px;">⚠️ यह Admit Card परीक्षा में साथ लाना अनिवार्य है।</div>
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; font-size:11px; color:#131B3A; font-weight:600;">
-        <div>छात्र हस्ताक्षर<br><span style="font-weight:400; color:#9CA3AF;">................</span></div>
-        <div class="doc-seal" style="margin:0 10px;"><span>AMTC<br>OFFICIAL</span></div>
-        <div style="text-align:right;">${directorSignatureImgHTML(28)}Vikash Kumar<br><span style="font-weight:400; color:#6B7280; font-size:10px;">Director, AMTC</span></div>
-      </div>
+/* ---------- Exam registration / Admit card ---------- */
+function examOn(t){ return !!(t && t.exam && t.exam.on); }
+function regFor(sid, testId){ return registrations.find(r=>r.studentId===sid && r.testId===testId && !r.cancelled); }
+function isRegistered(sid, testId){ return !!regFor(sid, testId); }
+function examBlocked(test, sid){ return examOn(test) && !isRegistered(sid, test.id); }
+function subjCode(i, name){ const l = String(name||'').replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,3) || 'SUB'; return l + (101+i); }
+function fmtDate(iso){ const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? `${m[3]}/${m[2]}/${m[1]}` : (iso||''); }
+function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function hash32(str){ let h=2166136261; for(const c of String(str)){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
+function regChk(base){ return hash32('AMTC|'+base).toString(36).toUpperCase().padStart(2,'0').slice(-2); }
+function regNoFor(stu, test){
+  const yy = String(new Date().getFullYear()).slice(-2);
+  const digits = (String(stu.id).match(/\d+/g)||[]).join('').replace(/^0+(?=\d)/,'');
+  const key = digits || hash32(stu.id).toString(36).toUpperCase().slice(0,4);
+  const mk = k => { const base = `REG-${yy}-${test.exam.no}-${k}`; return base+'-'+regChk(base); };
+  let no = mk(key);
+  if(registrations.some(r=>r.id===no && r.studentId!==stu.id)) no = mk(key+hash32(stu.id).toString(36).toUpperCase().slice(0,2));
+  return no;
+}
+function maskPhone(ph){ const d = String(ph||'').replace(/\D/g,''); return d ? d.slice(0,4)+'X'.repeat(Math.max(0,d.length-4)) : ''; }
+
+function admitFormHTML(stu, test, reg){
+  const v = x => escHTML(x);
+  const ex = test.exam;
+  const rows = (ex.subjects||[]).map((r,i)=>({code:subjCode(i,r.name), name:r.name, date:fmtDate(r.date), sit:r.sit}));
+  while(rows.length<3) rows.push({code:'',name:'',date:'',sit:''});
+  const fullName = ((stu.name||'')+' '+(stu.surname||'')).trim();
+  const cb = [stu.class?('कक्षा '+stu.class):'', batchName(stu.batch)].filter(Boolean).join(' / ');
+  const bcId = 'adfBar'+(++idcSeq);
+  idcQueueBarcode(bcId, reg.id);
+  const sigImg = centerSignature ? `<img src="${centerSignature}">` : '';
+  return `<div class="adf">
+    <div class="adf-head">
+      <div class="adf-t1">${v(appSettings.name1)} ${v(appSettings.name2)}</div>
+      <div class="adf-t2">Admit Card — ${v(test.label)}</div>
+      <div class="adf-t3">ID Card &amp; Exam Registration Details</div>
     </div>
-  `;
+    <div class="adf-body">
+      <div class="adf-info">
+        <div class="adf-row"><span class="adf-l">परीक्षार्थी का नाम:</span><span class="adf-v">${v(fullName)}</span><span class="adf-l2">लिंग (M/F):</span><span class="adf-v adf-v2">${v(stu.sex==='Other'?'O':stu.sex)}</span></div>
+        <div class="adf-row"><span class="adf-l">पिता का नाम:</span><span class="adf-v">${v(stu.father)}</span><span class="adf-l2">कक्षा / बैच:</span><span class="adf-v adf-v2">${v(cb)}</span></div>
+        <div class="adf-row"><span class="adf-l">जन्मतिथि:</span><span class="adf-v">${v(stu.dob)}</span><span class="adf-l2">मोबाइल:</span><span class="adf-v adf-v2">${v(maskPhone(stu.phone))}</span></div>
+        <div class="adf-row"><span class="adf-l">रोल कोड / नं:</span><span class="adf-v">${v(stu.id)}</span><span class="adf-l2">पंजीकरण सं:</span><span class="adf-v adf-v2" style="font-size:1.45cqw;">${v(reg.id)}</span></div>
+        <div class="adf-row"><span class="adf-l">परीक्षा केंद्र का नाम:</span><span class="adf-v">${v(ex.venue||'AMTC Coaching Center')}</span></div>
+      </div>
+      <div class="adf-photo ${stu.photo?'has':''}">${stu.photo ? `<img src="${stu.photo}">` : 'फोटो चिपकाएं<br>(Passport Size Photo)'}</div>
+    </div>
+    <table class="adf-tbl">
+      <colgroup><col style="width:20%"><col style="width:35%"><col style="width:25%"><col style="width:20%"></colgroup>
+      <tr><th>विषय कोड (Subject Code)</th><th>विषय का नाम (Subject Name)</th><th>परीक्षा की तिथि (Exam Date)</th><th>पाली (Sitting)</th></tr>
+      ${rows.map(r=>`<tr><td>${v(r.code)}</td><td>${v(r.name)}</td><td>${v(r.date)}</td><td>${v(r.sit)}</td></tr>`).join('')}
+    </table>
+    <div class="adf-sigs">
+      <div class="adf-sig"><div class="adf-sigimg">${stu.signature ? `<img src="${stu.signature}">` : ''}</div><div class="adf-sigline">परीक्षार्थी के हस्ताक्षर (Student Sig.)</div></div>
+      <div class="adf-bc"><svg id="${bcId}"></svg></div>
+      <div class="adf-sig"><div class="adf-sigimg">${sigImg}</div><div class="adf-sigline">संस्थान / प्राचार्य के हस्ताक्षर एवं मुहर<br><span style="font-weight:500;">${v(appSettings.signer)} · ${v(appSettings.signerRole)}</span></div></div>
+    </div>
+  </div>`;
+}
+function admitCardWrap(stu, test, reg){ return `<div class="idc-wrap" style="max-width:820px;">${admitFormHTML(stu,test,reg)}</div>`; }
+function buildAdmitCardHTML(stu){
+  const sel = document.getElementById('admitTestSel');
+  const t = tests.find(x=>x.id===(sel&&sel.value));
+  if(!examOn(t)){ showToast('❌ पहले परीक्षा चुनें (Manage → परीक्षा रजिस्ट्रेशन सेटअप)', 'error'); return ''; }
+  const reg = regFor(stu.id, t.id);
+  if(!reg){ showToast(`❌ ${stu.name} का इस परीक्षा में रजिस्ट्रेशन नहीं है`, 'error'); return ''; }
+  return admitCardWrap(stu, t, reg);
+}
+function fillAdmitUI(){
+  const sel = document.getElementById('admitTestSel'); if(!sel) return;
+  const prev = sel.value;
+  const ex = tests.filter(examOn);
+  sel.innerHTML = ex.length ? ex.map(t=>`<option value="${t.id}">${escHTML(t.label)} (${escHTML(batchName(t.batch))})</option>`).join('') : '<option value="">— कोई परीक्षा सेटअप नहीं —</option>';
+  if(prev && ex.some(t=>t.id===prev)) sel.value = prev;
+  renderAdmitInfo();
+}
+function renderAdmitInfo(){
+  const sel = document.getElementById('admitTestSel'), el = document.getElementById('admitInfo'); if(!sel||!el) return;
+  const t = tests.find(x=>x.id===sel.value);
+  if(!examOn(t)){ el.textContent = 'पहले Manage → "परीक्षा रजिस्ट्रेशन सेटअप" में परीक्षा चालू करें।'; return; }
+  const n = registrations.filter(r=>r.testId===t.id && !r.cancelled).length;
+  el.textContent = `रजिस्टर्ड छात्र: ${n} · विषय: ${(t.exam.subjects||[]).length}`;
+}
+function generateAdmitBatch(){
+  const sel = document.getElementById('admitTestSel');
+  const t = tests.find(x=>x.id===(sel&&sel.value));
+  if(!examOn(t)){ showToast('❌ पहले परीक्षा चुनें', 'error'); return; }
+  const list = registrations.filter(r=>r.testId===t.id && !r.cancelled)
+    .map(r=>({reg:r, stu:students.find(x=>x.id===r.studentId)})).filter(x=>x.stu)
+    .sort((a,b)=>String(a.stu.id).localeCompare(String(b.stu.id),undefined,{numeric:true}));
+  if(!list.length){ showToast('❌ इस परीक्षा में अभी कोई रजिस्टर्ड छात्र नहीं है', 'error'); return; }
+  const per = (t.exam.subjects||[]).length > 3 ? 2 : 3;
+  let pages = '';
+  for(let i=0;i<list.length;i+=per){
+    pages += `<div class="adf-sheet">${list.slice(i,i+per).map(x=>admitFormHTML(x.stu,t,x.reg)).join('')}</div>`;
+  }
+  document.getElementById('docPreviewInner').innerHTML = `<div class="idc-scaler" id="idcScaler">${pages}</div>`;
+  let ps = document.getElementById('idcPageStyle');
+  if(!ps){ ps = document.createElement('style'); ps.id='idcPageStyle'; document.head.appendChild(ps); }
+  ps.textContent = '@page{size:A4; margin:0;}';
+  document.getElementById('docOverlay').classList.add('show');
+  const sc = document.getElementById('idcScaler'); sc.style.zoom = Math.min(1, (window.innerWidth - 24) / (210*96/25.4));
+  showToast('✅ '+list.length+' Admit Card तैयार — '+Math.ceil(list.length/per)+' A4 पेज', 'success');
 }
 
 function buildMarksheetHTML(stu){
@@ -4742,7 +4943,7 @@ function generateDocument(){
   if(!stu){ showToast('❌ पहले छात्र चुनें', 'error'); return; }
   let html='', wrapClass='doc-page';
   if(currentDocType==='idcard'){ html = buildIdCardHTML(stu); wrapClass='none'; }
-  else if(currentDocType==='admit') html = buildAdmitCardHTML(stu);
+  else if(currentDocType==='admit'){ html = buildAdmitCardHTML(stu); if(!html) return; wrapClass='none'; }
   else if(currentDocType==='marksheet') html = buildMarksheetHTML(stu);
   else if(currentDocType==='certificate'){ html = buildCertificateHTML(stu); wrapClass='cert-page'; }
   openDocPreview(html, wrapClass);
@@ -4814,6 +5015,313 @@ function saveSettings(){
   showToast('✅ सेटिंग्स सेव हो गईं', 'success');
 }
 applySettings();
+
+/* ---------- Move students between batches ---------- */
+let mvPicked = [];
+function fillMoveUI(){
+  const f = document.getElementById('mvFrom'), t = document.getElementById('mvTo');
+  if(!f || !t) return;
+  const pf = f.value || 'ALL', pt = t.value;
+  f.innerHTML = batchOptionsHTML(true); t.innerHTML = batchOptionsHTML(false);
+  f.value = [...f.options].some(o=>o.value===pf) ? pf : 'ALL';
+  if(pt && [...t.options].some(o=>o.value===pt)) t.value = pt;
+  mvPicked = mvPicked.filter(id => students.some(x=>x.id===id));
+  renderMoveList();
+}
+function mvVisible(){
+  const bs = (document.getElementById('mvFrom')||{}).value;
+  const q = ((document.getElementById('mvSearch')||{}).value||'').trim().toLowerCase();
+  return students.filter(x=>!bs || bs==='ALL' || x.batch===bs)
+    .filter(x=>!q || (String(x.name)+' '+String(x.surname||'')+' '+String(x.id)).toLowerCase().includes(q))
+    .slice().sort((a,b)=>String(a.id).localeCompare(String(b.id),undefined,{numeric:true}));
+}
+function renderMoveList(){
+  const box = document.getElementById('mvList'); if(!box) return;
+  const vis = mvVisible();
+  box.innerHTML = vis.length ? vis.map(st=>{
+    const on = mvPicked.includes(st.id), sid = String(st.id).replace(/'/g,"\\'");
+    return `<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-bottom:1px solid var(--rule); cursor:pointer; margin:0; ${on?'background:rgba(184,146,58,0.16);':''}">
+      <input type="checkbox" ${on?'checked':''} style="width:20px; height:20px; flex-shrink:0; margin:0;" onchange="mvToggle('${sid}', this.checked)">
+      <span style="flex:1; min-width:0; font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHTML(st.name)} ${escHTML(st.surname||'')}</span>
+      <span style="font-size:11.5px; opacity:.7;">${escHTML(batchName(st.batch))}</span>
+      <span class="mono" style="font-size:12px; opacity:.7;">${escHTML(st.id)}</span></label>`;
+  }).join('') : '<div style="padding:16px; text-align:center; font-size:13px; opacity:.7;">कोई छात्र नहीं मिला</div>';
+  const c = document.getElementById('mvCount'); if(c) c.textContent = mvPicked.length ? `✔ चुने हुए: ${mvPicked.length} छात्र` : 'अभी कोई छात्र नहीं चुना';
+}
+function mvToggle(id,on){ mvPicked = mvPicked.filter(x=>x!==id); if(on) mvPicked.push(id); renderMoveList(); }
+function mvAll(on){
+  const vis = mvVisible().map(x=>x.id);
+  if(on) vis.forEach(id=>{ if(!mvPicked.includes(id)) mvPicked.push(id); }); else mvPicked = mvPicked.filter(id=>!vis.includes(id));
+  renderMoveList();
+}
+function moveSelectedStudents(){
+  const to = document.getElementById('mvTo').value;
+  if(!to){ showToast('❌ नया बैच चुनें', 'error'); return; }
+  const list = mvPicked.map(id=>students.find(x=>x.id===id)).filter(Boolean).filter(x=>x.batch!==to);
+  if(!list.length){ showToast('❌ पहले ऐसे छात्र चुनें जो पहले से इस बैच में नहीं हैं', 'error'); return; }
+  if(!confirm(`${list.length} छात्र को "${batchName(to)}" में भेजें?`)) return;
+  list.forEach(st=>{ logStudentChange(st, [{f:'batch', from:batchName(st.batch), to:batchName(to)}], 'direct'); st.batch = to; });
+  saveJSON(LS.students, students);
+  mvPicked = [];
+  renderStudentList(); renderBatchList(); fillMoveUI();
+  if(typeof fillIdBulkBatch==='function') fillIdBulkBatch();
+  showToast(`✅ ${list.length} छात्र "${batchName(to)}" में भेजे गए`, 'success');
+}
+(function(){
+  const _pbs = populateBatchSelects; populateBatchSelects = function(){ _pbs.apply(this,arguments); fillMoveUI(); };
+  const _rsl = renderStudentList; renderStudentList = function(){ _rsl.apply(this,arguments); renderMoveList(); };
+})();
+fillMoveUI();
+
+fillAdmitUI();
+
+/* ---------- Teacher: exam registration setup ---------- */
+let exSubjects = [];
+function renderExamSetupUI(){
+  const sel = document.getElementById('exSelTest'); if(!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = tests.length ? tests.map(t=>`<option value="${t.id}">${escHTML(t.label)} (${escHTML(batchName(t.batch))})${examOn(t)?' ✔':''}</option>`).join('') : '<option value="">— पहले परीक्षा/टेस्ट बनाएं —</option>';
+  if(prev && tests.some(t=>t.id===prev)) sel.value = prev;
+  loadExamSetup();
+}
+function loadExamSetup(){
+  const t = tests.find(x=>x.id===(document.getElementById('exSelTest')||{}).value);
+  const ex = (t && t.exam) || {on:false, open:true, venue:'', subjects:[]};
+  document.getElementById('exOn').checked = !!ex.on;
+  document.getElementById('exOpen').checked = ex.open!==false;
+  document.getElementById('exVenue').value = ex.venue || '';
+  exSubjects = (ex.subjects||[]).map(x=>({...x}));
+  if(!exSubjects.length) exSubjects = [{name:'',date:'',sit:'1st'}];
+  renderExSubjRows(); renderExamRegList();
+}
+function renderExSubjRows(){
+  const box = document.getElementById('exSubjRows'); if(!box) return;
+  box.innerHTML = exSubjects.map((r,i)=>`<div class="adm-row">
+    <input type="text" placeholder="विषय का नाम" value="${escHTML(r.name)}" oninput="exSubjects[${i}].name=this.value; this.nextElementSibling&&0">
+    <input type="date" value="${escHTML(r.date)}" oninput="exSubjects[${i}].date=this.value">
+    <select onchange="exSubjects[${i}].sit=this.value">${['1st','2nd'].map(o=>`<option ${r.sit===o?'selected':''}>${o}</option>`).join('')}</select>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;"><span class="mono" style="font-size:12px; opacity:.7;">कोड: ${escHTML(subjCode(i,r.name))}</span><button type="button" class="btn-icon" onclick="delExSubj(${i})" title="हटाएं">🗑️</button></div></div>`).join('');
+}
+function addExSubj(){ exSubjects.push({name:'',date:'',sit:'1st'}); renderExSubjRows(); }
+function delExSubj(i){ exSubjects.splice(i,1); if(!exSubjects.length) exSubjects=[{name:'',date:'',sit:'1st'}]; renderExSubjRows(); }
+function saveExamSetup(){
+  const t = tests.find(x=>x.id===document.getElementById('exSelTest').value);
+  if(!t){ showToast('❌ पहले परीक्षा चुनें', 'error'); return; }
+  const on = document.getElementById('exOn').checked;
+  const subjects = exSubjects.filter(x=>x.name.trim()).map(x=>({name:x.name.trim(), date:x.date||'', sit:x.sit||'1st'}));
+  if(on && !subjects.length){ showToast('❌ कम से कम एक विषय भरें', 'error'); return; }
+  const no = (t.exam && t.exam.no) || (Math.max(0, ...tests.map(x=>(x.exam&&x.exam.no)||0)) + 1);
+  t.exam = {on, no, open:document.getElementById('exOpen').checked, venue:document.getElementById('exVenue').value.trim(), subjects};
+  saveJSON(LS.tests, tests);
+  renderExamSetupUI(); refreshRegCard(); fillAdmitUI();
+  showToast('✅ परीक्षा सेटअप सेव हो गया', 'success');
+}
+function renderExamRegList(){
+  const t = tests.find(x=>x.id===(document.getElementById('exSelTest')||{}).value);
+  const box = document.getElementById('exRegList'), sum = document.getElementById('exRegSummary'); if(!box) return;
+  if(!t){ box.innerHTML=''; sum.textContent=''; return; }
+  const regs = registrations.filter(r=>r.testId===t.id && !r.cancelled).sort((a,b)=>a.ts-b.ts);
+  const pool = students.filter(x=>x.batch===t.batch).length;
+  sum.textContent = examOn(t) ? `रजिस्टर्ड: ${regs.length} / बैच के कुल ${pool} छात्र · अभी तक नहीं: ${Math.max(0,pool-regs.length)}` : 'इस परीक्षा के लिए रजिस्ट्रेशन अभी चालू नहीं है।';
+  box.innerHTML = regs.length ? regs.map(r=>{
+    const st = students.find(x=>x.id===r.studentId);
+    const when = new Date(r.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--rule);">
+      <div style="flex:1; min-width:0;"><div style="font-weight:600; font-size:14px;">${escHTML(st?st.name:r.studentId)} <span class="mono" style="font-size:11.5px; opacity:.7;">${escHTML(r.studentId)}</span></div>
+      <div class="mono" style="font-size:12px;">${escHTML(r.id)}</div><div style="font-size:11px; opacity:.65;">${when} · जाँच ${(r.checks||[]).length} बार</div></div>
+      <button type="button" class="btn-icon" title="रजिस्ट्रेशन रद्द करें" onclick="cancelReg('${escHTML(r.id)}')">🗑️</button></div>`;
+  }).join('') : '<div style="padding:14px; text-align:center; font-size:13px; opacity:.7;">अभी कोई रजिस्ट्रेशन नहीं</div>';
+}
+function cancelReg(id){
+  const r = registrations.find(x=>x.id===id); if(!r) return;
+  if(!confirm('इस रजिस्ट्रेशन को रद्द करें? छात्र परीक्षा में नहीं बैठ पाएगा और Admit Card अमान्य हो जाएगा।')) return;
+  r.cancelled = true; r.u = Date.now();
+  saveJSON(LS.regs, registrations); renderExamRegList(); renderAdmitInfo();
+  showToast('रजिस्ट्रेशन रद्द किया गया', 'success');
+}
+
+/* ---------- Student: registration form (Result tab) ---------- */
+let regStu = null, regScanner = null, regPend = {photo:'', signature:''};
+function refreshRegCard(){
+  const c = document.getElementById('regCard'); if(!c) return;
+  c.style.display = tests.some(examOn) ? '' : 'none';
+}
+function regToggleScan(){
+  if(regScanner){ stopRegScanner(); return; }
+  document.getElementById('regReaderWrap').style.display = 'block';
+  regScanner = new Html5QrcodeScanner("regReader", barcodeScanConfig(true), false);
+  regScanner.render(txt=>{ document.getElementById('regIdInput').value = String(txt).trim().toUpperCase(); stopRegScanner(); regLookup(); });
+}
+function stopRegScanner(){
+  if(regScanner){ try{ regScanner.clear(); }catch(e){} regScanner = null; }
+  const w = document.getElementById('regReaderWrap'); if(w) w.style.display = 'none';
+}
+function processPhotoFile(file, cb){
+  const reader = new FileReader();
+  reader.onload = e=>{ const img = new Image(); img.onload = ()=>{
+    const sc = Math.min(1, 240/img.width), c = document.createElement('canvas');
+    c.width = Math.round(img.width*sc); c.height = Math.round(img.height*sc);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg',0.85)); };
+    img.src = e.target.result; };
+  reader.readAsDataURL(file);
+}
+function regPickFile(inp, kind){
+  const f = inp.files[0]; if(!f) return;
+  const done = url=>{ regPend[kind] = url; const pv = document.getElementById('rf_'+kind+'_pv'); if(pv) pv.innerHTML = `<img src="${url}" style="max-width:100%;max-height:100%;">`; };
+  if(kind==='photo') processPhotoFile(f, done); else processSignatureFile(f, done);
+}
+function regLookup(){
+  const sid = (document.getElementById('regIdInput').value||'').trim().toUpperCase();
+  const body = document.getElementById('regBody');
+  const stu = students.find(x=>x.id===sid);
+  regPend = {photo:'', signature:''};
+  if(!sid){ body.innerHTML=''; return; }
+  if(!stu){ regStu = null; body.innerHTML = `<p class="hint" style="color:var(--red); margin-top:10px;">❌ यह ID नहीं मिली: ${escHTML(sid)}</p>`; return; }
+  regStu = stu;
+  const exs = tests.filter(t=>examOn(t) && t.batch===stu.batch);
+  if(!exs.length){ body.innerHTML = '<p class="hint" style="margin-top:10px;">आपके बैच की किसी परीक्षा के लिए अभी रजिस्ट्रेशन चालू नहीं है।</p>'; return; }
+  body.innerHTML = `<div style="display:flex; align-items:center; gap:10px; margin:12px 0 6px;">
+      <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; background:var(--chip-bg); display:flex; align-items:center; justify-content:center; flex-shrink:0;">${stu.photo?`<img src="${stu.photo}" style="width:100%;height:100%;object-fit:cover;">`:'👤'}</div>
+      <div><div style="font-weight:700;">${escHTML(stu.name)} ${escHTML(stu.surname||'')}</div><div class="hint" style="margin:0;">${escHTML(stu.id)} · ${escHTML(batchName(stu.batch))}</div></div></div>
+    <label>परीक्षा चुनें</label>
+    <select id="regExamSel" onchange="regRenderDetail()">${exs.map(t=>`<option value="${t.id}">${escHTML(t.label)}${t.exam.open?'':' — रजिस्ट्रेशन बंद'}</option>`).join('')}</select>
+    <div id="regDetail"></div>`;
+  regRenderDetail();
+}
+function regRenderDetail(){
+  const stu = regStu, box = document.getElementById('regDetail'); if(!stu||!box) return;
+  const t = tests.find(x=>x.id===document.getElementById('regExamSel').value);
+  if(!examOn(t)){ box.innerHTML=''; return; }
+  const reg = regFor(stu.id, t.id);
+  if(reg){
+    box.innerHTML = `<div style="margin-top:12px; padding:14px; border:1.5px solid var(--green); background:var(--green-bg); border-radius:12px; text-align:center;">
+      <div style="font-weight:700; color:var(--green);">✅ रजिस्ट्रेशन हो चुका है</div>
+      <div class="mono" style="font-size:22px; font-weight:800; letter-spacing:.04em; margin:8px 0;">${escHTML(reg.id)}</div>
+      <div class="hint" style="margin:0 0 10px;">यह नंबर संभालकर रखें। Admit Card के बारकोड में यही नंबर है।</div>
+      <button type="button" class="btn-primary" onclick="regShowAdmit()">🎫 Admit Card देखें / प्रिंट करें</button></div>`;
+    return;
+  }
+  if(!t.exam.open){ box.innerHTML = '<p class="hint" style="margin-top:12px; color:var(--red);">इस परीक्षा का रजिस्ट्रेशन बंद हो चुका है। अपने टीचर से संपर्क करें।</p>'; return; }
+  const known = [['पिता का नाम',stu.father],['कक्षा',stu.class],['जन्मतिथि',stu.dob],['लिंग',stu.sex],['मोबाइल',maskPhone(stu.phone)]].filter(x=>x[1]);
+  const inp = (id,label,html)=>`<label>${label}</label>${html}`;
+  let miss = '';
+  if(!stu.father) miss += inp('rf_father','पिता का नाम','<input type="text" id="rf_father" placeholder="Father\'s Name">');
+  if(!stu.class) miss += inp('rf_class','कक्षा (Class)','<input list="classList" id="rf_class" placeholder="जैसे: 10">');
+  if(!stu.dob) miss += inp('rf_dob','जन्मतिथि (dd/mm/yyyy)','<input type="text" id="rf_dob" placeholder="17/04/2015" inputmode="numeric">');
+  if(!stu.sex) miss += inp('rf_sex','लिंग','<select id="rf_sex"><option value="">— चुनें —</option><option value="M">M (पुरुष)</option><option value="F">F (महिला)</option><option value="Other">Other</option></select>');
+  if(!stu.phone) miss += inp('rf_phone','मोबाइल नंबर (10 अंक)','<input type="tel" id="rf_phone" maxlength="10" inputmode="numeric" placeholder="9876543210">');
+  if(!stu.photo) miss += inp('rf_photo','पासपोर्ट साइज़ फोटो (ज़रूरी)',`<div style="display:flex; gap:10px; align-items:center;"><div id="rf_photo_pv" style="width:64px;height:80px;border:1px dashed #9CA3AF;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;overflow:hidden;flex-shrink:0;">फोटो</div><input type="file" accept="image/*" onchange="regPickFile(this,'photo')"></div>`);
+  if(!stu.signature) miss += inp('rf_sig','हस्ताक्षर — सफ़ेद काग़ज़ पर साइन करके फोटो (वैकल्पिक)',`<div style="display:flex; gap:10px; align-items:center;"><div id="rf_signature_pv" style="width:110px;height:44px;border:1px dashed #9CA3AF;border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;overflow:hidden;flex-shrink:0;">साइन</div><input type="file" accept="image/*" onchange="regPickFile(this,'signature')"></div>`);
+  box.innerHTML = `<div style="margin-top:12px;">
+    ${known.length?`<div style="padding:10px 12px; background:var(--chip-bg); border-radius:10px; font-size:13px; line-height:1.7;">${known.map(x=>`<div><span style="opacity:.65;">${x[0]}:</span> <b>${escHTML(x[1])}</b></div>`).join('')}<div class="hint" style="margin:6px 0 0;">ये जानकारी पहले से दर्ज है — अपने आप ली गई।</div></div>`:''}
+    ${miss?`<div style="margin-top:6px;"><div class="hint" style="margin:8px 0 0; font-weight:600;">सिर्फ़ ये बाकी जानकारी भरें:</div>${miss}<div class="hint" style="margin:6px 0 0;">भरने के बाद इसे सिर्फ़ टीचर ही बदल सकते हैं।</div></div>`:''}
+    <button type="button" class="btn-primary" style="margin-top:12px;" onclick="regSubmit()">✅ रजिस्ट्रेशन करें</button>
+    <p class="hint" style="margin:6px 0 0;">सबमिट करते ही रजिस्ट्रेशन नंबर अपने आप बन जाएगा।</p></div>`;
+}
+function regSubmit(){
+  const stu = regStu; if(!stu) return;
+  const t = tests.find(x=>x.id===document.getElementById('regExamSel').value);
+  if(!examOn(t) || !t.exam.open){ showToast('❌ रजिस्ट्रेशन बंद है', 'error'); return; }
+  const val = id=>{ const e=document.getElementById(id); return e ? e.value.trim() : null; };
+  const upd = {}, errs = [];
+  if(!stu.father){ const x=val('rf_father'); if(!x) errs.push('पिता का नाम'); else upd.father=x; }
+  if(!stu.class){ const x=val('rf_class'); if(!x) errs.push('कक्षा'); else upd.class=x; }
+  if(!stu.dob){ const x=val('rf_dob'); const m=(x||'').match(/^(\d{1,2})[\/\-. ](\d{1,2})[\/\-. ](\d{4})$/);
+    if(!m) errs.push('जन्मतिथि (dd/mm/yyyy)'); else upd.dob = m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+m[3]; }
+  if(!stu.sex){ const x=val('rf_sex'); if(!x) errs.push('लिंग'); else upd.sex=x; }
+  if(!stu.phone){ const x=(val('rf_phone')||'').replace(/\D/g,''); if(x.length!==10) errs.push('मोबाइल (10 अंक)'); else upd.phone=x; }
+  if(!stu.photo){ if(!regPend.photo) errs.push('फोटो'); else upd.photo = regPend.photo; }
+  if(!stu.signature && regPend.signature) upd.signature = regPend.signature;
+  if(errs.length){ showToast('❌ भरें: '+errs.join(', '), 'error'); return; }
+  const changes = Object.keys(upd).map(k=>({f:k, from:'', to:(k==='photo'||k==='signature')?'':upd[k]}));
+  if(changes.length){
+    logStudentChange(stu, changes, 'self');
+    Object.assign(stu, upd);
+    saveJSON(LS.students, students);
+    if(upd.photo || upd.signature) queueStudentPhotoSync(stu.id);
+  }
+  let reg = registrations.find(r=>r.studentId===stu.id && r.testId===t.id);
+  if(reg){ reg.cancelled = false; reg.u = Date.now(); }
+  else { reg = {id:regNoFor(stu,t), studentId:stu.id, testId:t.id, ts:Date.now(), u:Date.now(), cancelled:false, checks:[]}; registrations.push(reg); }
+  saveJSON(LS.regs, registrations);
+  regRenderDetail();
+  showToast('✅ रजिस्ट्रेशन हो गया: '+reg.id, 'success');
+  speak('रजिस्ट्रेशन सफल हुआ');
+}
+function regShowAdmit(){
+  const stu = regStu, t = tests.find(x=>x.id===document.getElementById('regExamSel').value);
+  const reg = stu && t && regFor(stu.id, t.id);
+  if(!reg){ showToast('❌ रजिस्ट्रेशन नहीं मिला', 'error'); return; }
+  openDocPreview(admitCardWrap(stu, t, reg), 'none');
+}
+
+/* ---------- Admit card checker (Scan tab) ---------- */
+let acScanner = null;
+function startAcScanner(){
+  if(acScanner) return;
+  stopScanScanner();
+  document.getElementById('acReaderWrap').style.display = 'block';
+  acScanner = new Html5QrcodeScanner("acReader", barcodeScanConfig(true), false);
+  acScanner.render(txt=>{ document.getElementById('acInput').value = String(txt).trim().toUpperCase(); stopAcScanner(); checkAdmitCard(txt); });
+}
+function stopAcScanner(){
+  if(acScanner){ try{ acScanner.clear(); }catch(e){} acScanner = null; }
+  const w = document.getElementById('acReaderWrap'); if(w) w.style.display = 'none';
+  const sc = document.getElementById('sec-scan');
+  if(sc && sc.classList.contains('active') && !scanScanner) startScanScanner();
+}
+function checkAdmitCard(raw){
+  const code = String(raw||'').trim().toUpperCase();
+  const out = document.getElementById('acResult');
+  if(!code){ out.innerHTML=''; return; }
+  const bad = (title, why)=>{
+    out.innerHTML = `<div style="padding:16px; border-radius:12px; background:var(--red-bg); border:2px solid var(--red); text-align:center;">
+      <div style="font-size:42px; line-height:1;">❌</div>
+      <div style="font-size:20px; font-weight:800; color:var(--red); margin:6px 0;">Admit Card गलत है</div>
+      <div style="font-weight:700;">${escHTML(title)}</div><div class="hint" style="margin:6px 0 0;">${escHTML(why)}</div>
+      <div class="mono" style="font-size:12px; opacity:.7; margin-top:8px;">${escHTML(code)}</div></div>`;
+    speak('एडमिट कार्ड गलत है');
+  };
+  if(isValidTeacherCode(code)) return bad('यह टीचर कोड है', 'Admit Card का बारकोड स्कैन करें।');
+  const m = code.match(/^(REG-\d{2}-\d+-[A-Z0-9]+)-([A-Z0-9]{2})$/);
+  if(!m) return bad('नंबर का फॉर्मेट सही नहीं', 'यह Admit Card का रजिस्ट्रेशन नंबर नहीं है (शायद ID Card का बारकोड या गलत लिखा गया)।');
+  if(regChk(m[1]) !== m[2]) return bad('नकली / बदला हुआ नंबर', 'नंबर की जाँच-संख्या मेल नहीं खाती — कार्ड में छेड़छाड़ हो सकती है।');
+  const reg = registrations.find(r=>r.id===code);
+  if(!reg) return bad('रिकॉर्ड में नहीं मिला', 'इस नंबर से कोई रजिस्ट्रेशन सेव नहीं है — कार्ड नकली हो सकता है।');
+  if(reg.cancelled) return bad('रजिस्ट्रेशन रद्द है', 'इस छात्र का रजिस्ट्रेशन रद्द किया जा चुका है।');
+  const stu = students.find(x=>x.id===reg.studentId), t = tests.find(x=>x.id===reg.testId);
+  if(!stu || !t) return bad('छात्र या परीक्षा हटाई जा चुकी है', 'रिकॉर्ड अधूरा है।');
+  const prev = (reg.checks||[]);
+  const today = todayISO();
+  const sameDay = prev.filter(c=>{ const d=new Date(c.t); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')===today; });
+  reg.checks = prev.concat([{t:Date.now()}]).slice(-30); reg.u = Date.now();
+  saveJSON(LS.regs, registrations);
+  const subs = (t.exam.subjects||[]);
+  const todaySubs = subs.filter(x=>x.date===today);
+  const lastTxt = sameDay.length ? new Date(sameDay[sameDay.length-1].t).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
+  out.innerHTML = `<div style="padding:16px; border-radius:12px; background:var(--green-bg); border:2px solid var(--green);">
+    <div style="text-align:center;"><div style="font-size:42px; line-height:1;">✅</div><div style="font-size:20px; font-weight:800; color:var(--green); margin:6px 0;">Admit Card सही है</div></div>
+    <div style="display:flex; gap:12px; align-items:center; margin:10px 0;">
+      <div style="width:72px; height:90px; border-radius:8px; overflow:hidden; background:var(--chip-bg); flex-shrink:0; display:flex; align-items:center; justify-content:center;">${stu.photo?`<img src="${stu.photo}" style="width:100%;height:100%;object-fit:cover;">`:'👤'}</div>
+      <div style="font-size:14px; line-height:1.6;"><b style="font-size:16px;">${escHTML(stu.name)} ${escHTML(stu.surname||'')}</b><br>ID: <span class="mono">${escHTML(stu.id)}</span><br>कक्षा ${escHTML(stu.class||'—')} · ${escHTML(batchName(stu.batch))}<br>पिता: ${escHTML(stu.father||'—')}<br>परीक्षा: <b>${escHTML(t.label)}</b></div></div>
+    <div class="mono" style="font-size:13px; margin-bottom:8px;">पंजीकरण सं: <b>${escHTML(reg.id)}</b></div>
+    ${sameDay.length?`<div style="padding:8px 10px; border-radius:8px; background:rgba(214,69,69,.12); color:var(--red); font-weight:600; font-size:13px; margin-bottom:8px;">⚠️ यह कार्ड आज पहले भी स्कैन हो चुका है (${sameDay.length} बार, आखिरी ${lastTxt}) — दोबारा जाँच लें।</div>`:''}
+    <div style="font-size:13px; margin-bottom:6px;">${todaySubs.length?`📅 <b>आज की परीक्षा:</b> ${todaySubs.map(x=>escHTML(x.name)+' ('+x.sit+' पाली)').join(', ')}`:'📅 आज इस परीक्षा के किसी विषय की तिथि नहीं है।'}</div>
+    <table style="width:100%; font-size:12.5px; border-collapse:collapse;">${subs.map((x,i)=>`<tr style="${x.date===today?'background:rgba(44,155,103,.2); font-weight:700;':''}"><td style="padding:3px 4px;" class="mono">${escHTML(subjCode(i,x.name))}</td><td>${escHTML(x.name)}</td><td>${escHTML(fmtDate(x.date))}</td><td>${escHTML(x.sit)}</td></tr>`).join('')}</table></div>`;
+  speak('एडमिट कार्ड सही है');
+}
+
+(function(){
+  const _rtl = renderTestList; renderTestList = function(){ _rtl.apply(this,arguments); renderExamSetupUI(); };
+  const _rat = refreshActiveTab; refreshActiveTab = function(){ _rat.apply(this,arguments); refreshRegCard(); fillAdmitUI(); };
+  const _st = switchTab; switchTab = function(id){
+    _st.apply(this,arguments);
+    if(id!=='sec-result') stopRegScanner();
+    if(id!=='sec-scan') stopAcScanner();
+    if(id==='sec-result') refreshRegCard();
+  };
+})();
+refreshRegCard();
 </script>
 </body>
 </html>
