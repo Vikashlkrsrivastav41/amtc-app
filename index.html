@@ -1530,12 +1530,20 @@
       <div id="docFields-admit" class="doc-fields" style="display:none;">
         <p class="hint" style="margin:0 0 6px;">Admit Card सिर्फ़ उसी छात्र का बनता है जिसने परीक्षा के लिए रजिस्ट्रेशन किया है। नाम, पिता, कक्षा, DOB, फोटो, सिग्नेचर, रजिस्ट्रेशन नं और विषय सब अपने आप आते हैं — कुछ भरना नहीं है।</p>
         <label>परीक्षा चुनें</label>
-        <select id="admitTestSel" onchange="renderAdmitInfo()"></select>
+        <select id="admitTestSel" onchange="renderAdmitInfo(); renderAdmitPickList()"></select>
         <p class="hint" id="admitInfo" style="margin:6px 0 10px;"></p>
         <div style="padding:12px; border:1.5px dashed var(--rule); border-radius:12px;">
-          <label style="margin-top:0;">🖨️ इस परीक्षा के सभी रजिस्टर्ड छात्र (A4 पर 3-3)</label>
-          <button type="button" class="btn-primary" style="margin-top:8px;" onclick="generateAdmitBatch()">🖨️ सभी रजिस्टर्ड के Admit Card बनाएं</button>
-          <p class="hint" style="margin:6px 0 0;">फिर "प्रिंट" → Paper A4, Scale 100%, Margins None। ऊपर "छात्र चुनें" से किसी एक का भी बना सकते हैं।</p>
+          <label style="margin-top:0;">🖨️ कई छात्रों के Admit Card एक साथ (A4 पर 3-3)</label>
+          <p class="hint" style="margin:0 0 8px;">सिर्फ़ जिन्हें चाहिए उन्हें ✔ करें — चुनाव परीक्षा, बैच या सर्च बदलने पर भी बना रहता है। (सिर्फ़ रजिस्टर्ड छात्र दिखेंगे)</p>
+          <input type="text" id="admitPickSearch" placeholder="नाम / ID खोजें" oninput="renderAdmitPickList()">
+          <div style="display:flex; gap:8px; margin:8px 0;">
+            <button type="button" class="btn-outline btn-sm" style="flex:1;" onclick="admitPickAll(true)">✔ दिख रहे सभी चुनें</button>
+            <button type="button" class="btn-outline btn-sm" style="flex:1;" onclick="admitPickAll(false)">✕ सब हटाएं</button>
+          </div>
+          <div id="admitPickList" style="max-height:300px; overflow-y:auto; border:1px solid var(--rule); border-radius:10px; background:var(--paper);"></div>
+          <div id="admitPickCount" style="margin:8px 0 0; font-size:13px; font-weight:600;"></div>
+          <button type="button" class="btn-primary" style="margin-top:8px;" onclick="generateAdmitBatch()">🖨️ चुने हुए छात्रों के Admit Card बनाएं</button>
+          <p class="hint" style="margin:6px 0 0;">फिर "प्रिंट" → Paper A4, Scale 100%, Margins None।</p>
         </div>
       </div>
 
@@ -1694,7 +1702,7 @@ let db = null, cloudReady = false, cloudDocLoaded = false, cloudSyncTimer = null
 try{
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
-  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+  /* offline persistence DELIBERATELY off: the stale cached copy was overwriting fresh changes */
   cloudReady = true;
 }catch(e){ console.error('Firebase init failed', e); }
 
@@ -1712,29 +1720,132 @@ function setCloudStatus(state){
   el.innerHTML = `<span>${m.icon}</span><span>${m.text}</span>`;
 }
 
+/* ==================== MERGE-BASED SYNC ====================
+   Every student / test / batch / teacher / record carries `u` (last-changed time).
+   Deletions are remembered in `tomb` ("col:key" -> time). Two devices (or a stale
+   copy) can therefore never overwrite each other: newest change per item wins and
+   a deleted item stays deleted until someone really re-adds it. */
+const SYNC_COLS = {
+  students:{key:x=>x.id,                  get:()=>students},
+  tests:   {key:x=>x.id,                  get:()=>tests},
+  batches: {key:x=>x.id,                  get:()=>batches},
+  teachers:{key:x=>x.id,                  get:()=>teachers},
+  records: {key:x=>x.studentId+'|'+x.testId, get:()=>records}
+};
+let syncReady = false, tomb = {}, syncSigs = {}, secretU = 0, photoCache = {}, photoCacheLoaded = false;
+try{ tomb = JSON.parse(localStorage.getItem('amtc_tomb')||'{}'); secretU = +localStorage.getItem('amtc_secret_u')||0; }catch(e){}
+function itemSig(col, it){
+  const o = {...it}; delete o.u;
+  if(col==='students'){ delete o.photo; delete o.signature; }
+  return JSON.stringify(o);
+}
+function initSyncSigs(){
+  syncSigs = {};
+  Object.keys(SYNC_COLS).forEach(col=>{ SYNC_COLS[col].get().forEach(it=>{ syncSigs[col+':'+SYNC_COLS[col].key(it)] = itemSig(col,it); }); });
+  syncReady = true;
+}
+/* stamp changed items + record deletions; called automatically from saveJSON */
+function stampAll(){
+  if(!syncReady) return;
+  const now = Date.now(), alive = {};
+  Object.keys(SYNC_COLS).forEach(col=>{
+    SYNC_COLS[col].get().forEach(it=>{
+      const k = col+':'+SYNC_COLS[col].key(it), sg = itemSig(col,it);
+      alive[k] = 1;
+      if(syncSigs[k] !== sg){ it.u = now; syncSigs[k] = sg; delete tomb[k]; }
+    });
+  });
+  Object.keys(syncSigs).forEach(k=>{ if(!alive[k]){ tomb[k] = now; delete syncSigs[k]; } });
+  try{ localStorage.setItem('amtc_tomb', JSON.stringify(tomb)); }catch(e){}
+}
+function computeMerge(remote){
+  remote = remote || {};
+  let dirty = false;
+  const rTomb = remote.tomb || {}, tm = {...rTomb};
+  Object.keys(tomb).forEach(k=>{ if((tomb[k]||0) > (tm[k]||0)){ tm[k] = tomb[k]; } });
+  Object.keys(tm).forEach(k=>{ if((tm[k]||0) > (rTomb[k]||0)) dirty = true; });
+  const out = {};
+  Object.keys(SYNC_COLS).forEach(col=>{
+    const keyOf = SYNC_COLS[col].key, m = new Map();
+    (remote[col]||[]).forEach(it=>m.set(keyOf(it), it));
+    SYNC_COLS[col].get().forEach(it=>{
+      const k = keyOf(it), c = m.get(k);
+      if(!c){ m.set(k, it); dirty = true; }
+      else if((it.u||0) > (c.u||0)){ m.set(k, it); dirty = true; }
+    });
+    out[col] = [...m.entries()].filter(([k,it])=>{
+      const t = tm[col+':'+k];
+      if(t && t >= (it.u||0)){ dirty = true; return false; }
+      return true;
+    }).map(([k,it])=>it);
+  });
+  // registrations (already soft-deleted via `cancelled`, newest `u` wins)
+  const byId = {};
+  (remote.registrations||[]).forEach(r=>{ byId[r.id] = r; });
+  registrations.forEach(r=>{ const c = byId[r.id]; if(!c || (r.u||0) > (c.u||0)){ byId[r.id] = r; dirty = true; } });
+  out.registrations = Object.values(byId);
+  // teacher secret: newest change wins
+  const rSecU = remote.secretU || 0;
+  if(secretU > rSecU || !remote.teacherSecret){ out.teacherSecret = teacherSecret; out.secretU = secretU; if(secretU>rSecU) dirty = true; }
+  else { out.teacherSecret = remote.teacherSecret; out.secretU = rSecU; }
+  out.tomb = tm;
+  return {data:out, dirty};
+}
+function applyMerged(m){
+  const d = m.data;
+  applyingRemoteUpdate = true;
+  const localById = {}; students.forEach(s=>{ localById[s.id] = s; });
+  students = d.students.map(s=>{
+    const l = localById[s.id], pc = photoCache[s.id] || {};
+    return {...s, photo:(l&&l.photo)||pc.photo||'', signature:(l&&l.signature)||pc.signature||''};
+  });
+  tests = d.tests; batches = d.batches; teachers = d.teachers; records = d.records;
+  registrations = d.registrations; teacherSecret = d.teacherSecret; secretU = d.secretU||0; tomb = d.tomb||{};
+  if(!batches.length) batches = JSON.parse(JSON.stringify(SEED_BATCHES));
+  initSyncSigs();
+  localStorage.setItem(LS.students, JSON.stringify(students));
+  localStorage.setItem(LS.tests, JSON.stringify(tests));
+  localStorage.setItem(LS.batches, JSON.stringify(batches));
+  localStorage.setItem(LS.records, JSON.stringify(records));
+  localStorage.setItem(LS.secret, teacherSecret);
+  localStorage.setItem('amtc_secret_u', String(secretU));
+  localStorage.setItem(LS.teachers, JSON.stringify(teachers));
+  localStorage.setItem(LS.regs, JSON.stringify(registrations));
+  try{ localStorage.setItem('amtc_tomb', JSON.stringify(tomb)); }catch(e){}
+  applyingRemoteUpdate = false;
+}
+function statePayload(d){
+  return {
+    students: d.students.map(({photo, signature, ...rest})=>rest),
+    tests:d.tests, batches:d.batches, teachers:d.teachers, records:d.records, registrations:d.registrations,
+    teacherSecret:d.teacherSecret, secretU:d.secretU, tomb:d.tomb,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+}
+
 function queueCloudSync(){
   if(!cloudReady || applyingRemoteUpdate) return;
-  if(!cloudDocLoaded){
-    // Cloud se असली data अभी तक load नहीं हुआ — इस समय push करना cloud के मौजूदा
-    // (ज़्यादा भरोसेमंद) data को खाली/पुराने local data से overwrite कर सकता है।
-    // cloud snapshot आने के बाद अपने-आप retry हो जाएगा (देखें startCloudSync).
-    pendingCloudSync = true;
-    return;
-  }
+  if(!cloudDocLoaded){ pendingCloudSync = true; return; }
   clearTimeout(cloudSyncTimer);
-  cloudSyncTimer = setTimeout(pushStateToCloud, 500);
+  cloudSyncTimer = setTimeout(()=>{ cloudSyncTimer = null; pushStateToCloud(); }, 500);
+}
+/* push = read cloud copy inside a transaction, MERGE with local, write back. Never a blind overwrite. */
+function pushStateCore(){
+  if(!cloudReady) return Promise.resolve();
+  stampAll();
+  const ref = db.collection('amtc').doc('state');
+  let merged = null;
+  return db.runTransaction(async tx=>{
+    const snap = await tx.get(ref);
+    merged = computeMerge(snap.exists ? snap.data() : {});
+    tx.set(ref, statePayload(merged.data));
+  }).then(()=>{
+    applyMerged(merged);
+    refreshActiveTab();
+  });
 }
 function pushStateToCloud(){
-  if(!cloudReady) return;
-  // Photos are synced separately (see below) so this shared document never
-  // approaches Firestore's 1MB-per-document limit as more students join.
-  const studentsLean = students.map(({photo, signature, ...rest})=>rest);
-  db.collection('amtc').doc('state').set({
-    students: studentsLean, tests, batches, records, registrations, teacherSecret, teachers,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, {merge:true}).then(()=>{
-    setCloudStatus('synced');
-  }).catch(err=>{
+  return pushStateCore().then(()=>{ setCloudStatus('synced'); }).catch(err=>{
     console.error('Cloud sync failed', err);
     setCloudStatus('offline');
   });
@@ -1765,13 +1876,15 @@ function startStudentPhotosCloudSync(){
     let changed = false;
     snap.docChanges().forEach(change=>{
       const sid = change.doc.id;
+      if(change.type==='removed'){ delete photoCache[sid]; }
+      else { const d = change.doc.data(); photoCache[sid] = {photo:d.photo||'', signature:d.signature||''}; }
       const s = students.find(x=>x.id===sid);
-      if(!s) return;
-      const newPhoto = change.type==='removed' ? '' : (change.doc.data().photo || '');
-      const newSig = change.type==='removed' ? '' : (change.doc.data().signature || '');
-      if(s.photo !== newPhoto){ s.photo = newPhoto; changed = true; }
-      if((s.signature||'') !== newSig){ s.signature = newSig; changed = true; }
+      if(!s) return;   // student not loaded yet — kept in photoCache and applied when the state arrives
+      const c = photoCache[sid] || {photo:'', signature:''};
+      if((s.photo||'') !== c.photo){ s.photo = c.photo; changed = true; }
+      if((s.signature||'') !== c.signature){ s.signature = c.signature; changed = true; }
     });
+    photoCacheLoaded = true;
     if(changed){
       localStorage.setItem(LS.students, JSON.stringify(students));
       if(document.querySelector('#sec-manage.active')) renderStudentList();
@@ -1794,13 +1907,7 @@ function forceSyncNow(){
   msg.innerText = '⏳ भेजा जा रहा है...';
 
   const jobs = [];
-  jobs.push(
-    db.collection('amtc').doc('state').set({
-      students: students.map(({photo, signature, ...rest})=>rest),
-      tests, batches, records, teacherSecret, teachers,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true})
-  );
+  jobs.push(pushStateCore());
   students.forEach(s=>{
     if(s.photo || s.signature){
       jobs.push(db.collection('amtc_student_photos').doc(s.id).set({photo:s.photo||'', signature:s.signature||''}));
@@ -1849,46 +1956,13 @@ function startCloudSync(){
   if(!cloudReady) return;
   setCloudStatus('connecting');
   db.collection('amtc').doc('state').onSnapshot(snap=>{
-    if(!snap.exists){
-      // first ever run on this project — seed the cloud with current local data
-      pushStateToCloud();
-      cloudDocLoaded = true;
-      return;
-    }
-    const data = snap.data();
-    applyingRemoteUpdate = true;
-    if(data.students){
-      // merge in whatever photos we already know locally — the cloud copy of
-      // `students` never carries photos (kept lean on purpose, see above)
-      const photoMap = {};
-      const sigMap = {};
-      students.forEach(s=>{ if(s.photo) photoMap[s.id] = s.photo; if(s.signature) sigMap[s.id] = s.signature; });
-      students = data.students.map(s=> ({...s, photo: photoMap[s.id] || '', signature: sigMap[s.id] || ''}));
-    }
-    if(data.tests) tests = data.tests;
-    if(data.batches) batches = data.batches;
-    if(data.records) records = data.records;
-    if(data.teacherSecret) teacherSecret = data.teacherSecret;
-    if(data.teachers) teachers = data.teachers;
-    if(data.registrations){
-      const byId = {}; let localNewer = false;
-      data.registrations.forEach(r=>{ byId[r.id] = r; });
-      registrations.forEach(r=>{ const c = byId[r.id]; if(!c || (r.u||0) > (c.u||0)){ byId[r.id] = r; localNewer = true; } });
-      registrations = Object.values(byId);
-      if(localNewer) pendingCloudSync = true;
-    }
-    localStorage.setItem(LS.students, JSON.stringify(students));
-    localStorage.setItem(LS.tests, JSON.stringify(tests));
-    localStorage.setItem(LS.batches, JSON.stringify(batches));
-    localStorage.setItem(LS.records, JSON.stringify(records));
-    localStorage.setItem(LS.secret, teacherSecret);
-    localStorage.setItem(LS.teachers, JSON.stringify(teachers));
-    localStorage.setItem(LS.regs, JSON.stringify(registrations));
-    applyingRemoteUpdate = false;
+    stampAll();
+    const m = computeMerge(snap.exists ? snap.data() : {});
+    applyMerged(m);
     cloudDocLoaded = true;
     setCloudStatus(snap.metadata.fromCache ? 'offline' : 'synced');
     refreshActiveTab();
-    if(pendingCloudSync){ pendingCloudSync = false; queueCloudSync(); }
+    if(m.dirty || pendingCloudSync){ pendingCloudSync = false; queueCloudSync(); }
   }, err=>{
     console.error('Cloud listen failed', err);
     setCloudStatus('offline');
@@ -2042,10 +2116,13 @@ function loadJSON(key, fallback){
 }
 function saveJSON(key, val){
   localStorage.setItem(key, JSON.stringify(val));
+  if(typeof stampAll==='function') stampAll();
+  if(syncReady){ try{ localStorage.setItem(LS.students, JSON.stringify(students)); localStorage.setItem(LS.tests, JSON.stringify(tests)); localStorage.setItem(LS.batches, JSON.stringify(batches)); localStorage.setItem(LS.records, JSON.stringify(records)); localStorage.setItem(LS.teachers, JSON.stringify(teachers)); }catch(e){} }
   if(key===LS.students || key===LS.tests || key===LS.batches || key===LS.records || key===LS.teachers || key===LS.regs) queueCloudSync();
 }
 function setTeacherSecret(val){
   teacherSecret = val;
+  secretU = Date.now(); localStorage.setItem('amtc_secret_u', String(secretU));
   localStorage.setItem(LS.secret, teacherSecret);
   queueCloudSync();
 }
@@ -2073,6 +2150,7 @@ let courses = loadJSON(LS.courses, []);
 let teacherSecret = localStorage.getItem(LS.secret) || "TEACHER-AMTC-2026";
 localStorage.setItem(LS.secret, teacherSecret);
 let teachers = loadJSON(LS.teachers, []);
+initSyncSigs();
 
 let teacherUnlocked = false; // resets every reload on purpose (security)
 
@@ -4675,15 +4753,45 @@ function renderAdmitInfo(){
   if(!examOn(t)){ el.textContent = 'पहले Manage → "परीक्षा रजिस्ट्रेशन सेटअप" में परीक्षा चालू करें।'; return; }
   const n = registrations.filter(r=>r.testId===t.id && !r.cancelled).length;
   el.textContent = `रजिस्टर्ड छात्र: ${n} · विषय: ${(t.exam.subjects||[]).length}`;
+  renderAdmitPickList();
+}
+let admitPicked = [];
+function admitRegList(t){
+  return registrations.filter(r=>r.testId===t.id && !r.cancelled)
+    .map(r=>({reg:r, stu:students.find(x=>x.id===r.studentId)})).filter(x=>x.stu)
+    .sort((a,b)=>String(a.stu.id).localeCompare(String(b.stu.id),undefined,{numeric:true}));
+}
+function admitVisible(){
+  const t = tests.find(x=>x.id===(document.getElementById('admitTestSel')||{}).value);
+  if(!examOn(t)) return [];
+  const q = ((document.getElementById('admitPickSearch')||{}).value||'').trim().toLowerCase();
+  return admitRegList(t).filter(x=>!q || (String(x.stu.name)+' '+String(x.stu.surname||'')+' '+String(x.stu.id)+' '+x.reg.id).toLowerCase().includes(q));
+}
+function renderAdmitPickList(){
+  const box = document.getElementById('admitPickList'); if(!box) return;
+  const vis = admitVisible();
+  box.innerHTML = vis.length ? vis.map(x=>{
+    const st = x.stu, on = admitPicked.includes(st.id), sid = String(st.id).replace(/'/g,"\\'");
+    return `<label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-bottom:1px solid var(--rule); cursor:pointer; margin:0; ${on?'background:rgba(184,146,58,0.16);':''}">
+      <input type="checkbox" ${on?'checked':''} style="width:20px; height:20px; flex-shrink:0; margin:0;" onchange="admitPickToggle('${sid}', this.checked)">
+      <span style="flex:1; min-width:0; font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHTML(st.name)} ${escHTML(st.surname||'')}</span>
+      <span class="mono" style="font-size:12px; opacity:.7;">${escHTML(st.id)}</span></label>`;
+  }).join('') : '<div style="padding:16px; text-align:center; font-size:13px; opacity:.7;">कोई रजिस्टर्ड छात्र नहीं मिला</div>';
+  const c = document.getElementById('admitPickCount');
+  if(c){ const n = admitPicked.length; c.textContent = n ? `✔ चुने हुए: ${n} छात्र` : 'अभी कोई छात्र नहीं चुना'; }
+}
+function admitPickToggle(id,on){ admitPicked = admitPicked.filter(x=>x!==id); if(on) admitPicked.push(id); renderAdmitPickList(); }
+function admitPickAll(on){
+  const vis = admitVisible().map(x=>x.stu.id);
+  if(on) vis.forEach(id=>{ if(!admitPicked.includes(id)) admitPicked.push(id); }); else admitPicked = admitPicked.filter(id=>!vis.includes(id));
+  renderAdmitPickList();
 }
 function generateAdmitBatch(){
   const sel = document.getElementById('admitTestSel');
   const t = tests.find(x=>x.id===(sel&&sel.value));
   if(!examOn(t)){ showToast('❌ पहले परीक्षा चुनें', 'error'); return; }
-  const list = registrations.filter(r=>r.testId===t.id && !r.cancelled)
-    .map(r=>({reg:r, stu:students.find(x=>x.id===r.studentId)})).filter(x=>x.stu)
-    .sort((a,b)=>String(a.stu.id).localeCompare(String(b.stu.id),undefined,{numeric:true}));
-  if(!list.length){ showToast('❌ इस परीक्षा में अभी कोई रजिस्टर्ड छात्र नहीं है', 'error'); return; }
+  const list = admitRegList(t).filter(x=>admitPicked.includes(x.stu.id));
+  if(!list.length){ showToast('❌ पहले कम से कम एक रजिस्टर्ड छात्र चुनें', 'error'); return; }
   const per = (t.exam.subjects||[]).length > 3 ? 2 : 3;
   let pages = '';
   for(let i=0;i<list.length;i+=per){
